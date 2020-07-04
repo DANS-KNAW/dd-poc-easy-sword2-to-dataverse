@@ -43,14 +43,12 @@ class DepositSaxParser extends DefaultHandler {
   //Deque for storing fields in compound field
   var compoundFieldArray = new ListBuffer[Field]
 
-
-  def parseDocument (xml: FileInputStream) : String = {
+  def parseDocument(xml: FileInputStream): String = {
     val factory = SAXParserFactory.newInstance()
     val parser = factory.newSAXParser()
     parser.parse(xml, this)
     Serialization.writePretty(MetadataBlock("citation", fields.toList))
   }
-
 
   @throws[SAXException]
   override def characters(ch: Array[Char], start: Int, length: Int): Unit = {
@@ -59,20 +57,10 @@ class DepositSaxParser extends DefaultHandler {
 
   override def startElement(uri: String, localName: String, qName: String, attributes: Attributes): Unit = {
 
-    //set compound flags
-    //add nested primitive files to Deqeue
+    //set flags for nested (compound) fields
 
-    if (qName.contains("author")) {
+    if (qName.contains("dcx-dai:author")) {
       isAuthor = true
-    }
-    if (isAuthor && qName.contains("initials")) {
-      val initials = PrimitiveField(localName, multiple = false, "primitive", qName)
-      compoundFieldArray += (initials)
-    }
-
-    if (isAuthor && qName.contains("surname")) {
-      val surname = PrimitiveField(localName, multiple = false, "primitive", qName)
-      compoundFieldArray += (surname)
     }
   }
 
@@ -80,18 +68,27 @@ class DepositSaxParser extends DefaultHandler {
 
     //add non nested primitive fields and compound fields
 
-    if (qName.contains("title")) {
-      metadataBlockFields.add(PrimitiveField("title", multiple = false, "primitive", qName))
+    if (qName.contains("dc:title")) {
+      metadataBlockFields.add(PrimitiveField(qName, multiple = false, "primitive", elementValue))
     }
 
-    if (qName.contains("author")) {
+    if (qName.contains("dcx-dai:author")) {
       isAuthor = false
-      metadataBlockFields.add(CompoundField("author", multiple = true, "compound", compoundFieldArray.toList))
+      metadataBlockFields.add(CompoundField(qName, multiple = true, "compound", compoundFieldArray.toList))
+    }
+    if (isAuthor && qName.contains("dcx-dai:initials")) {
+      val initials = PrimitiveField(qName, multiple = false, "primitive", elementValue)
+      compoundFieldArray += (initials)
+    }
+
+    if (isAuthor && qName.contains("dcx-dai:surname")) {
+      val surname = PrimitiveField(qName, multiple = false, "primitive", elementValue)
+      compoundFieldArray += (surname)
     }
   }
 
   override def endDocument(): Unit = {
-    //deqeue is to maintain insertion order
+    //deqeue is used to maintain insertion order of metadata block fields
     while (!metadataBlockFields.isEmpty) {
       val field = metadataBlockFields.poll()
       fields.+=(field)
