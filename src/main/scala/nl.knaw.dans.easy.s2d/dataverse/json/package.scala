@@ -15,24 +15,25 @@
  */
 package nl.knaw.dans.easy.s2d.dataverse
 
+import org.json4s.{ DefaultFormats, Formats }
+
 package object json {
   type MetadataBlockName = String
 
-  case class DataverseDataset(datasetVersion: DatasetVersion)
+  abstract class Field
+  implicit val jsonFormats: Formats = DefaultFormats
+  case class MetadataBlock(displayName: String, fields: List[Field])
 
   case class DatasetVersion(metadataBlocks: Map[MetadataBlockName, MetadataBlock])
+  case class DataverseDataset(datasetVersion: DatasetVersion)
 
-  case class MetadataBlock(fields: List[Field],
-                           displayName: String)
-
-  abstract class Field
-  case class PrimitiveField(typeClass: String = "primitive", // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
-                            value: String,
+  case class PrimitiveField(typeName: String,
                             multiple: Boolean,
-                            typeName: String) extends Field
-  case class CompoundField(typeClass: String = "compound", // TODO: idem
-                           value: List[PrimitiveField],
+                            typeClass: String = "primitive", // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
+                            value: String
+                           ) extends Field
+  case class CompoundField(typeName: String,
                            multiple: Boolean,
-                           typeName: String) extends Field
-
+                           typeClass: String = "compound", // TODO: idem
+                           value: List[Field]) extends Field
 }
