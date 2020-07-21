@@ -27,13 +27,24 @@ package object json {
   case class DatasetVersion(metadataBlocks: Map[MetadataBlockName, MetadataBlock])
   case class DataverseDataset(datasetVersion: DatasetVersion)
 
-  case class PrimitiveField(typeName: String,
-                            multiple: Boolean,
-                            typeClass: String = "primitive", // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
-                            value: String
-                           ) extends Field
+  case class PrimitiveFieldSingleValue(typeName: String,
+                                       multiple: Boolean,
+                                       typeClass: String, // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
+                                       value: String
+                                      //create enum
+                                      ) extends Field
+
+  case class PrimitiveFieldMultipleValues(typeName: String,
+                                          multiple: Boolean,
+                                          //create enum
+                                          typeClass: String,
+                                          value: List[String]
+                                         ) extends Field
+
+
   case class CompoundField(typeName: String,
                            multiple: Boolean,
                            typeClass: String = "compound", // TODO: idem
-                           value: List[Field]) extends Field
+                           value: List[scala.collection.mutable.Map[String, Field]]) extends Field
+
 }
