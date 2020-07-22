@@ -36,30 +36,64 @@ import scala.xml.{ Elem, Node, XML }
 case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
+  implicit val format = DefaultFormats
+
   override def run(): Try[Unit] = {
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
-    implicit val format = DefaultFormats
-    var metadataBlockFields = new ListBuffer[Field]
 
-
-    def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]]): Unit = {
-      if (!multi)
-        metadataBlockFields += PrimitiveFieldSingleValue(fieldName, multiple = multi, typeClass, value.getOrElse(""))
-      else
-        metadataBlockFields += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
-    }
+    var citationfields = new ListBuffer[Field]
+    var access_and_LicenceFields = new ListBuffer[Field]
+    var depositAgreementFields = new ListBuffer[Field]
 
     //EASY XML
-    val ddm = XML.loadFile("/Users/chrismuller/Development/Git/Github/DANS-KNAW/dd-easy-sword2-to-dataverse/data/inbox/valid-easy-submitted/example-bag-medium/metadata/dataset.xml")
+    val xml = XML.loadFile("/Users/chrismuller/Development/Git/Github/DANS-KNAW/dd-easy-sword2-to-dataverse/data/inbox/valid-easy-submitted/example-bag-medium/metadata/dataset1.xml")
     //val ddm = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
-    val profile = ddm \ "profile"
-    val dcmiMetadata = ddm \ "dcmiMetadata"
+    val profile = xml \ "profile"
+    val dcmiMetadata = xml \ "dcmiMetadata"
     //join profile and dcmi parts for iteration
-    val joined = profile ++ dcmiMetadata
+    val ddm = profile ++ dcmiMetadata
 
+    mapFields(ddm.head)
+    mapPrimitiveFieldsMultiple(ddm.head)
+
+    def mapFields(node: Node): Unit = {
+      val title = (node \\ "title").head.text
+      addPrimitiveFieldToMetadataBlock("title", false, "primitive", Some(title), None, "citation")
+      mapPrimitiveFieldsMultiple(node)
+      node.child.foreach {
+        case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None, "citation")
+        case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
+        case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
+        case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
+        //TEST MET DUMMY WAARDE VOOR DEPOSIT AGREEMENT
+        case e @ Elem("ddm", "available", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
+        case _ => ()
+      }
+    }
+
+    def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
+      if (!multi)
+        getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldSingleValue(fieldName, multiple = multi, typeClass, value.getOrElse(""))
+      else
+        getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
+    }
+
+    def mapPrimitiveFieldsMultiple(node: Node): Unit = {
+      val audience = (node \\ "audience").map(_.text).toList
+      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+    }
+
+    def getMetadatablockFieldList(name: String): ListBuffer[Field] = {
+      name match {
+        case "citation" => citationfields
+        case "access_and_licence" => access_and_LicenceFields
+        case "depositAgreement" => depositAgreementFields
+        case _ => new ListBuffer[Field]
+      }
+    }
 
     def getAuthorName(node: Node): String = {
       val author = node \ "author"
@@ -75,6 +109,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     def addCreator(cf: Node): Unit = {
       val author = cf \ "author"
+      println("AUTHOR: " + author.head)
       var subFields = collection.mutable.Map[String, Field]()
       subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(cf)))
 
@@ -94,41 +129,20 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         }
         case _ => ()
       }
-      metadataBlockFields += CompoundField("author", multiple = true, "compound", List(subFields))
+      citationfields += CompoundField("author", multiple = true, "compound", List(subFields))
     }
 
     def addContributor(cf: Node): Unit = {
       ???
     }
 
-    def mapPrimitiveFieldsMultiple(node: Node): Unit = {
-      val audience = (node \\ "audience").map(_.text).toList
-      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience))
-    }
-
-    def mapFields(node: Node): Unit = {
-      val title = (node \\ "title").head.text
-      addPrimitiveFieldToMetadataBlock("title", false, "primitive", Some(title), None)
-      mapPrimitiveFieldsMultiple(node)
-      node.child.foreach {
-        case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None)
-        case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
-        case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None)
-        case _ => ()
-      }
-    }
-
-
-    mapFields(joined.head)
-    mapPrimitiveFieldsMultiple(joined.head)
-
-
-    val metadataBlock = MetadataBlock("Citation Metadata", metadataBlockFields.toList)
-    val datasetVersion = DatasetVersion(Map("citation" -> metadataBlock))
+    val citationBlock = MetadataBlock("Citation Metadata", citationfields.toList)
+    val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
+    val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
+    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
     val dataverseDataset = DataverseDataset(datasetVersion)
 
     println(Serialization.writePretty(dataverseDataset))
-
 
     dataverse.dataverse("root").createDataset(Serialization.writePretty(dataverseDataset)).map(_ => ())
   }
