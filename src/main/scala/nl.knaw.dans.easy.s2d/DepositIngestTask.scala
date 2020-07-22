@@ -19,8 +19,8 @@ import nl.knaw.dans.easy.s2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.s2d.dataverse.json.{ CompoundField, Field, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, _ }
 import nl.knaw.dans.easy.s2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.{ DefaultFormats, Formats }
 import org.json4s.native.Serialization
+import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
@@ -63,7 +63,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       val title = (node \\ "title").head.text
       addPrimitiveFieldToMetadataBlock("title", false, "primitive", Some(title), None, "citation")
       mapPrimitiveFieldsMultiple(node)
-      node.child.foreach {
+      node.nonEmptyChildren.foreach {
         case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None, "citation")
         case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
         case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
@@ -74,16 +74,16 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       }
     }
 
+    def mapPrimitiveFieldsMultiple(node: Node): Unit = {
+      val audience = (node \\ "audience").map(_.text).toList
+      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+    }
+
     def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
       if (!multi)
         getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldSingleValue(fieldName, multiple = multi, typeClass, value.getOrElse(""))
       else
         getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
-    }
-
-    def mapPrimitiveFieldsMultiple(node: Node): Unit = {
-      val audience = (node \\ "audience").map(_.text).toList
-      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
     }
 
     def getMetadatablockFieldList(name: String): ListBuffer[Field] = {
