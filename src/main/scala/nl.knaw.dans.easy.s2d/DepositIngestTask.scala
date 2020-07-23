@@ -44,27 +44,35 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
 
-    var citationfields = new ListBuffer[Field]
+    var citationFields = new ListBuffer[Field]
     var access_and_LicenceFields = new ListBuffer[Field]
     var depositAgreementFields = new ListBuffer[Field]
 
     //EASY XML
-
     val xml = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
     val profile = xml \ "profile"
     val dcmiMetadata = xml \ "dcmiMetadata"
     //join profile and dcmi parts for iteration
     val ddm = profile ++ dcmiMetadata
+    println(ddm.head)
 
     mapFields(ddm.head)
 
     def mapFields(node: Node): Unit = {
+
+      //Welke title nemen we? In Dataverse kan het er maar éen zijn
       val title = (node \\ "title").head.text
       addPrimitiveFieldToMetadataBlock("title", false, "primitive", Some(title), None, "citation")
-      mapPrimitiveFieldsMultiple(node)
+
+      mapToPrimitiveFieldsSingleValue(node)
+      mapToPrimitiveFieldsMultipleValues(node)
+      mapToCompoundFields(node)
+    }
+
+    def mapToPrimitiveFieldsSingleValue(node: Node): Unit = {
       node.nonEmptyChildren.foreach {
         case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None, "citation")
-        case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
+        //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
         case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
         case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
         //TEST MET DUMMY WAARDE VOOR DEPOSIT AGREEMENT
@@ -73,10 +81,13 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       }
     }
 
-    def mapPrimitiveFieldsMultiple(node: Node): Unit = {
+    def mapToPrimitiveFieldsMultipleValues(node: Node): Unit = {
       val audience = (node \\ "audience").map(_.text).toList
       addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+    }
 
+    def mapToCompoundFields(node: Node): Unit = {
+      addCreator(node)
       addContributors(node)
     }
 
@@ -87,19 +98,22 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
     }
 
+    def addCompoundFieldToMetadataBlock(metadataBlockName: String, compoundField: CompoundField) = {
+      getMetadatablockFieldList(metadataBlockName) += compoundField
+    }
+
     def getMetadatablockFieldList(name: String): ListBuffer[Field] = {
       name match {
-        case "citation" => citationfields
+        case "citation" => citationFields
         case "access_and_licence" => access_and_LicenceFields
         case "depositAgreement" => depositAgreementFields
         case _ => new ListBuffer[Field]
       }
     }
 
-    def getAuthorName(node: Node): String = {
-      val author = node \ "author"
+    def getAuthorName(author: Node): String = {
       var authorName = new ListBuffer[String]
-      author.head.nonEmptyChildren.foreach {
+      author.nonEmptyChildren.foreach {
         case e @ Elem(str, "titles", data, binding, node) => authorName += e.text
         case e @ Elem(str, "initials", data, binding, node) => authorName += e.text
         case e @ Elem(str, "surname", data, binding, node) => authorName += e.text
@@ -109,9 +123,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
 
     def addCreator(cf: Node): Unit = {
-      val author = cf \ "author"
+      val author = cf \\ "author"
       var subFields = collection.mutable.Map[String, Field]()
-      subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", "NAAM"))
+      subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(author.head)))
 
       author.head.child.foreach {
         case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
@@ -129,11 +143,11 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         }
         case _ => ()
       }
-      citationfields += CompoundField("author", multiple = true, "compound", List(subFields))
+      addCompoundFieldToMetadataBlock("citation", CompoundField("author", multiple = true, "compound", List(subFields)))
     }
 
     def addContributors(node: Node): Unit = {
-      (node \\ "contributorDetails").map(contributorNode  => {
+      (node \\ "contributorDetails").map(contributorNode => {
         var subFields = collection.mutable.Map[String, Field]()
         val hasOrganization = (contributorNode \\ "name").exists(_.text.nonEmpty)
         val hasRole = (contributorNode \\ "role").exists(_.text.nonEmpty)
@@ -149,11 +163,11 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         if (hasRole) {
           subFields += ("contributorType" -> PrimitiveFieldSingleValue("contributorType", multiple = false, "controlledVocabulary", (node \\ "role").head.text))
         }
-        citationfields += CompoundField("contributor", multiple = true, "compound", List(subFields))
+        addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", List(subFields)))
       })
     }
 
-    val citationBlock = MetadataBlock("Citation Metadata", citationfields.toList)
+    val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
     val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
     val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
     val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
