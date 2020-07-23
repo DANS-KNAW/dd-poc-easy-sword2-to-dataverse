@@ -23,8 +23,8 @@ import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable.ListBuffer
-import scala.util.Try
-import scala.xml.{ Elem, Node, XML }
+import scala.util.{ Failure, Try }
+import scala.xml.{ Elem, Node }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -49,15 +49,14 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     var depositAgreementFields = new ListBuffer[Field]
 
     //EASY XML
-    val xml = XML.loadFile("/Users/chrismuller/Development/Git/Github/DANS-KNAW/dd-easy-sword2-to-dataverse/data/inbox/valid-easy-submitted/example-bag-medium/metadata/dataset1.xml")
-    //val ddm = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
+
+    val xml = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
     val profile = xml \ "profile"
     val dcmiMetadata = xml \ "dcmiMetadata"
     //join profile and dcmi parts for iteration
     val ddm = profile ++ dcmiMetadata
 
     mapFields(ddm.head)
-    mapPrimitiveFieldsMultiple(ddm.head)
 
     def mapFields(node: Node): Unit = {
       val title = (node \\ "title").head.text
@@ -77,6 +76,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     def mapPrimitiveFieldsMultiple(node: Node): Unit = {
       val audience = (node \\ "audience").map(_.text).toList
       addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+
+      addContributors(node)
     }
 
     def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
@@ -98,7 +99,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     def getAuthorName(node: Node): String = {
       val author = node \ "author"
       var authorName = new ListBuffer[String]
-      author.head.child.foreach {
+      author.head.nonEmptyChildren.foreach {
         case e @ Elem(str, "titles", data, binding, node) => authorName += e.text
         case e @ Elem(str, "initials", data, binding, node) => authorName += e.text
         case e @ Elem(str, "surname", data, binding, node) => authorName += e.text
@@ -109,9 +110,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     def addCreator(cf: Node): Unit = {
       val author = cf \ "author"
-      println("AUTHOR: " + author.head)
       var subFields = collection.mutable.Map[String, Field]()
-      subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(cf)))
+      subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", "NAAM"))
 
       author.head.child.foreach {
         case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
@@ -132,8 +132,25 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       citationfields += CompoundField("author", multiple = true, "compound", List(subFields))
     }
 
-    def addContributor(cf: Node): Unit = {
-      ???
+    def addContributors(node: Node): Unit = {
+      (node \\ "contributorDetails").map(contributorNode  => {
+        var subFields = collection.mutable.Map[String, Field]()
+        val hasOrganization = (contributorNode \\ "name").exists(_.text.nonEmpty)
+        val hasRole = (contributorNode \\ "role").exists(_.text.nonEmpty)
+
+        //is surname verplicht?
+        val hasContributor = (contributorNode \\ "surname").exists(_.text.nonEmpty)
+        if (hasContributor) {
+          subFields += ("contributorName" -> PrimitiveFieldSingleValue("contributorName", multiple = false, "primitive", "NAAM"))
+        }
+        if (hasOrganization && !hasContributor) {
+          subFields += ("contributorName" -> PrimitiveFieldSingleValue("contributorName", multiple = false, "primitive", (node \\ "name").head.text))
+        }
+        if (hasRole) {
+          subFields += ("contributorType" -> PrimitiveFieldSingleValue("contributorType", multiple = false, "controlledVocabulary", (node \\ "role").head.text))
+        }
+        citationfields += CompoundField("contributor", multiple = true, "compound", List(subFields))
+      })
     }
 
     val citationBlock = MetadataBlock("Citation Metadata", citationfields.toList)
