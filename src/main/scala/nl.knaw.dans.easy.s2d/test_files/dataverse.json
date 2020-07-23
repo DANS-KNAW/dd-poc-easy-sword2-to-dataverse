@@ -1,0 +1,710 @@
+{
+  "status": "OK",
+  "data": {
+    "id": 46,
+    "identifier": "FK2/SGDT9W",
+    "persistentUrl": "https://doi.org/10.5072/FK2/SGDT9W",
+    "protocol": "doi",
+    "authority": "10.5072",
+    "publisher": "Root",
+    "storageIdentifier": "file://10.5072/FK2/SGDT9W",
+    "latestVersion": {
+      "id": 12,
+      "datasetId": 46,
+      "datasetPersistentId": "doi:10.5072/FK2/SGDT9W",
+      "storageIdentifier": "file://10.5072/FK2/SGDT9W",
+      "versionState": "DRAFT",
+      "distributionDate": "2020-04-04",
+      "productionDate": "2020-07-07",
+      "lastUpdateTime": "2020-07-16T08:00:56Z",
+      "createTime": "2020-07-16T07:38:20Z",
+      "license": "CC0",
+      "termsOfUse": "CC0 Waiver",
+      "fileAccessRequest": false,
+      "metadataBlocks": {
+        "citation": {
+          "displayName": "Citation Metadata",
+          "fields": [
+            {
+              "typeName": "title",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "forJson"
+            },
+            {
+              "typeName": "author",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "authorName": {
+                    "typeName": "authorName",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Admin, Dataverse"
+                  },
+                  "authorAffiliation": {
+                    "typeName": "authorAffiliation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Dataverse.org"
+                  },
+                  "authorIdentifierScheme": {
+                    "typeName": "authorIdentifierScheme",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "ISNI"
+                  },
+                  "authorIdentifier": {
+                    "typeName": "authorIdentifier",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "123456"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "datasetContact",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "datasetContactName": {
+                    "typeName": "datasetContactName",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Admin, Dataverse"
+                  },
+                  "datasetContactAffiliation": {
+                    "typeName": "datasetContactAffiliation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Dataverse.org"
+                  },
+                  "datasetContactEmail": {
+                    "typeName": "datasetContactEmail",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "dvAdmin@mailinator.com"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "dsDescription",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "dsDescriptionValue": {
+                    "typeName": "dsDescriptionValue",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "this is for Json"
+                  },
+                  "dsDescriptionDate": {
+                    "typeName": "dsDescriptionDate",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "2020-08-01"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "keyword",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "keywordValue": {
+                    "typeName": "keywordValue",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "test"
+                  },
+                  "keywordVocabulary": {
+                    "typeName": "keywordVocabulary",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "LCSH"
+                  },
+                  "keywordVocabularyURI": {
+                    "typeName": "keywordVocabularyURI",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "http://123412345123.nl"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "publication",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "publicationCitation": {
+                    "typeName": "publicationCitation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "rel pub"
+                  },
+                  "publicationIDType": {
+                    "typeName": "publicationIDType",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "bibcode"
+                  },
+                  "publicationIDNumber": {
+                    "typeName": "publicationIDNumber",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "111222333"
+                  },
+                  "publicationURL": {
+                    "typeName": "publicationURL",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "http://11223344.nl"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "notesText",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "This is a note"
+            },
+            {
+              "typeName": "language",
+              "multiple": true,
+              "typeClass": "controlledVocabulary",
+              "value": [
+                "Akan",
+                "Albanian"
+              ]
+            },
+            {
+              "typeName": "producer",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "producerName": {
+                    "typeName": "producerName",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Muller"
+                  },
+                  "producerAffiliation": {
+                    "typeName": "producerAffiliation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS"
+                  },
+                  "producerAbbreviation": {
+                    "typeName": "producerAbbreviation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Mul"
+                  },
+                  "producerURL": {
+                    "typeName": "producerURL",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "http://dans.knaw.nl"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "productionDate",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "2020-07-07"
+            },
+            {
+              "typeName": "productionPlace",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "Den haag"
+            },
+            {
+              "typeName": "contributor",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "contributorType": {
+                    "typeName": "contributorType",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "Data Curator"
+                  },
+                  "contributorName": {
+                    "typeName": "contributorName",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Muller"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "grantNumber",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "grantNumberAgency": {
+                    "typeName": "grantNumberAgency",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "KNAW"
+                  },
+                  "grantNumberValue": {
+                    "typeName": "grantNumberValue",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "123"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "distributor",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "distributorName": {
+                    "typeName": "distributorName",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS"
+                  },
+                  "distributorAffiliation": {
+                    "typeName": "distributorAffiliation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS"
+                  },
+                  "distributorAbbreviation": {
+                    "typeName": "distributorAbbreviation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "D."
+                  },
+                  "distributorURL": {
+                    "typeName": "distributorURL",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "http://dans.knaw.nl"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "distributionDate",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "2020-04-04"
+            },
+            {
+              "typeName": "depositor",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "Admin, Dataverse"
+            },
+            {
+              "typeName": "dateOfDeposit",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "2020-07-16"
+            },
+            {
+              "typeName": "relatedMaterial",
+              "multiple": true,
+              "typeClass": "primitive",
+              "value": [
+                "related material",
+                "related material 1"
+              ]
+            },
+            {
+              "typeName": "relatedDatasets",
+              "multiple": true,
+              "typeClass": "primitive",
+              "value": [
+                "rel dataset",
+                "rel dataset 1"
+              ]
+            },
+            {
+              "typeName": "otherReferences",
+              "multiple": true,
+              "typeClass": "primitive",
+              "value": [
+                "Other"
+              ]
+            },
+            {
+              "typeName": "originOfSources",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "DANS"
+            }
+          ]
+        },
+        "personalData": {
+          "displayName": "Personal Data",
+          "fields": [
+            {
+              "typeName": "personalData",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "YES, this dataset does contain personal data (DANS will contact you)"
+            }
+          ]
+        },
+        "basicInformation": {
+          "displayName": "Basic Information",
+          "fields": [
+            {
+              "typeName": "languageofmetadata",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "Dutch"
+            },
+            {
+              "typeName": "easy-pno",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "easy-pno-role": {
+                    "typeName": "easy-pno-role",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "Creator"
+                  },
+                  "easy-pno-organisation": {
+                    "typeName": "easy-pno-organisation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS"
+                  },
+                  "easy-pno-titles": {
+                    "typeName": "easy-pno-titles",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Msc"
+                  },
+                  "easy-pno-initials": {
+                    "typeName": "easy-pno-initials",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "C.H."
+                  },
+                  "easy-pno-prefix": {
+                    "typeName": "easy-pno-prefix",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Van"
+                  },
+                  "easy-pno-surname": {
+                    "typeName": "easy-pno-surname",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Muller"
+                  },
+                  "easy-pno-id-orcid": {
+                    "typeName": "easy-pno-id-orcid",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "123456"
+                  },
+                  "easy-pno-id-isni": {
+                    "typeName": "easy-pno-id-isni",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "11223344"
+                  },
+                  "easy-pno-id-dai": {
+                    "typeName": "easy-pno-id-dai",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "19283746"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "easy-relid",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "easy-relid-relation": {
+                    "typeName": "easy-relid-relation",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "has part"
+                  },
+                  "easy-relid-type": {
+                    "typeName": "easy-relid-type",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "ISBN"
+                  },
+                  "easy-relid-relatedid": {
+                    "typeName": "easy-relid-relatedid",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "1111111111"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "easy-relid-url",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "easy-relid-relation-url": {
+                    "typeName": "easy-relid-relation-url",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "references"
+                  },
+                  "easy-relid-url-title": {
+                    "typeName": "easy-relid-url-title",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS dataset"
+                  },
+                  "easy-relid-url-url": {
+                    "typeName": "easy-relid-url-url",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "http://19283746.nl"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "languageFiles",
+              "multiple": true,
+              "typeClass": "primitive",
+              "value": [
+                "Dutsch"
+              ]
+            },
+            {
+              "typeName": "easy-date",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "easy-date-event": {
+                    "typeName": "easy-date-event",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "Valid"
+                  },
+                  "esy-date-val": {
+                    "typeName": "esy-date-val",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "2020-02-04"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "easy-date-free",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "easy-date-event-free": {
+                    "typeName": "easy-date-event-free",
+                    "multiple": false,
+                    "typeClass": "controlledVocabulary",
+                    "value": "Modified"
+                  },
+                  "easy-date-val-free": {
+                    "typeName": "easy-date-val-free",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "2020-01-01"
+                  }
+                }
+              ]
+            },
+            {
+              "typeName": "rightsholder",
+              "multiple": true,
+              "typeClass": "compound",
+              "value": [
+                {
+                  "rightsholder-organisation": {
+                    "typeName": "rightsholder-organisation",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "DANS"
+                  },
+                  "rightsholder-titles": {
+                    "typeName": "rightsholder-titles",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "MSc."
+                  },
+                  "rightsholder-initials": {
+                    "typeName": "rightsholder-initials",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "C.H."
+                  },
+                  "rightsholder-prefix": {
+                    "typeName": "rightsholder-prefix",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Van"
+                  },
+                  "rightsholder-surname": {
+                    "typeName": "rightsholder-surname",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "Muller"
+                  },
+                  "rightsholder-id-orcid": {
+                    "typeName": "rightsholder-id-orcid",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "1234567"
+                  },
+                  "rightsholder-id-isni": {
+                    "typeName": "rightsholder-id-isni",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "1122334455"
+                  },
+                  "rightsholder-id-dai": {
+                    "typeName": "rightsholder-id-dai",
+                    "multiple": false,
+                    "typeClass": "primitive",
+                    "value": "19283746"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "access-and-license": {
+          "displayName": "Access and License",
+          "fields": [
+            {
+              "typeName": "accessrights",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "Open Access"
+            },
+            {
+              "typeName": "license",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "CC0-1.0"
+            },
+            {
+              "typeName": "dateavailable",
+              "multiple": false,
+              "typeClass": "primitive",
+              "value": "2020-01-11"
+            }
+          ]
+        },
+        "geospatial": {
+          "displayName": "Geospatial Metadata",
+          "fields": []
+        },
+        "contenttypeandfileformat": {
+          "displayName": "Content Type and File Format",
+          "fields": [
+            {
+              "typeName": "contenttype ",
+              "multiple": true,
+              "typeClass": "controlledVocabulary",
+              "value": [
+                "Datset"
+              ]
+            },
+            {
+              "typeName": "format",
+              "multiple": true,
+              "typeClass": "controlledVocabulary",
+              "value": [
+                "text/plain"
+              ]
+            },
+            {
+              "typeName": "clarin",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "This dataset contains CLARIN metadata, i.e., CMDI file(s)"
+            }
+          ]
+        },
+        "archaeologyMetadata": {
+          "displayName": "Archaeology-Specific Metadata",
+          "fields": [
+            {
+              "typeName": "archisZaakId",
+              "multiple": true,
+              "typeClass": "primitive",
+              "value": [
+                "ARCHIS"
+              ]
+            },
+            {
+              "typeName": "subject",
+              "multiple": true,
+              "typeClass": "controlledVocabulary",
+              "value": [
+                "Depot",
+                "Begraving, onbepaald",
+                "Infrastructuur, onbepaald"
+              ]
+            },
+            {
+              "typeName": "period",
+              "multiple": true,
+              "typeClass": "controlledVocabulary",
+              "value": [
+                "Mesolithicum: 8800 - 4900 vC ",
+                "Neolithicum laat A: 2850 - 2450 vC ",
+                "Bronstijd: 2000 - 800 vC "
+              ]
+            }
+          ]
+        },
+        "depositAgreement": {
+          "displayName": "Deposit Agreement",
+          "fields": [
+            {
+              "typeName": "accept",
+              "multiple": false,
+              "typeClass": "controlledVocabulary",
+              "value": "Yes"
+            }
+          ]
+        }
+      },
+      "files": []
+    }
+  }
+}
