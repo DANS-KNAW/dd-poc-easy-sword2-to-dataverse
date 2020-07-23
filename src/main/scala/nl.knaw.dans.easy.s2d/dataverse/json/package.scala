@@ -17,8 +17,6 @@ package nl.knaw.dans.easy.s2d.dataverse
 
 import org.json4s.{ DefaultFormats, Formats }
 
-import scala.collection.mutable
-
 package object json {
   type MetadataBlockName = String
 
@@ -47,6 +45,6 @@ package object json {
   case class CompoundField(typeName: String,
                            multiple: Boolean,
                            typeClass: String = "compound", // TODO: idem
-                           value: List[mutable.Map[String, Field]]) extends Field
+                           value: List[Map[String, Field]]) extends Field
 
 }
