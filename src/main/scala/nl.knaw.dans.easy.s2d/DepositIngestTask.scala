@@ -92,6 +92,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     def mapToCompoundFields(node: Node): Unit = {
       addCreator(node)
       addContributors(node)
+      addAlternativeIdentifier(node)
     }
 
     def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
@@ -172,17 +173,32 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       })
       addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", objectList.toList))
     }
+  //How to get idType? From namespace?
+    def addAlternativeIdentifier(node: Node): Unit = {
+      val objectList = new ListBuffer[Map[String, Field]]()
+      (node \\ "identifier").foreach(contributorNode => {
+        val idValue = contributorNode.head.text
+        if (idValue.nonEmpty) {
+          var subFields = collection.mutable.Map[String, Field]()
+          subFields += ("otherIdAgency" -> PrimitiveFieldSingleValue("otherIdAgency", multiple = false, "primitive", "DAI"))
+          subFields += ("otherIdValue" -> PrimitiveFieldSingleValue("otherIdValue", multiple = false, "primitive", idValue))
+          objectList += subFields.toMap
+        }
+      })
+      addCompoundFieldToMetadataBlock("citation", CompoundField("otherId", multiple = true, "compound", objectList.toList))
+    }
 
-    val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
-    val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
-    val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
-    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
-    val dataverseDataset = DataverseDataset(datasetVersion)
 
-    println(Serialization.writePretty(dataverseDataset))
+  val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
+  val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
+  val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
+  val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
+  val dataverseDataset = DataverseDataset(datasetVersion)
 
-    dataverse.dataverse("root").createDataset(Serialization.writePretty(dataverseDataset)).map(_ => ())
-  }
+  println(Serialization.writePretty(dataverseDataset))
+
+  dataverse.dataverse("root").createDataset(Serialization.writePretty(dataverseDataset)).map(_ => ())
+}
 }
 
 
