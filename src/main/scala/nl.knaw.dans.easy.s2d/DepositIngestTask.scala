@@ -115,6 +115,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
 
     def getAuthorName(author: Node): String = {
+      println("AUTHORNODE" + author)
       var authorName = new ListBuffer[String]
       author.nonEmptyChildren.foreach {
         case e @ Elem(str, "titles", data, binding, node) => authorName += e.text
@@ -159,7 +160,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         //is surname verplicht?
         val hasContributor = (contributorNode \\ "surname").exists(_.text.nonEmpty)
         if (hasContributor) {
-          subFields += ("contributorName" -> PrimitiveFieldSingleValue("contributorName", multiple = false, "primitive", getAuthorName(contributorNode)))
+          subFields += ("contributorName" -> PrimitiveFieldSingleValue("contributorName", multiple = false, "primitive", getAuthorName((contributorNode \ "author").head)))
         }
         if (hasOrganization && !hasContributor) {
           subFields += ("contributorName" -> PrimitiveFieldSingleValue("contributorName", multiple = false, "primitive", (node \\ "name").head.text))
