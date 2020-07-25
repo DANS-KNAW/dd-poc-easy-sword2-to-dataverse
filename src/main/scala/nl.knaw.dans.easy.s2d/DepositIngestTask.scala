@@ -81,10 +81,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
 
     def mapToPrimitiveFieldsMultipleValues(node: Node): Unit = {
-      //wat te doenn met waardes d2400 etc. Niet bekend in DV controlled vocabulary
-      val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
-      println("AUDIENCE" + audience.toString())
-      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+//      val audience = (node \\ "audience").map(_.text).toList
+//      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
     }
 
     def mapToCompoundFields(node: Node): Unit = {
