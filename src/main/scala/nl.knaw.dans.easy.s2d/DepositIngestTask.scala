@@ -75,14 +75,15 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
         case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
         //TEST MET DUMMY WAARDE VOOR DEPOSIT AGREEMENT
-        case e @ Elem(_ , "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
+        case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
         case _ => ()
       }
     }
 
     def mapToPrimitiveFieldsMultipleValues(node: Node): Unit = {
-//      val audience = (node \\ "audience").map(_.text).toList
-//      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+      //wat te doenn met waardes d2400 etc. Niet bekend in DV controlled vocabulary
+      val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
+      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
     }
 
     def mapToCompoundFields(node: Node): Unit = {
