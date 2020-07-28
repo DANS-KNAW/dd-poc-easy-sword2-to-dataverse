@@ -24,7 +24,7 @@ import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import scala.xml.{ Elem, Node, XML }
+import scala.xml.{ Elem, Node }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -48,14 +48,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     val access_and_LicenceFields = new ListBuffer[Field]
     val depositAgreementFields = new ListBuffer[Field]
     val basicInformationFields = new ListBuffer[Field]
-
-
     //todo find better solution
-    val xml = deposit.tryDdm.getOrElse(throw new Exception("xml could not be parsed"))
-    val profile = (xml \ "profile").head.nonEmptyChildren
-    val dcmi = (xml \ "dcmiMetadata").head.nonEmptyChildren
-    //join profile and dcmi parts for iteration
-    val ddm = XML.loadString("<ddm>" + profile.union(dcmi).toString() + "</ddm>")
+    val ddm = deposit.tryDdm.getOrElse(throw new Exception("xml could not be parsed"))
 
     mapFields(ddm)
 
@@ -71,7 +65,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
 
     def mapToPrimitiveFieldsSingleValue(node: Node): Unit = {
-      node.nonEmptyChildren.foreach {
+      (node \\ "_").foreach {
         case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None, "citation")
         //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
         case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
