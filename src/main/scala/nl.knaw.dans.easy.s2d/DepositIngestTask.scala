@@ -199,15 +199,15 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     def addDates(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
       val dateElements = (node \\ "_").collect {
-        case e @ Elem("dcterms", "dateAccepted", _, _, _) if e.attributes.isEmpty => ("Date accepted", e.text)
-        case e @ Elem("dcterms", "valid", _, _, _) if e.attributes.isEmpty => ("Valid", e.text)
-        case e @ Elem("dcterms", "issued", _, _, _) if e.attributes.isEmpty => ("Issued", e.text)
-        case e @ Elem("dcterms", "modified", _, _, _) if e.attributes.isEmpty => ("Modified", e.text)
-        case e @ Elem("dc", "date", _, _, _) if e.attributes.isEmpty => ("Date", e.text)
+        case e @ Elem("dcterms", "dateAccepted", _, _, _) if e.attributes.nonEmpty => ("Date accepted", e.text)
+        case e @ Elem("dcterms", "valid", _, _, _) if e.attributes.nonEmpty => ("Valid", e.text)
+        case e @ Elem("dcterms", "issued", _, _, _) if e.attributes.nonEmpty => ("Issued", e.text)
+        case e @ Elem("dcterms", "modified", _, _, _) if e.attributes.nonEmpty => ("Modified", e.text)
+        case e @ Elem("dc", "date", _, _, _) if e.attributes.nonEmpty => ("Date", e.text)
       }
       dateElements.foreach(date => {
         var subFields = collection.mutable.Map[String, Field]()
-        subFields += ("easy-date-event" -> PrimitiveFieldSingleValue("easy-date-event", multiple = false, "primitive", date._1))
+        subFields += ("easy-date-event" -> PrimitiveFieldSingleValue("easy-date-event", multiple = false, "controlledVocabulary", date._1))
         subFields += ("esy-date-val" -> PrimitiveFieldSingleValue("esy-date-val", multiple = false, "primitive", date._2))
         objectList += subFields.toMap
       })
@@ -217,15 +217,15 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     def addDatesFreeFormat(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
       val dateElements = (node \\ "_").collect {
-        case e @ Elem("dcterms", "dateAccepted", _, _, _) if e.attributes.nonEmpty => ("Date accepted", e.text)
-        case e @ Elem("dcterms", "valid", _, _, _) if e.attributes.nonEmpty => ("Valid", e.text)
-        case e @ Elem("dcterms", "issued", _, _, _) if e.attributes.nonEmpty => ("Issued", e.text)
-        case e @ Elem("dcterms", "modified", _, _, _) if e.attributes.nonEmpty => ("Modified", e.text)
-        case e @ Elem("dc", "date", _, _, _) if e.attributes.nonEmpty => ("Date", e.text)
+        case e @ Elem("dcterms", "dateAccepted", _, _, _) if e.attributes.isEmpty => ("Date accepted", e.text)
+        case e @ Elem("dcterms", "valid", _, _, _) if e.attributes.isEmpty => ("Valid", e.text)
+        case e @ Elem("dcterms", "issued", _, _, _) if e.attributes.isEmpty => ("Issued", e.text)
+        case e @ Elem("dcterms", "modified", _, _, _) if e.attributes.isEmpty => ("Modified", e.text)
+        case e @ Elem("dc", "date", _, _, _) if e.attributes.isEmpty => ("Date", e.text)
       }
       dateElements.foreach(date => {
         var subFields = collection.mutable.Map[String, Field]()
-        subFields += ("easy-date-event-free" -> PrimitiveFieldSingleValue("easy-date-event-free", multiple = false, "primitive", date._1))
+        subFields += ("easy-date-event-free" -> PrimitiveFieldSingleValue("easy-date-event-free", multiple = false, "controlledVocabulary", date._1))
         subFields += ("easy-date-val-free" -> PrimitiveFieldSingleValue("easy-date-val-free", multiple = false, "primitive", date._2))
         objectList += subFields.toMap
       })
