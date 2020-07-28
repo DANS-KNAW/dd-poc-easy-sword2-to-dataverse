@@ -23,7 +23,7 @@ import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable.ListBuffer
-import scala.util.{ Failure, Try }
+import scala.util.Try
 import scala.xml.{ Elem, Node, XML }
 
 /**
@@ -38,7 +38,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
   implicit val format = DefaultFormats
 
-  override def run(): Try[Unit] = {
+  override def run(): Try[Unit] = Try {
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
 
@@ -49,8 +49,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     val depositAgreementFields = new ListBuffer[Field]
     val basicInformationFields = new ListBuffer[Field]
 
-    //EASY XML
-    val xml = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
+
+    //todo find better solution
+    val xml = deposit.tryDdm.getOrElse(throw new Exception("xml could not be parsed"))
     val profile = (xml \ "profile").head.nonEmptyChildren
     val dcmi = (xml \ "dcmiMetadata").head.nonEmptyChildren
     //join profile and dcmi parts for iteration
@@ -60,7 +61,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     def mapFields(node: Node): Unit = {
 
-      //Welke title nemen we? In Dataverse kan het er maar éen zijn
+      // Todo Which title: DV allows only one
       val title = (node \\ "title").head.text
       addPrimitiveFieldToMetadataBlock("title", false, "primitive", Some(title), None, "citation")
 
@@ -75,7 +76,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
         case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
         case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
-        //TEST MET DUMMY WAARDE VOOR DEPOSIT AGREEMENT
+        //Todo get the correct element
         case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
         //welk element is language of description? dcterms?
         case e @ Elem("dcterms", "language", _, _, _) => addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(e.text), None, "basicInformation")
@@ -84,7 +85,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
 
     def mapToPrimitiveFieldsMultipleValues(node: Node): Unit = {
-      //wat te doenn met waardes d2400 etc. Niet bekend in DV controlled vocabulary
+      // Todo create mapping for EASY Dropdown values (d2700 etc.) to DV values
       val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
       addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
 
@@ -94,7 +95,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       val source = (node \\ "source").filter(e => !e.text.equals("")).map(_.text).toList
       addPrimitiveFieldToMetadataBlock("dataSources", multi = true, "primitive", None, Some(source), "citation")
 
-      ///Deze klopt niet in de tsv. Moet Controlled Vocabulary zijn.
+      /// Todo Fix .tsv file. Should be Controlled Vocabulary
       //      val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
       //      addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, primitive, None, Some(languageOfFiles), "basicInformation")
     }
@@ -186,7 +187,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", objectList.toList))
     }
 
-    //How to get idType? From namespace?
+    // Todo How to get idType? From namespace?
     def addAlternativeIdentifier(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
       (node \\ "identifier").foreach(contributorNode => {
@@ -203,7 +204,6 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     def addDate(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
-
     }
 
     val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)

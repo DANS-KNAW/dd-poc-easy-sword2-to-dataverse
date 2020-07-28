@@ -31,7 +31,7 @@ package object json {
                                        multiple: Boolean,
                                        typeClass: String, // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
                                        value: String
-                                      //create enum
+                                       //Todo create enum
                                       ) extends Field
 
   case class PrimitiveFieldMultipleValues(typeName: String,
@@ -40,7 +40,6 @@ package object json {
                                           typeClass: String,
                                           value: List[String]
                                          ) extends Field
-
 
   case class CompoundField(typeName: String,
                            multiple: Boolean,
