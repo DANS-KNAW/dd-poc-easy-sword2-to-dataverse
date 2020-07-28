@@ -44,9 +44,10 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
 
-    var citationFields = new ListBuffer[Field]
-    var access_and_LicenceFields = new ListBuffer[Field]
-    var depositAgreementFields = new ListBuffer[Field]
+    val citationFields = new ListBuffer[Field]
+    val access_and_LicenceFields = new ListBuffer[Field]
+    val depositAgreementFields = new ListBuffer[Field]
+    val basicInformationFields = new ListBuffer[Field]
 
     //EASY XML
     val xml = deposit.tryDdm.getOrElse(Failure).asInstanceOf[Node]
@@ -76,6 +77,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
         //TEST MET DUMMY WAARDE VOOR DEPOSIT AGREEMENT
         case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
+        //welk element is language of description? dcterms?
+        case e @ Elem("dcterms", "language", _, _, _) => addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(e.text), None, "basicInformation")
         case _ => ()
       }
     }
@@ -87,12 +90,21 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
       val language = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
       addPrimitiveFieldToMetadataBlock("language", multi = true, "controlledVocabulary", None, Some(language), "citation")
+
+      val source = (node \\ "source").filter(e => !e.text.equals("")).map(_.text).toList
+      addPrimitiveFieldToMetadataBlock("dataSources", multi = true, "primitive", None, Some(source), "citation")
+
+      ///Deze klopt niet in de tsv. Moet Controlled Vocabulary zijn.
+      //      val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
+      //      addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, primitive, None, Some(languageOfFiles), "basicInformation")
     }
 
     def mapToCompoundFields(node: Node): Unit = {
       addCreator(node)
       addContributors(node)
       addAlternativeIdentifier(node)
+      //addDate(node)
+      //addDateFree(node)
     }
 
     def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
@@ -111,12 +123,12 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         case "citation" => citationFields
         case "access_and_licence" => access_and_LicenceFields
         case "depositAgreement" => depositAgreementFields
+        case "basicInformation" => basicInformationFields
         case _ => new ListBuffer[Field]
       }
     }
 
     def getAuthorName(author: Node): String = {
-      println("AUTHORNODE" + author)
       var authorName = new ListBuffer[String]
       author.nonEmptyChildren.foreach {
         case e @ Elem(str, "titles", data, binding, node) => authorName += e.text
@@ -173,7 +185,8 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       })
       addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", objectList.toList))
     }
-  //How to get idType? From namespace?
+
+    //How to get idType? From namespace?
     def addAlternativeIdentifier(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
       (node \\ "identifier").foreach(contributorNode => {
@@ -188,17 +201,22 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       addCompoundFieldToMetadataBlock("citation", CompoundField("otherId", multiple = true, "compound", objectList.toList))
     }
 
+    def addDate(node: Node): Unit = {
+      val objectList = new ListBuffer[Map[String, Field]]()
 
-  val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
-  val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
-  val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
-  val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
-  val dataverseDataset = DataverseDataset(datasetVersion)
+    }
 
-  println(Serialization.writePretty(dataverseDataset))
+    val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
+    val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
+    val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
+    val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
+    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
+    val dataverseDataset = DataverseDataset(datasetVersion)
 
-  dataverse.dataverse("root").createDataset(Serialization.writePretty(dataverseDataset)).map(_ => ())
-}
+    println(Serialization.writePretty(dataverseDataset))
+
+    dataverse.dataverse("root").createDataset(Serialization.writePretty(dataverseDataset)).map(_ => ())
+  }
 }
 
 
