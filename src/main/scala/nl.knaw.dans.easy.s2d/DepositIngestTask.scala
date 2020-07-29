@@ -24,7 +24,7 @@ import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import scala.xml.{ Elem, Node }
+import scala.xml.{ Elem, MetaData, Node }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -100,6 +100,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       addAlternativeIdentifier(node)
       addDates(node)
       addDatesFreeFormat(node)
+      addRelatedIdentifiers(node)
     }
 
     def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
@@ -230,6 +231,71 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         objectList += subFields.toMap
       })
       addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-date-free", multiple = true, "compound", objectList.toList))
+    }
+
+    object Scheme extends Enumeration {
+      type Scheme = Value
+      val DOI = Value("doi")
+      val URN = Value("urn:nbn:nl")
+      val ISBN = Value("ISBN")
+      val ISSN = Value("ISSN")
+      val NWO = Value("NWO ProjectNr")
+      val OTHER = Value("other")
+      val DEFAULT = Value("")
+    }
+
+    //check if RelatedIdentifier or Relation
+    def isRelatedIdentifier(md: MetaData): Boolean = {
+      md.get("xsi-type").nonEmpty || md.get("scheme").nonEmpty
+    }
+
+    def mapScheme(md: MetaData): Scheme.Value = {
+      val attr = md.asAttrMap.filter(a => a._1 == "scheme" | (a._1 == "xsi:type"))
+      attr.head._2 match {
+        case "id-type:NWO-PROJECTNR" => Scheme.NWO
+        case "id-type:ISBN" => Scheme.ISBN
+        case "id-type:ISSN" => Scheme.ISSN
+        case "DOI" | "id-type:DOI" => Scheme.DOI
+        case "URN" => Scheme.URN
+        case "id-type:other" => Scheme.OTHER
+        case _ => Scheme.DEFAULT
+      }
+    }
+
+    def getUrl(md: MetaData): String = {
+      md.get("href").getOrElse("").asInstanceOf[String]
+    }
+
+    case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
+
+    def addRelatedIdentifiers(node: Node): Unit = {
+      val relIdList = new ListBuffer[Map[String, Field]]()
+      val relIdUrlList = new ListBuffer[Map[String, Field]]()
+
+      val relationElements = (node \\ "_").collect {
+        case e @ Elem(_, "conformsTo", _, _, _) if isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", mapScheme(e.attributes).toString, e.text, isRelatedIdentifier = true)
+        case e @ Elem(_, "relation", _, _, _) if isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", mapScheme(e.attributes).toString, e.text, isRelatedIdentifier = false)
+        case e @ Elem(_, "relation", _, _, _) if !isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", getUrl(e.attributes), e.text, isRelatedIdentifier = false)
+      }
+
+      relationElements.foreach(relation => {
+        var subFields = collection.mutable.Map[String, Field]()
+        if (relation.isRelatedIdentifier) {
+          subFields += ("easy-relid-relation" -> PrimitiveFieldSingleValue("easy-relid-relation", multiple = false, "controlledVocabulary", relation.relationType))
+          subFields += ("easy-relid-type" -> PrimitiveFieldSingleValue("easy-relid-type", multiple = false, "controlledVocabulary", relation.schemeOrUrl))
+          subFields += ("easy-relid-relatedid" -> PrimitiveFieldSingleValue("easy-relid-relatedid", multiple = false, "primitive", relation.value))
+          relIdList += subFields.toMap
+        }
+        else {
+          subFields += ("easy-relid-relation-url" -> PrimitiveFieldSingleValue("easy-relid-relation-url", multiple = false, "controlledVocabulary", relation.relationType))
+          subFields += ("easy-relid-url-title" -> PrimitiveFieldSingleValue("easy-relid-url-title", multiple = false, "primitive", relation.value))
+          subFields += ("easy-relid-url-url" -> PrimitiveFieldSingleValue("easy-relid-url-url", multiple = false, "primitive", relation.schemeOrUrl))
+          relIdUrlList += subFields.toMap
+        }
+      })
+
+      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid", multiple = true, "compound", relIdList.toList))
+      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid-url", multiple = true, "compound", relIdUrlList.toList))
     }
 
     val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
