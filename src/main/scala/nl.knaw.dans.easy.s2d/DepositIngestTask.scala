@@ -181,10 +181,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", objectList.toList))
     }
 
-    // Todo How to get idType? From namespace?
     def addAlternativeIdentifier(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
-      (node \\ "identifier").foreach(contributorNode => {
+      (node \\ "isFormatOf").foreach(contributorNode => {
         val idValue = contributorNode.head.text
         if (idValue.nonEmpty) {
           var subFields = collection.mutable.Map[String, Field]()
@@ -196,6 +195,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       addCompoundFieldToMetadataBlock("citation", CompoundField("otherId", multiple = true, "compound", objectList.toList))
     }
 
+    //todo create mapping from date elements in EASY to date elements in DV
     def addDates(node: Node): Unit = {
       val objectList = new ListBuffer[Map[String, Field]]()
       val dateElements = (node \\ "_").collect {
