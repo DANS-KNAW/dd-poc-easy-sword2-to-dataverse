@@ -29,13 +29,14 @@ class EasyToDataverseMapper() {
 
   implicit val format = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
-  private lazy val citationFields = new ListBuffer[Field]
-  private lazy val access_and_LicenceFields = new ListBuffer[Field]
-  private lazy val depositAgreementFields = new ListBuffer[Field]
-  private lazy val basicInformationFields = new ListBuffer[Field]
+   lazy val citationFields = new ListBuffer[Field]
+   lazy val access_and_LicenceFields = new ListBuffer[Field]
+   lazy val depositAgreementFields = new ListBuffer[Field]
+   lazy val basicInformationFields = new ListBuffer[Field]
 
   /**
-   * Converts easy-ddm xml to Dataverse formatted json
+   * Converts easy-ddm xml to Scala case classes which at the end
+   * are converted to json using the Json4s library
    *
    * @param node easy-ddm
    * @return Json String
