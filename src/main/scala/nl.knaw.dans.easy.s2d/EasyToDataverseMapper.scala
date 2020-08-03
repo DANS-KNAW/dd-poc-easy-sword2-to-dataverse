@@ -29,10 +29,10 @@ class EasyToDataverseMapper() {
 
   implicit val format = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
-   lazy val citationFields = new ListBuffer[Field]
-   lazy val access_and_LicenceFields = new ListBuffer[Field]
-   lazy val depositAgreementFields = new ListBuffer[Field]
-   lazy val basicInformationFields = new ListBuffer[Field]
+  lazy val citationFields = new ListBuffer[Field]
+  lazy val access_and_LicenceFields = new ListBuffer[Field]
+  lazy val depositAgreementFields = new ListBuffer[Field]
+  lazy val basicInformationFields = new ListBuffer[Field]
 
   /**
    * Converts easy-ddm xml to Scala case classes which at the end
@@ -99,6 +99,30 @@ class EasyToDataverseMapper() {
     addDates(node)
     addDatesFreeFormat(node)
     addRelatedIdentifiers(node)
+    addPeopleAndOrganisation(node)
+  }
+
+  //Todo change UI rendering order and formatting in .tsv files
+  def addPeopleAndOrganisation(node: Node): Unit = {
+    val po = node \\ "author"
+    val objectList = new ListBuffer[Map[String, Field]]()
+    var subFields = collection.mutable.Map[String, Field]()
+    po.foreach(e => {
+      e.head.nonEmptyChildren.foreach {
+        case e @ Elem("dcx-dai", "role", _, _, _) => subFields += ("easy-pno-role" -> PrimitiveFieldSingleValue("easy-pno-role", false, "controlledVocabulary", e.text))
+        case e @ Elem("dcx-dai", "titles", _, _, _) => subFields += ("easy-pno-titles" -> PrimitiveFieldSingleValue("easy-pno-titles", false, "primitive", e.text))
+        case e @ Elem("dcx-dai", "initials", _, _, _) => subFields += ("easy-pno-initials" -> PrimitiveFieldSingleValue("easy-pno-initials", false, "primitive", e.text))
+        case e @ Elem("dcx-dai", "insertions", _, _, _) => subFields += ("easy-pno-prefix" -> PrimitiveFieldSingleValue("easy-pno-prefix", false, "primitive", e.text))
+        case e @ Elem("dcx-dai", "surname", _, _, _) => subFields += ("easy-pno-surname" -> PrimitiveFieldSingleValue("easy-pno-surname", false, "primitive", e.text))
+        case node @ _ if node.label.equals("organization") => subFields += ("easy-pno-organisation" -> PrimitiveFieldSingleValue("easy-pno-organisation", false, "primitive", (node \ "name").head.text))
+        case e @ Elem("dcx-dai", "ORCID", _, _, _) => subFields += ("easy-pno-id-orcid" -> PrimitiveFieldSingleValue("easy-pno-id-orcid", false, "primitive", e.text))
+        case e @ Elem("dcx-dai", "ISNI", _, _, _) => subFields += ("easy-pno-id-isni" -> PrimitiveFieldSingleValue("easy-pno-id-isni", false, "primitive", e.text))
+        case e @ Elem("dcx-dai", "DAI", _, _, _) => subFields += ("easy-pno-id-dai" -> PrimitiveFieldSingleValue("easy-pno-id-dai", false, "primitive", e.text))
+        case _ => ()
+      }
+      objectList += subFields.toMap
+    })
+    addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-pno", multiple = true, "compound", objectList.toList))
   }
 
   def addCreator(cf: Node): Unit = {
