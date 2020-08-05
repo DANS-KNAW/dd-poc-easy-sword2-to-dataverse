@@ -68,10 +68,16 @@ class EasyToDataverseMapper() {
       //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
       case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
       case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
+      case e @ Elem("dcterms", "license", _, _, _) => addPrimitiveFieldToMetadataBlock("license", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
       //Todo get the correct element
       case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
       //welk element is language of description? dcterms?
       case e @ Elem("dcterms", "language", _, _, _) => addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(e.text), None, "basicInformation")
+      case _ => ()
+    }
+    //just search in "profile" because "dcmiMetadata" can also contain data available
+    (node \ "profile").head.nonEmptyChildren.foreach {
+      case e @ Elem("ddm", "available", _, _, _) => addPrimitiveFieldToMetadataBlock("dateavailable", multi = false, "primitive", Some(e.text), None, "access_and_licence")
       case _ => ()
     }
   }
@@ -100,6 +106,21 @@ class EasyToDataverseMapper() {
     addDatesFreeFormat(node)
     addRelatedIdentifiers(node)
     addPeopleAndOrganisation(node)
+    addKeywords(node)
+  }
+
+  def addKeywords(node: Node): Unit = {
+    val objectList = new ListBuffer[Map[String, Field]]()
+    val keywords = node \\ "subject"
+
+    keywords.foreach(subject => {
+      var subFields = collection.mutable.Map[String, Field]()
+      subFields += ("keywordValue" -> PrimitiveFieldSingleValue("keywordValue", multiple = false, "primitive", subject.text))
+      //subFields += ("keywordVocabulary" -> PrimitiveFieldSingleValue("keywordVocabulary", multiple = false, "primitive", "NOT AVAILABLE IN EASY"))
+      //subFields += ("keywordVocabularyURI" -> PrimitiveFieldSingleValue("keywordVocabularyURI", multiple = false, "primitive", "NOT AVAILABLE IN EASY"))
+      objectList += subFields.toMap
+    })
+    addCompoundFieldToMetadataBlock("citation", CompoundField("keyword", multiple = true, "compound", objectList.toList))
   }
 
   //Todo change UI rendering order and formatting in .tsv files
