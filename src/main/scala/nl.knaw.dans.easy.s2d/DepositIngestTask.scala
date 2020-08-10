@@ -20,7 +20,7 @@ import nl.knaw.dans.easy.s2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -40,10 +40,21 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
 
-    val ddm = deposit.tryDdm.getOrElse(throw new Exception("xml could not be parsed"))
-    val dataverseJson = mapper.mapToJson(ddm)
-
-    dataverse.dataverse("root").createDataset(dataverseJson).map(_ => ())
+    deposit.tryDdm match {
+      case Success(ddm) => {
+        mapper.mapToJson(ddm) match {
+          case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
+          case Failure(exception) => {
+            logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
+            Failure(exception)
+          }
+        }
+      }
+      case Failure(exception) => {
+        logger.info(exception.getMessage)
+        Failure(exception)
+      }
+    }
   }
 }
 
