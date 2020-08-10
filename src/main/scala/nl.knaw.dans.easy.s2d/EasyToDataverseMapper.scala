@@ -33,6 +33,7 @@ class EasyToDataverseMapper() {
   lazy val access_and_LicenceFields = new ListBuffer[Field]
   lazy val depositAgreementFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
+  lazy val archaeologySpecificMetadata = new ListBuffer[Field]
 
   /**
    * Converts easy-ddm xml to Scala case classes which at the end
@@ -55,11 +56,10 @@ class EasyToDataverseMapper() {
     val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
     val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
     val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
-    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock))
+    val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
+    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock, "archaeologyMetadata" -> archaeologyMetadataBlock))
     val dataverseDataset = DataverseDataset(datasetVersion)
-    val json = Serialization.writePretty(dataverseDataset)
-    println("JSON" + json)
-    json
+    Serialization.writePretty(dataverseDataset)
   }
 
   def mapToPrimitiveFieldsSingleValue(node: Node): Unit = {
@@ -92,6 +92,15 @@ class EasyToDataverseMapper() {
 
     val source = (node \\ "source").filter(e => !e.text.equals("")).map(_.text).toList
     addPrimitiveFieldToMetadataBlock("dataSources", multi = true, "primitive", None, Some(source), "citation")
+
+    val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).toList.map(_.text)
+    addPrimitiveFieldToMetadataBlock("archisZaakId", multi = true, "primitive", None, Some(zaakId), "archaeologyMetadata")
+
+    val abrComplex = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRcomplex")).toList.map(_.text)
+    addPrimitiveFieldToMetadataBlock("subjectAbr", multi = true, "controlledVocabulary", None, Some(abrComplex), "archaeologyMetadata")
+
+    val period = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).toList.map(_.text)
+    addPrimitiveFieldToMetadataBlock("period", multi = true, "controlledVocabulary", None, Some(period), "archaeologyMetadata")
 
     /// Todo Fix .tsv file. Should be Controlled Vocabulary
     //      val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
@@ -288,6 +297,7 @@ class EasyToDataverseMapper() {
       case "access_and_licence" => access_and_LicenceFields
       case "depositAgreement" => depositAgreementFields
       case "basicInformation" => basicInformationFields
+      case "archaeologyMetadata" => archaeologySpecificMetadata
       case _ => new ListBuffer[Field]
     }
   }
