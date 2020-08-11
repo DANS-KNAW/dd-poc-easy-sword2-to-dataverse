@@ -165,13 +165,13 @@ class EasyToDataverseMapper() {
     }
   }
 
-  def addCreator(cf: Node): Try[Unit] = Try {
-    val author = cf \\ "author"
+  def addCreator(node: Node): Try[Unit] = Try {
+    val creator = ((node \\ "creatorDetails") ++ (node \\ "creator")) \\ "author"
     var subFields = collection.mutable.Map[String, Field]()
-    subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(author.head)))
+    subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(creator.head)))
 
-    if (author.nonEmpty) {
-      author.head.child.foreach {
+    if (creator.nonEmpty) {
+      creator.head.child.foreach {
         case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
         case e @ Elem("dcx-dai", "DAI", _, _, _) =>
           subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
