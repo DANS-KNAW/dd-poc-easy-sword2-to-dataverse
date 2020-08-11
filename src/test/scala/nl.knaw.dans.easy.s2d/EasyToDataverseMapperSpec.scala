@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.s2d
 
-import nl.knaw.dans.easy.s2d.dataverse.json.{ PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.s2d.dataverse.json.{ CompoundField, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 import org.scalatest.{ FlatSpec, Matchers, OneInstancePerTest }
 
@@ -84,5 +84,53 @@ class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Ma
     archaeologyFields should contain(PrimitiveFieldMultipleValues("archisZaakId", true, "primitive", List("abc", "def")))
     archaeologyFields should contain(PrimitiveFieldMultipleValues("period", true, "controlledVocabulary", List("Paleolithicum laat: 35000 C14 - 8800 vC")))
     archaeologyFields should contain(PrimitiveFieldMultipleValues("subjectAbr", true, "controlledVocabulary", List("Depot", "Economie – Drenkplaats/dobbe")))
+  }
+
+  "Creator" should "be added to the Citation metadatablock as a CompoundField" in {
+    val ddm =
+        <ddm:DDM>
+        <dcx-dai:creatorDetails>
+            <dcx-dai:author>
+                <dcx-dai:titles>Prof.</dcx-dai:titles>
+                <dcx-dai:initials>D.N.</dcx-dai:initials>
+                <dcx-dai:insertions>van den</dcx-dai:insertions>
+                <dcx-dai:surname>Aarden</dcx-dai:surname>
+                <dcx-dai:DAI>123456789</dcx-dai:DAI>
+                <dcx-dai:organization>
+                    <dcx-dai:name xml:lang="en">Utrecht University</dcx-dai:name>
+                </dcx-dai:organization>
+            </dcx-dai:author>
+        </dcx-dai:creatorDetails>
+        <dcx-dai:creator>
+            <dcx-dai:author>
+                <dcx-dai:titles>MSc.</dcx-dai:titles>
+                <dcx-dai:initials>A.A.</dcx-dai:initials>
+                <dcx-dai:insertions>van den</dcx-dai:insertions>
+                <dcx-dai:surname>Aa</dcx-dai:surname>
+                <dcx-dai:DAI>987654321</dcx-dai:DAI>
+            </dcx-dai:author>
+        </dcx-dai:creator>
+        </ddm:DDM>
+
+    mapper.addCreator(ddm)
+    val citationFields = mapper.citationFields
+    citationFields should have size 1
+    citationFields should contain(
+      CompoundField("author", true, "compound",
+        List(
+          Map(
+            "authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", "Utrecht University"),
+            "authorName" -> PrimitiveFieldSingleValue("authorName", false, "primitive", "Prof., D.N., Aarden"),
+            "authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", false, "controlledVocabulary", "DAI"),
+            "authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", false, "primitive", "123456789")
+          ),
+          Map(
+            "authorName" -> PrimitiveFieldSingleValue("authorName", false, "primitive", "MSc., A.A., Aa"),
+            "authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", false, "controlledVocabulary", "DAI"),
+            "authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", false, "primitive", "987654321")
+          )
+        )
+      )
+    )
   }
 }
