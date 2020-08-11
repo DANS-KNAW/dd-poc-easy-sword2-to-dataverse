@@ -166,31 +166,34 @@ class EasyToDataverseMapper() {
   }
 
   def addCreator(node: Node): Try[Unit] = Try {
-    val creator = ((node \\ "creatorDetails") ++ (node \\ "creator")) \\ "author"
-    var subFields = collection.mutable.Map[String, Field]()
-    subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(creator.head)))
-
-    if (creator.nonEmpty) {
-      creator.head.child.foreach {
-        case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
-        case e @ Elem("dcx-dai", "DAI", _, _, _) =>
-          subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-          subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-        case e @ Elem("dcx-dai", "ISNI", _, _, _) =>
-          subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-          subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-        case e @ Elem("dcx-dai", "ORCID", _, _, _) =>
-          subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-          subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-        case _ => ()
-      }
-      addCompoundFieldToMetadataBlock("citation", CompoundField("author", multiple = true, "compound", List(subFields.toMap)))
+    val creators = ((node \\ "creatorDetails") ++ (node \\ "creator")) \\ "author"
+    val objectList = new ListBuffer[Map[String, Field]]()
+    if (creators.nonEmpty) {
+      creators.foreach(creatorNode => {
+        var subFields = collection.mutable.Map[String, Field]()
+        subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(creatorNode.head)))
+        creatorNode.nonEmptyChildren.foreach {
+          case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
+          case e @ Elem("dcx-dai", "DAI", _, _, _) =>
+            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
+            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "ISNI", _, _, _) =>
+            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
+            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "ORCID", _, _, _) =>
+            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
+            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
+          case _ => ()
+        }
+        objectList += subFields.toMap
+      })
+      addCompoundFieldToMetadataBlock("citation", CompoundField("author", multiple = true, "compound", objectList.toList))
     }
   }
 
   def addContributors(node: Node): Try[Unit] = Try {
-    val objectList = new ListBuffer[Map[String, Field]]()
     val contributorDetails = node \\ "contributorDetails"
+    val objectList = new ListBuffer[Map[String, Field]]()
     if (contributorDetails.nonEmpty) {
       contributorDetails.map(contributorNode => {
         var subFields = collection.mutable.Map[String, Field]()
