@@ -96,15 +96,15 @@ class EasyToDataverseMapper() {
     if (source.nonEmpty)
       addPrimitiveFieldToMetadataBlock("dataSources", multi = true, "primitive", None, Some(source), "citation")
 
-    val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).toList.map(_.text)
+    val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (zaakId.nonEmpty)
       addPrimitiveFieldToMetadataBlock("archisZaakId", multi = true, "primitive", None, Some(zaakId), "archaeologyMetadata")
 
-    val abrComplex = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRcomplex")).toList.map(_.text)
+    val abrComplex = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRcomplex")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (abrComplex.nonEmpty)
       addPrimitiveFieldToMetadataBlock("subjectAbr", multi = true, "controlledVocabulary", None, Some(abrComplex), "archaeologyMetadata")
 
-    val period = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).toList.map(_.text)
+    val period = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (period.nonEmpty)
       addPrimitiveFieldToMetadataBlock("period", multi = true, "controlledVocabulary", None, Some(period), "archaeologyMetadata")
 
