@@ -30,11 +30,13 @@ class EasyToDataverseMapper() {
 
   implicit val format = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
+  case class Coordinate(x: String, y: String)
   lazy val citationFields = new ListBuffer[Field]
   lazy val access_and_LicenceFields = new ListBuffer[Field]
   lazy val depositAgreementFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificMetadata = new ListBuffer[Field]
+  lazy val temporalSpatialFields = new ListBuffer[Field]
 
   /**
    * Converts easy-ddm xml to Scala case classes which at the end
@@ -57,7 +59,8 @@ class EasyToDataverseMapper() {
     val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
     val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
     val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
-    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock, "archaeologyMetadata" -> archaeologyMetadataBlock))
+    val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
+    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock, "archaeologyMetadata" -> archaeologyMetadataBlock, "temporal-spatial" -> temporalSpatialBlock))
     val dataverseDataset = DataverseDataset(datasetVersion)
     Serialization.writePretty(dataverseDataset)
   }
@@ -104,9 +107,15 @@ class EasyToDataverseMapper() {
     if (abrComplex.nonEmpty)
       addPrimitiveFieldToMetadataBlock("subjectAbr", multi = true, "controlledVocabulary", None, Some(abrComplex), "archaeologyMetadata")
 
-    val period = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
+    val period = (node \\ "temporal").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (period.nonEmpty)
       addPrimitiveFieldToMetadataBlock("period", multi = true, "controlledVocabulary", None, Some(period), "archaeologyMetadata")
+
+    val temporalCoverage = (node \\ "temporal").filterNot(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
+    if (temporalCoverage.nonEmpty)
+      addPrimitiveFieldToMetadataBlock("temporal-coverage", true, "primitive", None, Some(temporalCoverage), "temporalSpatial")
+
+
 
     /// Todo Fix .tsv file. Should be Controlled Vocabulary
     //      val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
@@ -122,6 +131,26 @@ class EasyToDataverseMapper() {
     addRelatedIdentifiers(node)
     addPeopleAndOrganisation(node)
     addKeywords(node)
+    addSpatialPoint(node)
+  }
+
+  def addSpatialPoint(node: Node): Unit = {
+    val objectList = new ListBuffer[Map[String, Field]]()
+    (node \\ "spatial").filter(x => (x \\ "Point").nonEmpty).foreach(spatial => {
+      var subFields = collection.mutable.Map[String, Field]()
+      val isDegree = spatial.attributes.exists(_.value.text.equals("http://www.opengis.net/def/crs/EPSG/0/4326"))
+      if (isDegree)
+        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "RD(in m.)"))
+      else
+        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "latitude/longitude (m)"))
+
+      val pos = (spatial \\ "pos").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
+      val coordinate = getCoordinate(isDegree, pos)
+      subFields += ("easy-tsm-x" -> PrimitiveFieldSingleValue("easy-tsm-x", false, "primitive", coordinate.x))
+      subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", false, "primitive", coordinate.y))
+      objectList += subFields.toMap
+    })
+    addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-tsm", multiple = true, "compound", objectList.toList))
   }
 
   def addKeywords(node: Node): Try[Unit] = Try {
@@ -323,6 +352,7 @@ class EasyToDataverseMapper() {
       case "depositAgreement" => depositAgreementFields
       case "basicInformation" => basicInformationFields
       case "archaeologyMetadata" => archaeologySpecificMetadata
+      case "temporalSpatial" => temporalSpatialFields
       case _ => new ListBuffer[Field]
     }
   }
@@ -369,6 +399,16 @@ class EasyToDataverseMapper() {
 
   def getUrl(md: MetaData): String = {
     md.get("href").getOrElse("").asInstanceOf[String]
+  }
+
+  //assigns correct values to Coordinate (RD = [y,x) and Degrees = [x,y]
+  def getCoordinate(isDegree: Boolean, values: List[String]): Coordinate = {
+    if (isDegree) {
+      Coordinate(values.head, values(1))
+    }
+    else {
+      Coordinate(values(1), values.head)
+    }
   }
 }
 
