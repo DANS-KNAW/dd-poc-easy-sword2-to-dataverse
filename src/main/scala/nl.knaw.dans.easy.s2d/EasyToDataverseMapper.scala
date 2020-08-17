@@ -39,6 +39,14 @@ class EasyToDataverseMapper() {
   lazy val archaeologySpecificMetadata = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
 
+  object Spatial {
+    /** coordinate order y, x = latitude (DCX_SPATIAL_Y), longitude (DCX_SPATIAL_X) */
+    val DEGREES_SRS_NAME = "http://www.opengis.net/def/crs/EPSG/0/4326"
+
+    /** coordinate order x, y = longitude (DCX_SPATIAL_X), latitude (DCX_SPATIAL_Y) */
+    val RD_SRS_NAME = "http://www.opengis.net/def/crs/EPSG/0/28992"
+  }
+
   /**
    * Converts easy-ddm xml to Scala case classes which at the end
    * are converted to json using the Json4s library
@@ -140,7 +148,7 @@ class EasyToDataverseMapper() {
     val objectList = new ListBuffer[Map[String, Field]]()
     (node \\ "spatial").filter(x => (x \\ "lowerCorner").nonEmpty).foreach(spatial => {
       var subFields = collection.mutable.Map[String, Field]()
-      val isRD = (spatial \\ "Envelope").head.attributes.exists(_.value.text.equals("http://www.opengis.net/def/crs/EPSG/0/28992"))
+      val isRD = (spatial \\ "Envelope").head.attributes.exists(_.value.text.equals(Spatial.RD_SRS_NAME))
 
       if (isRD)
         subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "RD(in m.)"))
@@ -163,14 +171,14 @@ class EasyToDataverseMapper() {
     val objectList = new ListBuffer[Map[String, Field]]()
     (node \\ "spatial").filter(x => (x \\ "Point").nonEmpty).foreach(spatial => {
       var subFields = collection.mutable.Map[String, Field]()
-      val isDegree = spatial.attributes.exists(_.value.text.equals("http://www.opengis.net/def/crs/EPSG/0/4326"))
-      if (isDegree)
+      val isRD = spatial.attributes.exists(_.value.text.equals(Spatial.RD_SRS_NAME))
+      if (isRD)
         subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "RD(in m.)"))
       else
         subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "latitude/longitude (m)"))
 
       val pos = (spatial \\ "pos").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
-      val coordinate = getPointCoordinate(isDegree, pos)
+      val coordinate = getPointCoordinate(isRD, pos)
       subFields += ("easy-tsm-x" -> PrimitiveFieldSingleValue("easy-tsm-x", false, "primitive", coordinate.x))
       subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", false, "primitive", coordinate.y))
       objectList += subFields.toMap
@@ -426,7 +434,7 @@ class EasyToDataverseMapper() {
     md.get("href").getOrElse("").asInstanceOf[String]
   }
 
-  //assigns correct values to Coordinate (RD = [y,x) and Degrees = [x,y]
+  //assigns correct values to Coordinate (RD = [x,y) and Degrees = [y,x]
   def getPointCoordinate(isDegree: Boolean, values: List[String]): PointCoordinate = {
     if (isDegree) {
       PointCoordinate(values.head, values(1))
