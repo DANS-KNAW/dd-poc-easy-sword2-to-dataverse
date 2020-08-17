@@ -30,7 +30,8 @@ class EasyToDataverseMapper() {
 
   implicit val format = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
-  case class Coordinate(x: String, y: String)
+  case class PointCoordinate(x: String, y: String)
+  case class BoxCoordinate(north: String, south: String, east: String, west: String)
   lazy val citationFields = new ListBuffer[Field]
   lazy val access_and_LicenceFields = new ListBuffer[Field]
   lazy val depositAgreementFields = new ListBuffer[Field]
@@ -132,6 +133,30 @@ class EasyToDataverseMapper() {
     addPeopleAndOrganisation(node)
     addKeywords(node)
     addSpatialPoint(node)
+    addSpatialBox(node)
+  }
+
+  def addSpatialBox(node: Node): Unit = {
+    val objectList = new ListBuffer[Map[String, Field]]()
+    (node \\ "spatial").filter(x => (x \\ "lowerCorner").nonEmpty).foreach(spatial => {
+      var subFields = collection.mutable.Map[String, Field]()
+      val isRD = (spatial \\ "Envelope").head.attributes.exists(_.value.text.equals("http://www.opengis.net/def/crs/EPSG/0/28992"))
+
+      if (isRD)
+        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "RD(in m.)"))
+      else
+        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "latitude/longitude (m)"))
+
+      val lowerCorner = (spatial \\ "lowerCorner").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
+      val upperCorner = (spatial \\ "upperCorner").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
+      val boxCoordinate = getBoxCoordinate(isRD, lowerCorner, upperCorner)
+      subFields += ("easy-tsm-spatial-box-north" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-north", false, "primitive", boxCoordinate.north))
+      subFields += ("easy-tsm-spatial-box-east" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-east", false, "primitive", boxCoordinate.east))
+      subFields += ("easy-tsm-spatial-box-south" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-south", false, "primitive", boxCoordinate.south))
+      subFields += ("easy-tsm-spatial-box-west" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-west", false, "primitive", boxCoordinate.west))
+      objectList += subFields.toMap
+    })
+    addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-spatial-box", multiple = true, "compound", objectList.toList))
   }
 
   def addSpatialPoint(node: Node): Unit = {
@@ -145,7 +170,7 @@ class EasyToDataverseMapper() {
         subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "latitude/longitude (m)"))
 
       val pos = (spatial \\ "pos").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
-      val coordinate = getCoordinate(isDegree, pos)
+      val coordinate = getPointCoordinate(isDegree, pos)
       subFields += ("easy-tsm-x" -> PrimitiveFieldSingleValue("easy-tsm-x", false, "primitive", coordinate.x))
       subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", false, "primitive", coordinate.y))
       objectList += subFields.toMap
@@ -402,12 +427,21 @@ class EasyToDataverseMapper() {
   }
 
   //assigns correct values to Coordinate (RD = [y,x) and Degrees = [x,y]
-  def getCoordinate(isDegree: Boolean, values: List[String]): Coordinate = {
+  def getPointCoordinate(isDegree: Boolean, values: List[String]): PointCoordinate = {
     if (isDegree) {
-      Coordinate(values.head, values(1))
+      PointCoordinate(values.head, values(1))
     }
     else {
-      Coordinate(values(1), values.head)
+      PointCoordinate(values(1), values.head)
+    }
+  }
+
+  def getBoxCoordinate(isRD: Boolean, lower: List[String], upper: List[String]): BoxCoordinate = {
+    if (isRD) {
+      BoxCoordinate(upper(1), lower(1), upper.head, lower.head)
+    }
+    else {
+      BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
     }
   }
 }
