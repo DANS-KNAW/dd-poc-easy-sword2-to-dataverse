@@ -71,6 +71,7 @@ class EasyToDataverseMapper() {
     val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
     val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock, "archaeologyMetadata" -> archaeologyMetadataBlock, "temporal-spatial" -> temporalSpatialBlock))
     val dataverseDataset = DataverseDataset(datasetVersion)
+    println(Serialization.writePretty(dataverseDataset))
     Serialization.writePretty(dataverseDataset)
   }
 
@@ -83,8 +84,6 @@ class EasyToDataverseMapper() {
       case e @ Elem("dcterms", "license", _, _, _) => addPrimitiveFieldToMetadataBlock("license", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
       //Todo get the correct element
       case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
-      //welk element is language of description? dcterms?
-      case e @ Elem("dcterms", "language", _, _, _) => addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(e.text), None, "basicInformation")
       case _ => ()
     }
     //just search in "profile" because "dcmiMetadata" can also contain data available
@@ -92,6 +91,14 @@ class EasyToDataverseMapper() {
       case e @ Elem("ddm", "available", _, _, _) => addPrimitiveFieldToMetadataBlock("dateavailable", multi = false, "primitive", Some(e.text), None, "access_and_licence")
       case _ => ()
     }
+
+    val languageOfDescription: String = (node \\ "description")
+      .headOption
+      .map(_.attributes.filter(_.key == "lang"))
+      .map(_.value).getOrElse("")
+      .toString
+
+    addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(languageOfDescription), None, "basicInformation")
   }
 
   def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
@@ -124,11 +131,8 @@ class EasyToDataverseMapper() {
     if (temporalCoverage.nonEmpty)
       addPrimitiveFieldToMetadataBlock("temporal-coverage", true, "primitive", None, Some(temporalCoverage), "temporalSpatial")
 
-
-
-    /// Todo Fix .tsv file. Should be Controlled Vocabulary
-    //      val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
-    //      addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, primitive, None, Some(languageOfFiles), "basicInformation")
+    val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
+    addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, "primitive", None, Some(languageOfFiles), "basicInformation")
   }
 
   def mapToCompoundFields(node: Node): Try[Unit] = Try {
