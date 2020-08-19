@@ -146,6 +146,20 @@ class EasyToDataverseMapper() {
     addKeywords(node)
     addSpatialPoint(node)
     addSpatialBox(node)
+    addDescriptions(node)
+  }
+
+  def addDescriptions(node: Node): Unit = {
+    val objectList = new ListBuffer[Map[String, Field]]()
+    ((node \ "profile" \ "description") ++ (node \ "dcmiMetadata" \ "description"))
+      .foreach(d => {
+        var subFields = collection.mutable.Map[String, Field]()
+        subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", false, "primitive", d.text))
+        //todo descriptionDate omitted because it doesn't exist in EASY
+        //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
+        objectList += subFields.toMap
+      })
+    addCompoundFieldToMetadataBlock("citation", CompoundField("dsDescription", multiple = true, "compound", objectList.toList))
   }
 
   def addSpatialBox(node: Node): Unit = {
