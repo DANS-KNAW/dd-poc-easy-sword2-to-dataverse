@@ -88,9 +88,6 @@ class EasyToDataverseMapper() {
 
     val datasetVersion = DatasetVersion(versionMap.toMap)
     val dataverseDataset = DataverseDataset(datasetVersion)
-
-    println(Serialization.writePretty(dataverseDataset))
-
     Serialization.writePretty(dataverseDataset)
   }
 
