@@ -62,16 +62,35 @@ class EasyToDataverseMapper() {
     mapToPrimitiveFieldsSingleValue(node)
     mapToPrimitiveFieldsMultipleValues(node)
     mapToCompoundFields(node)
-
     val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
-    val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
-    val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
-    val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
-    val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
-    val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
-    val datasetVersion = DatasetVersion(Map("citation" -> citationBlock, "basicInformation" -> basicInformation, "depositAgreement" -> depositAgreementBlock, "access-and-license" -> access_and_licenseBlock, "archaeologyMetadata" -> archaeologyMetadataBlock, "temporal-spatial" -> temporalSpatialBlock))
+    var versionMap = scala.collection.mutable.Map("citation" -> citationBlock)
+
+    if (access_and_LicenceFields.nonEmpty) {
+      val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
+      versionMap += ("access-and-license" -> access_and_licenseBlock)
+    }
+    if (depositAgreementFields.nonEmpty) {
+      val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
+      versionMap += ("depositAgreement" -> depositAgreementBlock)
+    }
+    if (basicInformationFields.nonEmpty) {
+      val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
+      versionMap += ("basicInformation" -> basicInformation)
+    }
+    if (archaeologySpecificMetadata.nonEmpty) {
+      val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
+      versionMap += ("archaeologyMetadata" -> archaeologyMetadataBlock)
+    }
+    if (temporalSpatialFields.nonEmpty) {
+      val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
+      versionMap += ("temporal-spatial" -> temporalSpatialBlock)
+    }
+
+    val datasetVersion = DatasetVersion(versionMap.toMap)
     val dataverseDataset = DataverseDataset(datasetVersion)
+
     println(Serialization.writePretty(dataverseDataset))
+
     Serialization.writePretty(dataverseDataset)
   }
 
@@ -173,8 +192,19 @@ class EasyToDataverseMapper() {
       else
         subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "latitude/longitude (m)"))
 
-      val lowerCorner = (spatial \\ "lowerCorner").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
-      val upperCorner = (spatial \\ "upperCorner").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
+      val lowerCorner = (spatial \\ "lowerCorner")
+        .find(!_.text.isEmpty)
+        .map(
+          _.text.split(" +")
+            .take(2).toList
+        ).getOrElse(List(""))
+      val upperCorner = (spatial \\ "upperCorner")
+        .find(!_.text.isEmpty)
+        .map(
+          _.text.split(" +")
+            .take(2).toList
+        ).getOrElse(List(""))
+
       val boxCoordinate = getBoxCoordinate(isRD, lowerCorner, upperCorner)
       subFields += ("easy-tsm-spatial-box-north" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-north", false, "primitive", boxCoordinate.north))
       subFields += ("easy-tsm-spatial-box-east" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-east", false, "primitive", boxCoordinate.east))
