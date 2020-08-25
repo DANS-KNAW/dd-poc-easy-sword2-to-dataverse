@@ -44,20 +44,26 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
 
   lazy val tryBag: Try[Bag] = Try { bagReader.read(bagDir.path) }
 
-  lazy val tryDdm: Try[Node] = Try {
-    Utility.trim {
-      XML.loadFile((bagDir / ddmPath.toString).toJava)
+  lazy val tryDdm: Try[Node] = {
+    val path = ddmPath
+    Try {
+      Utility.trim {
+        XML.loadFile((bagDir / path.toString).toJava)
+      }
+    }.recoverWith {
+      case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
     }
-  }.recoverWith {
-    case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
   }
 
-  lazy val tryFilesXml: Try[Node] = Try {
-    Utility.trim {
-      XML.loadFile((bagDir / filesXmlPath.toString).toJava)
+  lazy val tryFilesXml: Try[Node] = {
+    val path = filesXmlPath
+    Try {
+      Utility.trim {
+        XML.loadFile((bagDir / path.toString).toJava)
+      }
+    }.recoverWith {
+      case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
     }
-  }.recoverWith {
-    case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
   }
 
   override def toString: String = s"Deposit at $dir"
