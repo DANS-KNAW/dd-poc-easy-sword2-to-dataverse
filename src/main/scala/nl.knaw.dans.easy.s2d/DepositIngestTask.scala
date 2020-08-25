@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.s2d
 
+import nl.knaw.dans.easy.s2d.DepositIngestTask.mapper
 import nl.knaw.dans.easy.s2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.s2d.queue.Task
 import nl.knaw.dans.lib.error._
@@ -33,8 +34,6 @@ import scala.util.{ Failure, Success, Try }
 case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
-  val mapper = EasyToDataverseMapper()
-
   override def run(): Try[Unit] = Try {
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
@@ -48,6 +47,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         Failure(exception)
     }).doIfFailure { case exception => logger.info(exception.getMessage) }
   }
+}
+object DepositIngestTask {
+  val mapper: EasyToDataverseMapper = EasyToDataverseMapper()
 }
 
 
