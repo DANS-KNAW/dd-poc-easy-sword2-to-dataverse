@@ -481,21 +481,15 @@ case class EasyToDataverseMapper() {
 
   //assigns correct values to Coordinate (RD = [x,y) and Degrees = [y,x]
   def getPointCoordinate(isDegree: Boolean, values: List[String]): PointCoordinate = {
-    if (isDegree) {
-      PointCoordinate(values.head, values(1))
-    }
-    else {
-      PointCoordinate(values(1), values.head)
-    }
+    values.headOption.flatMap(first => values.tail.headOption.map(second =>
+      if (isDegree) PointCoordinate(first, second)
+      else PointCoordinate(second, first)
+    )).getOrElse(throw new IllegalArgumentException(s"to few values: $values"))
   }
 
   def getBoxCoordinate(isRD: Boolean, lower: List[String], upper: List[String]): BoxCoordinate = {
-    if (isRD) {
-      BoxCoordinate(upper(1), lower(1), upper.head, lower.head)
-    }
-    else {
-      BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
-    }
+    if (isRD) BoxCoordinate(upper(1), lower(1), upper.head, lower.head)
+    else BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
   }
 }
 
