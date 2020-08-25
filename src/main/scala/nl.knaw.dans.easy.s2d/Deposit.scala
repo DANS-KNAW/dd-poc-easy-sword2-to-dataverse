@@ -31,7 +31,7 @@ import scala.xml.{ Node, Utility, XML }
 case class Deposit(dir: File) extends DebugEnhancedLogging {
   trace(dir)
   val bagDir: File = {
-    val dirs = dir.list(_.isDirectory, maxDepth = 1).filter(_ != dir).toList
+    val dirs = dir.children.filter(_.isDirectory).toList
     debug(s"dirs = $dirs")
     if (dirs.size != 1) throw new IllegalArgumentException(s"$dir is not a valid deposit. Found ${dirs.size} subdirectories instead of 1")
     dirs.head

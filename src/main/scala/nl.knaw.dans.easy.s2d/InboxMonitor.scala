@@ -48,7 +48,7 @@ class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhan
 
   def start(): Unit = {
     trace(())
-    val dirs = inbox.list(_.isDirectory, maxDepth = 1).filterNot(_ == inbox).toList
+    val dirs = inbox.children.filter(_.isDirectory).toList
     logger.info(s"Queueing existing directories: $dirs")
     dirs.foreach { d =>
         debug(s"Adding $d")

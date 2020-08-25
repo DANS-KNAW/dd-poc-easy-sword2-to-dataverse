@@ -17,6 +17,7 @@ package nl.knaw.dans.easy.s2d
 
 import nl.knaw.dans.easy.s2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.s2d.queue.Task
+import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 
@@ -40,21 +41,12 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
 
-    deposit.triedNode match {
-      case Success(ddm) => {
-        mapper.mapToJson(ddm) match {
-          case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
-          case Failure(exception) => {
-            logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
-            Failure(exception)
-          }
-        }
-      }
-      case Failure(exception) => {
-        logger.info(exception.getMessage)
+    deposit.triedNode.map(mapper.mapToJson(_) match {
+      case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
+      case Failure(exception) =>
+        logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
         Failure(exception)
-      }
-    }
+    }).doIfFailure { case exception => logger.info(exception.getMessage) }
   }
 }
 
