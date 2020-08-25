@@ -42,9 +42,9 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   private val ddmPath = bagDir / "metadata" / "dataset.xml"
   private val filesXmlPath = bagDir / "metadata" / "files.xml"
 
-  lazy val tryBag: Try[Bag] = Try { bagReader.read(bagDir.path) }
-  lazy val tryDdm: Try[Node] = load(ddmPath)
-  lazy val tryFilesXml: Try[Node] = load(filesXmlPath)
+  lazy val triedBag: Try[Bag] = Try { bagReader.read(bagDir.path) }
+  lazy val triedNode: Try[Node] = load(ddmPath)
+  lazy val triedFilesXml: Try[Node] = load(filesXmlPath)
 
   private def load(path: File) = Try {
     Utility.trim {

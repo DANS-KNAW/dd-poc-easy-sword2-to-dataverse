@@ -40,7 +40,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
 
     // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
 
-    deposit.tryDdm match {
+    deposit.triedNode match {
       case Success(ddm) => {
         mapper.mapToJson(ddm) match {
           case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
