@@ -46,17 +46,15 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
 
   lazy val tryDdm: Try[Node] = {
     val path = ddmPath
-    Try {
-      Utility.trim {
-        XML.loadFile((bagDir / path.toString).toJava)
-      }
-    }.recoverWith {
-      case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
-    }
+    load(path)
   }
 
   lazy val tryFilesXml: Try[Node] = {
     val path = filesXmlPath
+    load(path)
+  }
+
+  private def load(path: File) = {
     Try {
       Utility.trim {
         XML.loadFile((bagDir / path.toString).toJava)
