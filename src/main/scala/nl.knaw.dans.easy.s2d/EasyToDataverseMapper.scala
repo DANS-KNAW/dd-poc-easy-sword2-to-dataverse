@@ -28,7 +28,7 @@ import scala.xml.{ Elem, MetaData, Node }
  */
 case class EasyToDataverseMapper() {
 
-  implicit val format = DefaultFormats
+  implicit val format: DefaultFormats.type = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
   case class PointCoordinate(x: String, y: String)
   case class BoxCoordinate(north: String, south: String, east: String, west: String)
@@ -145,7 +145,7 @@ case class EasyToDataverseMapper() {
 
     val temporalCoverage = (node \\ "temporal").filterNot(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (temporalCoverage.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("temporal-coverage", true, "primitive", None, Some(temporalCoverage), "temporalSpatial")
+      addPrimitiveFieldToMetadataBlock("temporal-coverage", multi = true, "primitive", None, Some(temporalCoverage), "temporalSpatial")
 
     val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
     addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, "primitive", None, Some(languageOfFiles), "basicInformation")
@@ -170,7 +170,7 @@ case class EasyToDataverseMapper() {
     ((node \ "profile" \ "description") ++ (node \ "dcmiMetadata" \ "description"))
       .foreach(d => {
         var subFields = collection.mutable.Map[String, Field]()
-        subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", false, "primitive", d.text))
+        subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", multiple = false, "primitive", d.text))
         //todo descriptionDate omitted because it doesn't exist in EASY
         //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
         objectList += subFields.toMap
@@ -185,9 +185,9 @@ case class EasyToDataverseMapper() {
       val isRD = (spatial \\ "Envelope").head.attributes.exists(_.value.text.equals(Spatial.RD_SRS_NAME))
 
       if (isRD)
-        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "RD(in m.)"))
+        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", multiple = false, "controlledVocabulary", "RD(in m.)"))
       else
-        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", false, "controlledVocabulary", "latitude/longitude (m)"))
+        subFields += ("easy-tsm-spatial-box" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box", multiple = false, "controlledVocabulary", "latitude/longitude (m)"))
 
       val lowerCorner = (spatial \\ "lowerCorner")
         .find(!_.text.isEmpty)
@@ -203,10 +203,10 @@ case class EasyToDataverseMapper() {
         ).getOrElse(List(""))
 
       val boxCoordinate = getBoxCoordinate(isRD, lowerCorner, upperCorner)
-      subFields += ("easy-tsm-spatial-box-north" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-north", false, "primitive", boxCoordinate.north))
-      subFields += ("easy-tsm-spatial-box-east" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-east", false, "primitive", boxCoordinate.east))
-      subFields += ("easy-tsm-spatial-box-south" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-south", false, "primitive", boxCoordinate.south))
-      subFields += ("easy-tsm-spatial-box-west" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-west", false, "primitive", boxCoordinate.west))
+      subFields += ("easy-tsm-spatial-box-north" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-north", multiple = false, "primitive", boxCoordinate.north))
+      subFields += ("easy-tsm-spatial-box-east" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-east", multiple = false, "primitive", boxCoordinate.east))
+      subFields += ("easy-tsm-spatial-box-south" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-south", multiple = false, "primitive", boxCoordinate.south))
+      subFields += ("easy-tsm-spatial-box-west" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-west", multiple = false, "primitive", boxCoordinate.west))
       objectList += subFields.toMap
     })
     addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-spatial-box", multiple = true, "compound", objectList.toList))
@@ -218,14 +218,14 @@ case class EasyToDataverseMapper() {
       var subFields = collection.mutable.Map[String, Field]()
       val isRD = spatial.attributes.exists(_.value.text.equals(Spatial.RD_SRS_NAME))
       if (isRD)
-        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "RD(in m.)"))
+        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", multiple = false, "controlledVocabulary", "RD(in m.)"))
       else
-        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", false, "controlledVocabulary", "latitude/longitude (m)"))
+        subFields += ("easy-tsm-spatial-point" -> PrimitiveFieldSingleValue("easy-tsm-spatial-point", multiple = false, "controlledVocabulary", "latitude/longitude (m)"))
 
       val pos = (spatial \\ "pos").filter(!_.text.isEmpty).head.text.split(" +").take(2).toList
       val coordinate = getPointCoordinate(isRD, pos)
-      subFields += ("easy-tsm-x" -> PrimitiveFieldSingleValue("easy-tsm-x", false, "primitive", coordinate.x))
-      subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", false, "primitive", coordinate.y))
+      subFields += ("easy-tsm-x" -> PrimitiveFieldSingleValue("easy-tsm-x", multiple = false, "primitive", coordinate.x))
+      subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", multiple = false, "primitive", coordinate.y))
       objectList += subFields.toMap
     })
     addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-tsm", multiple = true, "compound", objectList.toList))
@@ -255,15 +255,15 @@ case class EasyToDataverseMapper() {
     if (po.nonEmpty) {
       po.foreach(e => {
         e.head.nonEmptyChildren.foreach {
-          case e @ Elem("dcx-dai", "role", _, _, _) => subFields += ("easy-pno-role" -> PrimitiveFieldSingleValue("easy-pno-role", false, "controlledVocabulary", e.text))
-          case e @ Elem("dcx-dai", "titles", _, _, _) => subFields += ("easy-pno-titles" -> PrimitiveFieldSingleValue("easy-pno-titles", false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "initials", _, _, _) => subFields += ("easy-pno-initials" -> PrimitiveFieldSingleValue("easy-pno-initials", false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "insertions", _, _, _) => subFields += ("easy-pno-prefix" -> PrimitiveFieldSingleValue("easy-pno-prefix", false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "surname", _, _, _) => subFields += ("easy-pno-surname" -> PrimitiveFieldSingleValue("easy-pno-surname", false, "primitive", e.text))
-          case node @ _ if node.label.equals("organization") => subFields += ("easy-pno-organisation" -> PrimitiveFieldSingleValue("easy-pno-organisation", false, "primitive", (node \ "name").head.text))
-          case e @ Elem("dcx-dai", "ORCID", _, _, _) => subFields += ("easy-pno-id-orcid" -> PrimitiveFieldSingleValue("easy-pno-id-orcid", false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "ISNI", _, _, _) => subFields += ("easy-pno-id-isni" -> PrimitiveFieldSingleValue("easy-pno-id-isni", false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "DAI", _, _, _) => subFields += ("easy-pno-id-dai" -> PrimitiveFieldSingleValue("easy-pno-id-dai", false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "role", _, _, _) => subFields += ("easy-pno-role" -> PrimitiveFieldSingleValue("easy-pno-role", multiple = false, "controlledVocabulary", e.text))
+          case e @ Elem("dcx-dai", "titles", _, _, _) => subFields += ("easy-pno-titles" -> PrimitiveFieldSingleValue("easy-pno-titles", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "initials", _, _, _) => subFields += ("easy-pno-initials" -> PrimitiveFieldSingleValue("easy-pno-initials", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "insertions", _, _, _) => subFields += ("easy-pno-prefix" -> PrimitiveFieldSingleValue("easy-pno-prefix", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "surname", _, _, _) => subFields += ("easy-pno-surname" -> PrimitiveFieldSingleValue("easy-pno-surname", multiple = false, "primitive", e.text))
+          case node @ _ if node.label.equals("organization") => subFields += ("easy-pno-organisation" -> PrimitiveFieldSingleValue("easy-pno-organisation", multiple = false, "primitive", (node \ "name").head.text))
+          case e @ Elem("dcx-dai", "ORCID", _, _, _) => subFields += ("easy-pno-id-orcid" -> PrimitiveFieldSingleValue("easy-pno-id-orcid", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "ISNI", _, _, _) => subFields += ("easy-pno-id-isni" -> PrimitiveFieldSingleValue("easy-pno-id-isni", multiple = false, "primitive", e.text))
+          case e @ Elem("dcx-dai", "DAI", _, _, _) => subFields += ("easy-pno-id-dai" -> PrimitiveFieldSingleValue("easy-pno-id-dai", multiple = false, "primitive", e.text))
           case _ => ()
         }
         objectList += subFields.toMap
@@ -280,7 +280,7 @@ case class EasyToDataverseMapper() {
         var subFields = collection.mutable.Map[String, Field]()
         subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(creatorNode.head)))
         creatorNode.nonEmptyChildren.foreach {
-          case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
+          case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", multiple = false, "primitive", (node \ "name").head.text))
           case e @ Elem("dcx-dai", "DAI", _, _, _) =>
             subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
             subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
@@ -448,13 +448,13 @@ case class EasyToDataverseMapper() {
 
   object Scheme extends Enumeration {
     type Scheme = Value
-    val DOI = Value("doi")
-    val URN = Value("urn:nbn:nl")
-    val ISBN = Value("ISBN")
-    val ISSN = Value("ISSN")
-    val NWO = Value("NWO ProjectNr")
-    val OTHER = Value("other")
-    val DEFAULT = Value("")
+    val DOI: Value = Value("doi")
+    val URN: Value = Value("urn:nbn:nl")
+    val ISBN: Value = Value("ISBN")
+    val ISSN: Value = Value("ISSN")
+    val NWO: Value = Value("NWO ProjectNr")
+    val OTHER: Value = Value("other")
+    val DEFAULT: Value = Value("")
   }
 
   //check if RelatedIdentifier or Relation
