@@ -21,7 +21,7 @@ class ActiveTaskQueueSpec extends FlatSpec with Matchers with OneInstancePerTest
 
   // TODO: how to make this test robust?
   "start" should "cause previously queued items to be processed (within a reasonable time)" in {
-    val q = new ActiveTaskQueue()
+    val q = ActiveTaskQueue()
     val triggeredTasks = List(
       TriggerTask(),
       TriggerTask(),

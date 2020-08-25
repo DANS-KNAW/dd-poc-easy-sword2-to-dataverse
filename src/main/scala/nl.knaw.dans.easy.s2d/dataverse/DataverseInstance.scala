@@ -17,16 +17,16 @@ package nl.knaw.dans.easy.s2d.dataverse
 
 import java.io.PrintStream
 
-class DataverseInstance(config: DataverseInstanceConfig)(implicit resultOutputStream: PrintStream) {
+case class DataverseInstance(config: DataverseInstanceConfig)(implicit resultOutputStream: PrintStream) {
   def dataverse(dvId: String): Dataverse = {
-    new Dataverse(dvId: String, config)
+    Dataverse(dvId: String, config)
   }
 
   def dataset(id: String, isPersistentId: Boolean): Dataset = {
-    new Dataset(id, isPersistentId, config)
+    Dataset(id, isPersistentId, config)
   }
 
   def file(id: String, isPersistentId: Boolean): FileCommand = {
-    new FileCommand(id, isPersistentId, config)
+    FileCommand(id, isPersistentId, config)
   }
 }

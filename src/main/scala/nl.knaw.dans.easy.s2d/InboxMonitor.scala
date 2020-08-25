@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
 class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhancedLogging {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
   private implicit val jsonFormats: Formats = new DefaultFormats {}
-  private val ingestTasks = new ActiveTaskQueue()
+  private val ingestTasks = ActiveTaskQueue()
   private val watcher = new FileMonitor(inbox, maxDepth = 1) {
     override def onCreate(d: File, count: Int): Unit = {
       if (d.isDirectory) {

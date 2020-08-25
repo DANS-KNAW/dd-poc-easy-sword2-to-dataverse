@@ -24,7 +24,7 @@ import scala.util.Try
 class EasySword2ToDataverseApp(configuration: Configuration) {
   private implicit val resultOutput: PrintStream = Console.out
 
-  private val inboxMonitor = new InboxMonitor(configuration.inboxDir, new DataverseInstance(configuration.dataverse))
+  private val inboxMonitor = new InboxMonitor(configuration.inboxDir, DataverseInstance(configuration.dataverse))
 
   def start(): Try[Unit] = Try {
     inboxMonitor.start()

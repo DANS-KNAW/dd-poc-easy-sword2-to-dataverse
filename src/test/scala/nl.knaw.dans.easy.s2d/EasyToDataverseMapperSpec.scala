@@ -22,7 +22,7 @@ import org.scalatest.{ FlatSpec, Matchers, OneInstancePerTest }
 class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Matchers {
 
   implicit val format = DefaultFormats
-  val mapper = new EasyToDataverseMapper
+  val mapper = EasyToDataverseMapper()
 
   "Primitive fields single value" should "be added to metadatablocks" in {
     val ddm =

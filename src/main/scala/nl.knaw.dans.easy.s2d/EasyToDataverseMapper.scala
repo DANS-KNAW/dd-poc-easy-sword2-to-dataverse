@@ -26,7 +26,7 @@ import scala.xml.{ Elem, MetaData, Node }
 /**
  * Maps Easy xml to Dataverse Json
  */
-class EasyToDataverseMapper() {
+case class EasyToDataverseMapper() {
 
   implicit val format = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)

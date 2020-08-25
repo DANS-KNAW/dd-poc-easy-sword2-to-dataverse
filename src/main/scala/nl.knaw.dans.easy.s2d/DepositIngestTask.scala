@@ -32,7 +32,7 @@ import scala.util.{ Failure, Success, Try }
 case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
-  val mapper = new EasyToDataverseMapper()
+  val mapper = EasyToDataverseMapper()
 
   override def run(): Try[Unit] = Try {
     trace(())

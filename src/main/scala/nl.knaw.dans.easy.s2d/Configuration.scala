@@ -43,7 +43,7 @@ object Configuration {
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
       inboxDir = File(properties.getString("deposits.inbox")),
-      dataverse = new DataverseInstanceConfig(
+      dataverse = DataverseInstanceConfig(
         connectionTimeout = properties.getInt("dataverse.connection-timeout-ms"),
         readTimeout = properties.getInt("dataverse.read-timeout-ms"),
         baseUrl = new URI(properties.getString("dataverse.base-url")),

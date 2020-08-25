@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext
  *
  * @param capacity the maximum capacity of the queue
  */
-class ActiveTaskQueue(capacity: Int = 200) extends DebugEnhancedLogging {
+case class ActiveTaskQueue(capacity: Int = 200) extends DebugEnhancedLogging {
   private val executionContext: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
   private val tasks = new LinkedBlockingDeque[Option[Task]](capacity)
 
