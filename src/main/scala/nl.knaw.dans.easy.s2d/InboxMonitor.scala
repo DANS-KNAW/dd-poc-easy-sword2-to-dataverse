@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
  * it schedules an DepositIngestTask on an ActiveTaskQueue. This task ingests the deposit to the
  * the Dataverse instance represented by `dataverse`.
  *
- * @param inbox the inbox directory to monitor
+ * @param inbox     the inbox directory to monitor
  * @param dataverse the Dataverse instance to ingest to
  */
 class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhancedLogging {
@@ -50,11 +50,9 @@ class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhan
     trace(())
     val dirs = inbox.list(_.isDirectory, maxDepth = 1).filterNot(_ == inbox).toList
     logger.info(s"Queueing existing directories: $dirs")
-    dirs.foreach {
-      d => {
+    dirs.foreach { d =>
         debug(s"Adding $d")
         ingestTasks.add(DepositIngestTask(Deposit(d), dataverse))
-      }
     }
 
     logger.info("Starting inbox watcher...")
