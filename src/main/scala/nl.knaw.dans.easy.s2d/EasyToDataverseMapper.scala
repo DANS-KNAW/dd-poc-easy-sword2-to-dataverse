@@ -476,7 +476,7 @@ case class EasyToDataverseMapper() {
   }
 
   def getUrl(md: MetaData): String = {
-    md.get("href").getOrElse("").asInstanceOf[String]
+    md.get("href").toSeq.flatten.headOption.map(_.text).getOrElse("")
   }
 
   //assigns correct values to Coordinate (RD = [x,y) and Degrees = [y,x]
