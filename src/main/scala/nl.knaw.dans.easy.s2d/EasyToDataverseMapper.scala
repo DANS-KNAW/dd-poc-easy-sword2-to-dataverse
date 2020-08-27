@@ -388,21 +388,21 @@ case class EasyToDataverseMapper() {
       case e @ Elem(_, "relation", _, _, _) if isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", mapScheme(e.attributes).toString, e.text, isRelatedIdentifier = false)
       case e @ Elem(_, "relation", _, _, _) if !isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", getUrl(e.attributes), e.text, isRelatedIdentifier = false)
     }
-    if (relationElements.nonEmpty) {
-      val grouped = relationElements.groupBy(_.isRelatedIdentifier)
-      val relIdList = grouped(true).map(relation => Map(
-        "easy-relid-relation" -> PrimitiveFieldSingleValue("easy-relid-relation", multiple = false, "controlledVocabulary", relation.relationType),
-        "easy-relid-type" -> PrimitiveFieldSingleValue("easy-relid-type", multiple = false, "controlledVocabulary", relation.schemeOrUrl),
-        "easy-relid-relatedid" -> PrimitiveFieldSingleValue("easy-relid-relatedid", multiple = false, "primitive", relation.value),
-      ))
-      val relIdUrlList = grouped(false).map(relation => Map(
-        "easy-relid-relation-url" -> PrimitiveFieldSingleValue("easy-relid-relation-url", multiple = false, "controlledVocabulary", relation.relationType),
-        "easy-relid-url-title" -> PrimitiveFieldSingleValue("easy-relid-url-title", multiple = false, "primitive", relation.value),
-        "easy-relid-url-url" -> PrimitiveFieldSingleValue("easy-relid-url-url", multiple = false, "primitive", relation.schemeOrUrl),
-      ))
+    val groupedRelations = relationElements.groupBy(_.isRelatedIdentifier)
+    val relIdList = groupedRelations(true).map(relation => Map(
+      "easy-relid-relation" -> PrimitiveFieldSingleValue("easy-relid-relation", multiple = false, "controlledVocabulary", relation.relationType),
+      "easy-relid-type" -> PrimitiveFieldSingleValue("easy-relid-type", multiple = false, "controlledVocabulary", relation.schemeOrUrl),
+      "easy-relid-relatedid" -> PrimitiveFieldSingleValue("easy-relid-relatedid", multiple = false, "primitive", relation.value),
+    ))
+    val relIdUrlList = groupedRelations(false).map(relation => Map(
+      "easy-relid-relation-url" -> PrimitiveFieldSingleValue("easy-relid-relation-url", multiple = false, "controlledVocabulary", relation.relationType),
+      "easy-relid-url-title" -> PrimitiveFieldSingleValue("easy-relid-url-title", multiple = false, "primitive", relation.value),
+      "easy-relid-url-url" -> PrimitiveFieldSingleValue("easy-relid-url-url", multiple = false, "primitive", relation.schemeOrUrl),
+    ))
+    if (relIdList.nonEmpty)
       addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid", multiple = true, "compound", relIdList.toList))
+    if (relIdUrlList.nonEmpty)
       addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid-url", multiple = true, "compound", relIdUrlList.toList))
-    }
   }
 
   def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
