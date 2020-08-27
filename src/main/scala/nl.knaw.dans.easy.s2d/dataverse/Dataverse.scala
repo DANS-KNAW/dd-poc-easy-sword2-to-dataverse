@@ -127,10 +127,10 @@ case class Dataverse(dvId: String, configuration: DataverseInstanceConfig)(impli
 
   def importDataset(importFile: File, isDdi: Boolean = false, pid: String, keepOnDraft: Boolean = false): Try[String] = {
     trace(importFile)
-    tryReadFileToString(importFile).flatMap(postJson(s"dataverses/$dvId/datasets/:import${
-      if (isDdi) "ddi"
-      else ""
-    }?pid=$pid&release=${ !keepOnDraft }")(201))
+    val ddi = if (isDdi) "ddi"
+              else ""
+    val value = s"dataverses/$dvId/datasets/:import$ddi?pid=$pid&release=${ !keepOnDraft }"
+    tryReadFileToString(importFile).flatMap(postJson(value)(201))
   }
 
   def publish(): Try[String] = {
