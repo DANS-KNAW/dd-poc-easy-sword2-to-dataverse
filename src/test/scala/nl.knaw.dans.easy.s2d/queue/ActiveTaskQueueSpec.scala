@@ -36,8 +36,6 @@ class ActiveTaskQueueSpec extends FlatSpec with Matchers with OneInstancePerTest
     q.start()
     Thread.sleep(5000)
     q.stop()
-    triggeredTasks(0).triggered shouldBe true
-    triggeredTasks(1).triggered shouldBe true
-    triggeredTasks(2).triggered shouldBe true
+    triggeredTasks.forall(_.triggered) shouldBe true
   }
 }
