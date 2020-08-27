@@ -75,29 +75,29 @@ case class Dataset(id: String, isPersistentId: Boolean, configuration: Dataverse
 
   def editMetadata(json: File, replace: Boolean = false): Try[String] = {
     trace(json, replace)
-    val path = if (isPersistentId) s"datasets/:persistentId/editMetadata/?persistentId=$id${
-      if (replace) "&replace=$replace"
-      else ""
-    }"
-               else s"datasets/$id/editMetadata/${
-                 if (replace) "?replace=$replace"
-                 else ""
-               }"
-    tryReadFileToString(json).flatMap(put(path))
+    val maybeArg = if (replace) Some("replace=true")
+                   else None
+    tryReadFileToString(json).flatMap(put(path("editMetadata", maybeArg)))
   }
 
   def deleteMetadata(json: File): Try[String] = {
     trace(json)
-    val path = if (isPersistentId) s"datasets/:persistentId/deleteMetadata/?persistentId=$id"
-               else s"datasets/$id/deleteMetadata"
-    tryReadFileToString(json).flatMap(put(path))
+    tryReadFileToString(json).flatMap(put(path("deleteMetadata")))
   }
 
   def publish(updateType: String): Try[String] = {
     trace(updateType)
-    val path = if (isPersistentId) s"datasets/:persistentId/actions/:publish/?persistentId=$id&type=$updateType"
-               else s"datasets/$id/actions/:publish?type=$updateType"
-    postJson(path)(200, 202)(null)
+    val p = path("actions/:publish", Some(s"type=$updateType"))
+    postJson(p)(200, 202)(null)
+  }
+
+  private def path(action: String, maybeArg: Option[String] = None) = {
+    (isPersistentId, maybeArg) match {
+      case (true, None) => s"datasets/:persistentId/$action/?persistentId=$id"
+      case (true, Some(arg)) => s"datasets/:persistentId/$action/?persistentId=$id&$arg"
+      case (false, Some(arg)) => s"datasets/$id/$action/?$arg"
+      case (false, None) => s"datasets/$id/$action/"
+    }
   }
 
   def deleteDraft(): Try[String] = {
