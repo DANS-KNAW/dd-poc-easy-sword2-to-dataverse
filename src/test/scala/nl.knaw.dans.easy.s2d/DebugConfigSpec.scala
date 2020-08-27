@@ -23,8 +23,8 @@ import scala.collection.JavaConverters._
 
 class DebugConfigSpec extends FlatSpec with Matchers {
 
-  val configDir = File("src/main/assembly/dist/cfg")
-  val debugConfigDir = File("src/test/resources/debug-config")
+  val configDir: File = File("src/main/assembly/dist/cfg")
+  val debugConfigDir: File = File("src/test/resources/debug-config")
 
   "debug-config" should "contain the same files as src/main/assembly/dist/cfg" in {
     val filesInDebugConfig = debugConfigDir.list.toSet
