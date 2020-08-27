@@ -62,31 +62,16 @@ case class EasyToDataverseMapper() {
     mapToPrimitiveFieldsSingleValue(node)
     mapToPrimitiveFieldsMultipleValues(node)
     mapToCompoundFields(node)
-    val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
-    var versionMap = scala.collection.mutable.Map("citation" -> citationBlock)
+    val versionMap = Map(
+      "citation" -> MetadataBlock("Citation Metadata", citationFields.toList),
+      "access-and-license" -> MetadataBlock("Access and License", access_and_LicenceFields.toList),
+      "depositAgreement" -> MetadataBlock("Deposit Agreement", depositAgreementFields.toList),
+      "basicInformation" -> MetadataBlock("Basic Information", basicInformationFields.toList),
+      "archaeologyMetadata" -> MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList),
+      "temporal-spatial" -> MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList),
+    ).filter { case (_, MetadataBlock(_, list)) => list.nonEmpty }
 
-    if (access_and_LicenceFields.nonEmpty) {
-      val access_and_licenseBlock = MetadataBlock("Access and License", access_and_LicenceFields.toList)
-      versionMap += ("access-and-license" -> access_and_licenseBlock)
-    }
-    if (depositAgreementFields.nonEmpty) {
-      val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
-      versionMap += ("depositAgreement" -> depositAgreementBlock)
-    }
-    if (basicInformationFields.nonEmpty) {
-      val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
-      versionMap += ("basicInformation" -> basicInformation)
-    }
-    if (archaeologySpecificMetadata.nonEmpty) {
-      val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
-      versionMap += ("archaeologyMetadata" -> archaeologyMetadataBlock)
-    }
-    if (temporalSpatialFields.nonEmpty) {
-      val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
-      versionMap += ("temporal-spatial" -> temporalSpatialBlock)
-    }
-
-    val datasetVersion = DatasetVersion(versionMap.toMap)
+    val datasetVersion = DatasetVersion(versionMap)
     val dataverseDataset = DataverseDataset(datasetVersion)
     Serialization.writePretty(dataverseDataset)
   }
