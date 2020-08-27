@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets
 import better.files.File
 import com.google.gson.{ GsonBuilder, JsonParser }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.apache.commons.io.FileUtils
 import scalaj.http.{ Http, HttpResponse, MultiPart }
 
 import scala.util.{ Failure, Success, Try }
@@ -59,7 +58,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, expectedStatus)
@@ -74,7 +73,7 @@ trait HttpSupport extends DebugEnhancedLogging {
  */
   protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, 200)
@@ -86,7 +85,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def postJson(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
@@ -95,7 +94,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def postText(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
@@ -104,7 +103,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def put(subPath: String = null)(body: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("PUT", uri, body, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
@@ -113,7 +112,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def deletePath(subPath: String = null): Try[String] = {
     for {
-      uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
+      uri <- uri(s"api/v$apiVersion/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("DELETE", uri, null, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
@@ -121,7 +120,7 @@ trait HttpSupport extends DebugEnhancedLogging {
   }
 
   protected def tryReadFileToString(file: File): Try[String] = Try {
-    FileUtils.readFileToString(file.toJava, StandardCharsets.UTF_8)
+    file.contentAsString(StandardCharsets.UTF_8)
   }
 
   protected def handleResponse(response: HttpResponse[Array[Byte]], expectedStatus: Int*): Try[Array[Byte]] = {
