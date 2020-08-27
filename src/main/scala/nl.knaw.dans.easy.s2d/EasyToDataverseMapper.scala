@@ -384,9 +384,9 @@ case class EasyToDataverseMapper() {
 
   def addRelatedIdentifiers(node: Node): Try[Unit] = Try {
     val relationElements = (node \\ "_").collect {
-      case e @ Elem(_, "conformsTo", _, _, _) if isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", mapScheme(e.attributes).toString, e.text, isRelatedIdentifier = true)
-      case e @ Elem(_, "relation", _, _, _) if isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", mapScheme(e.attributes).toString, e.text, isRelatedIdentifier = false)
-      case e @ Elem(_, "relation", _, _, _) if !isRelatedIdentifier(e.attributes) => RelatedIdentifier("relation", getUrl(e.attributes), e.text, isRelatedIdentifier = false)
+      case e @ Elem(_, "conformsTo", attr, _, _) if isRelatedIdentifier(attr) => RelatedIdentifier("relation", mapScheme(attr).toString, e.text, isRelatedIdentifier = true)
+      case e @ Elem(_, "relation", attr, _, _) if isRelatedIdentifier(attr) => RelatedIdentifier("relation", mapScheme(attr).toString, e.text, isRelatedIdentifier = false)
+      case e @ Elem(_, "relation", attr, _, _) if !isRelatedIdentifier(attr) => RelatedIdentifier("relation", getUrl(attr), e.text, isRelatedIdentifier = false)
     }
     val groupedRelations = relationElements.groupBy(_.isRelatedIdentifier)
     val relIdList = groupedRelations(true).map(relation => Map(
