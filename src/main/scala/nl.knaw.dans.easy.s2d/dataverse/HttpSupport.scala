@@ -34,6 +34,8 @@ trait HttpSupport extends DebugEnhancedLogging {
   protected val apiVersion: String
   private val gson = new GsonBuilder().setPrettyPrinting().create()
 
+  private lazy val tokenHeader: (String, String) = "X-Dataverse-key" -> apiToken
+
   protected def http(method: String, uri: URI, body: String = null, headers: Map[String, String] = Map.empty[String, String]): Try[HttpResponse[Array[Byte]]] = Try {
     {
       if (body == null) Http(uri.toASCIIString)
@@ -60,7 +62,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
+      response <- httpPostMulti(uri, file, optJsonMetadata, Map(tokenHeader))
       body <- handleResponse(response, expectedStatus)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
@@ -75,7 +77,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
+      response <- http("GET", uri, body = null, Map(tokenHeader))
       body <- handleResponse(response, 200)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
@@ -87,7 +89,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
+      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", tokenHeader))
       _ <- handleResponse(response, expectedStatus: _*)
     } yield s"Successfully POSTed: $body"
   }
@@ -96,7 +98,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
+      response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", tokenHeader))
       _ <- handleResponse(response, expectedStatus: _*)
     } yield s"Successfully POSTed: $body"
   }
@@ -105,7 +107,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- http("PUT", uri, body, Map("X-Dataverse-key" -> apiToken))
+      response <- http("PUT", uri, body, Map(tokenHeader))
       _ <- handleResponse(response, 200)
     } yield s"Successfully PUT to $uri"
   }
@@ -114,7 +116,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(subPath)
       _ = debug(s"Request URL = $uri")
-      response <- http("DELETE", uri, null, Map("X-Dataverse-key" -> apiToken))
+      response <- http("DELETE", uri, null, Map(tokenHeader))
       _ <- handleResponse(response, 200)
     } yield s"Successfully DELETED: $uri"
   }
