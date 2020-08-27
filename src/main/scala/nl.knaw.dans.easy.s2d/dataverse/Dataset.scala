@@ -153,12 +153,11 @@ case class Dataset(id: String, isPersistentId: Boolean, configuration: Dataverse
     trace(dataFile, jsonMetadata, jsonString)
     val path = if (isPersistentId) s"datasets/:persistentId/add?persistentId=$id"
                else s"datasets/$id/add"
-    jsonMetadata.map {
-      f =>
-        tryReadFileToString(f).flatMap {
-          s => postFile(path, dataFile, Some(s))(200, formatResponseAsJson = true)
-        }
-    }.getOrElse {
+    jsonMetadata.map(f =>
+      tryReadFileToString(f).flatMap(s =>
+        postFile(path, dataFile, Some(s))(200, formatResponseAsJson = true)
+      )
+    ).getOrElse {
       postFile(path, dataFile, jsonString)(200, formatResponseAsJson = true)
     }
   }

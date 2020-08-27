@@ -153,13 +153,13 @@ case class EasyToDataverseMapper() {
   def addDescriptions(node: Node): Unit = {
     val objectList = new ListBuffer[Map[String, Field]]()
     ((node \ "profile" \ "description") ++ (node \ "dcmiMetadata" \ "description"))
-      .foreach(d => {
+      .foreach { d =>
         var subFields = collection.mutable.Map[String, Field]()
         subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", multiple = false, "primitive", d.text))
         //todo descriptionDate omitted because it doesn't exist in EASY
         //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
         objectList += subFields.toMap
-      })
+      }
     addCompoundFieldToMetadataBlock("citation", CompoundField("dsDescription", multiple = true, "compound", objectList.toList))
   }
 
@@ -220,13 +220,13 @@ case class EasyToDataverseMapper() {
     val objectList = new ListBuffer[Map[String, Field]]()
     val keywords = node \\ "subject"
     if (keywords.nonEmpty) {
-      keywords.foreach(subject => {
+      keywords.foreach { subject =>
         var subFields = collection.mutable.Map[String, Field]()
         subFields += ("keywordValue" -> PrimitiveFieldSingleValue("keywordValue", multiple = false, "primitive", subject.text))
         //subFields += ("keywordVocabulary" -> PrimitiveFieldSingleValue("keywordVocabulary", multiple = false, "primitive", "NOT AVAILABLE IN EASY"))
         //subFields += ("keywordVocabularyURI" -> PrimitiveFieldSingleValue("keywordVocabularyURI", multiple = false, "primitive", "NOT AVAILABLE IN EASY"))
         objectList += subFields.toMap
-      })
+      }
       addCompoundFieldToMetadataBlock("citation", CompoundField("keyword", multiple = true, "compound", objectList.toList))
     }
   }

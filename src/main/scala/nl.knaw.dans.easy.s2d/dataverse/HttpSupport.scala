@@ -48,9 +48,9 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   private def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
     val parts = MultiPart(data = file.byteArray, name = "file", filename = file.name, mime = "application/octet-stream") +:
-      optJsonMetadata.map {
-        json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
-      }.getOrElse(Nil)
+      optJsonMetadata.map(json =>
+        List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
+      ).getOrElse(Nil)
 
     Http(uri.toASCIIString).postMulti(parts: _*)
       .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
@@ -127,7 +127,8 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def handleResponse(response: HttpResponse[Array[Byte]], expectedStatus: Int*): Try[Array[Byte]] = {
     trace(expectedStatus)
-    if (!expectedStatus.contains(response.code)) Failure(CommandFailedException(response.code, response.statusLine, new String(response.body)))
+    if (!expectedStatus.contains(response.code))
+      Failure(CommandFailedException(response.code, response.statusLine, new String(response.body)))
     else Success(response.body)
   }
 
