@@ -36,7 +36,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   private lazy val tokenHeader: (String, String) = "X-Dataverse-key" -> apiToken
 
-  protected def http(method: String, uri: URI, body: String = null, headers: Map[String, String] = Map.empty[String, String]): Try[HttpResponse[Array[Byte]]] = Try {
+  protected def http(method: String, uri: URI, body: String = null, headers: Map[String, String] = Map.empty): Try[HttpResponse[Array[Byte]]] = Try {
     {
       if (body == null) Http(uri.toASCIIString)
       else Http(uri.toASCIIString).postData(body)
@@ -46,7 +46,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       .asBytes
   }
 
-  private def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
+  private def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map.empty): Try[HttpResponse[Array[Byte]]] = Try {
     val parts = MultiPart(data = file.byteArray, name = "file", filename = file.name, mime = "application/octet-stream") +:
       optJsonMetadata.map(json =>
         List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
