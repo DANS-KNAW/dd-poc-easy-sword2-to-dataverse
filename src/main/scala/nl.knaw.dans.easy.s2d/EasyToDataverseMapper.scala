@@ -56,7 +56,9 @@ case class EasyToDataverseMapper() {
    */
   def mapToJson(node: Node): Try[String] = Try {
     // Todo Which title: DV allows only one
-    val title = (node \\ "title").head.text
+    val title = (node \\ "title").headOption
+      .map(_.text)
+      .getOrElse(throw new IllegalArgumentException("No <title> found"))
     addPrimitiveFieldToMetadataBlock("title", multi = false, "primitive", Some(title), None, "citation")
 
     mapToPrimitiveFieldsSingleValue(node)
