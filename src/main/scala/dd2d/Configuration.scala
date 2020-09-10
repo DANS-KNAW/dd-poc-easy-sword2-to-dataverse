@@ -24,6 +24,7 @@ import org.apache.commons.configuration.PropertiesConfiguration
 
 case class Configuration(version: String,
                          inboxDir: File,
+                         validatorServiceUrl: String,
                          dataverse: DataverseInstanceConfig,
                         )
 
@@ -43,12 +44,14 @@ object Configuration {
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
       inboxDir = File(properties.getString("deposits.inbox")),
+      validatorServiceUrl = properties.getString("easy.validator-service-url"),
       dataverse = new DataverseInstanceConfig(
         connectionTimeout = properties.getInt("dataverse.connection-timeout-ms"),
         readTimeout = properties.getInt("dataverse.read-timeout-ms"),
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
-        apiVersion = properties.getString("dataverse.api-version"))
+        apiVersion = properties.getString("dataverse.api-version")
+      )
     )
   }
 }
