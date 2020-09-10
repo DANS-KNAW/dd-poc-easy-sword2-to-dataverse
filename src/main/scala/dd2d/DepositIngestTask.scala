@@ -15,12 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.file.Paths
+
+import better.files.File
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.Formats
+import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization
+import org.json4s.{ Formats, _ }
 
 import scala.util.{ Failure, Success, Try }
+
+case class DataverseCreateDatasetServerResponse()
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -33,17 +40,28 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
   trace(deposit, dataverse)
 
   val mapper = new DdmToDataverseMapper()
+  //todo find a more robust solution
+  private val rootToInboxPath = "data/inbox/valid-easy-submitted/example-bag-medium/"
 
   override def run(): Try[Unit] = Try {
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
 
-    // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
-
     deposit.tryDdm match {
       case Success(ddm) => {
         mapper.mapToJson(ddm) match {
-          case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
+          case Success(json) => {
+            dataverse.dataverse("root")
+              .createDataset(json) match {
+              case Success(responseJson) => {
+                val dvId = readIdFromResponse(responseJson)
+                uploadFilesToDataset(dvId)
+              }
+              case Failure(exception) => {
+                logger.info("Creating dataset failed: " + exception.getMessage)
+              }
+            }
+          }
           case Failure(exception) => {
             logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
             Failure(exception)
@@ -56,10 +74,30 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       }
     }
   }
+
+  private def uploadFilesToDataset(dvId: String): Try[Unit] = {
+    deposit.tryFilesXml match {
+      case Success(filesXml) => Try {
+        mapper.mapFilesToJson(filesXml).foreach(fileMetadata => {
+          val path = rootToInboxPath + fileMetadata.directoryLabel.getOrElse("")
+
+          // Dataverse uses a "File Path" indicating which folder the file should be uploaded to within the dataset.
+          // The filepath attribute (excluding the filename) of the Bags files.xml is used for this purpose.
+          val fileMetadataUpdated = fileMetadata.copy(directoryLabel = getDirPath(fileMetadata.directoryLabel))
+          dataverse.dataverse(dvId)
+            .uploadFileToDataset(dvId, File(path), Some(Serialization.writePretty(fileMetadataUpdated)))
+        })
+      }
+      case Failure(exception) => Failure(exception)
+    }
+  }
+
+  def readIdFromResponse(responseJson: String): String = {
+    (parse(responseJson) \\ "persistentId")
+      .extract[String]
+  }
+
+  def getDirPath(fullPath: Option[String]): Option[String] = {
+    fullPath.map(p => Paths.get(p).getParent.toString)
+  }
 }
-
-
-
-
-
-
