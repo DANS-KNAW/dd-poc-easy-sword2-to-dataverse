@@ -15,7 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import java.nio.file.Paths
+
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, FileMetadata, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
@@ -45,6 +47,22 @@ class DdmToDataverseMapper() {
 
     /** coordinate order x, y = longitude (DCX_SPATIAL_X), latitude (DCX_SPATIAL_Y) */
     val RD_SRS_NAME = "http://www.opengis.net/def/crs/EPSG/0/28992"
+  }
+
+  def mapFilesToJson(filesXml: Node): Seq[FileMetadata] = {
+    val files = new ListBuffer[FileMetadata]
+    (filesXml \\ "file").filter(_.nonEmpty).foreach(n => {
+      val description = (n \ "description").headOption.map(_.text)
+      val directoryLabel = (n \ "@filepath").headOption.map(_.text)
+      //todo how to map permissions?
+      val restrict = Some("false")
+      files += FileMetadata(description, directoryLabel, restrict)
+    })
+    files.toList
+  }
+
+  def getDirPath(fullPath: Option[String]): Option[String] = {
+    fullPath.map(p => Paths.get(p).getParent.toString)
   }
 
   /**
