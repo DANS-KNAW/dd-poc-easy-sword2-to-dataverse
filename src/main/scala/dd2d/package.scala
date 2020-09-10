@@ -15,7 +15,15 @@
  */
 package nl.knaw.dans.easy
 
+import nl.knaw.dans.easy.dd2d.Deposit
+
 package object s2d {
 
   type DepositName = String
+
+  case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
+    extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
+
+  case class FailedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
+    extends Exception(s"Failed ${ deposit.dir }: $msg", cause)
 }

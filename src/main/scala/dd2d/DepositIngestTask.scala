@@ -15,8 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.file.Path
+
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.Task
+import nl.knaw.dans.easy.s2d.{ FailedDepositException, RejectedDepositException, ValidateBag }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 
@@ -29,7 +32,7 @@ import scala.util.{ Failure, Success, Try }
  * @param dataverse   the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
-case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
+case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with ValidateBag with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
   val mapper = new DdmToDataverseMapper()
@@ -38,14 +41,22 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
 
-    // TODO: validate: is this a deposit can does it contain a bag that conforms to DANS BagIt Profile? (call easy-validate-dans-bag)
+    val validation = validateDansBag(deposit.bagDir.path)
 
-    deposit.tryDdm match {
-      case Success(ddm) => {
-        mapper.mapToJson(ddm) match {
-          case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
+    validation match {
+      case Success(v) => {
+        deposit.tryDdm match {
+          case Success(ddm) => {
+            mapper.mapToJson(ddm) match {
+              case Success(json) => dataverse.dataverse("root").createDataset(json).map(_ => ())
+              case Failure(exception) => {
+                logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
+                Failure(exception)
+              }
+            }
+          }
           case Failure(exception) => {
-            logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
+            logger.info(exception.getMessage)
             Failure(exception)
           }
         }
@@ -55,6 +66,39 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         Failure(exception)
       }
     }
+  }
+
+  private def validateDansBag(bagDir: Path): Try[Unit] = {
+    validateBag(bagDir) match {
+      case Success(validationResult) =>
+        if (validationResult.isCompliant) {
+          debug(s"Validation result: $validationResult")
+          logger.info("Success!")
+          Success(())
+        }
+        else
+          depositRejected(
+            s"""
+               |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
+               |Violations:
+               |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
+          """.stripMargin)
+      case Failure(f) => {
+        depositFailed(s"Problem calling easy-validate-dans-bag: ${ f.getMessage }", f)
+      }
+    }
+  }
+
+  protected def depositRejected[T](message: => String, t: Throwable = null): Try[T] = {
+    Failure(RejectedDepositException(deposit, message, t))
+  }
+
+  protected def depositFailed[T](message: => String, t: Throwable = null): Failure[T] = {
+    Failure(FailedDepositException(deposit, message, t))
+  }
+
+  private def formatViolation(v: (String, String)): String = v match {
+    case (nr, msg) => s" - [$nr] $msg"
   }
 }
 
