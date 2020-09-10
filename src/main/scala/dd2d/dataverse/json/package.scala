@@ -46,4 +46,8 @@ package object json {
                            typeClass: String = "compound", // TODO: idem
                            value: List[Map[String, Field]]) extends Field
 
+  case class FileMetadata(description: Option[String] = None,
+                          directoryLabel: Option[String] = None,
+                          restrict: Option[String] = None)
+
 }
