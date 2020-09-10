@@ -64,7 +64,6 @@ class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhan
 
   def stop(): Unit = {
     trace(())
-    watcher.stop()
     ingestTasks.stop()
   }
 }
