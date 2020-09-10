@@ -45,8 +45,8 @@ trait HttpSupport extends DebugEnhancedLogging {
       .asBytes
   }
 
-  private def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
-    val parts = MultiPart(data = file.byteArray, name = "file", filename = file.name, mime = "application/octet-stream") +:
+  protected def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
+    val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", data = file.byteArray) +:
       optJsonMetadata.map {
         json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
       }.getOrElse(Nil)
@@ -90,7 +90,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
-    } yield s"Successfully POSTed: $body"
+    } yield new String(response.body)
   }
 
   protected def postText(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
