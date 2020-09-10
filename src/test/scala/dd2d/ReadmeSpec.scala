@@ -25,6 +25,7 @@ class ReadmeSpec extends FlatSpec with Matchers with CustomMatchers {
   private val configuration = Configuration(
     version = "my-version",
     inboxDir = null,
+    validatorServiceUrl = null,
     dataverse = null,
   )
   private val clo = new CommandLineOptions(Array[String](), configuration) {
