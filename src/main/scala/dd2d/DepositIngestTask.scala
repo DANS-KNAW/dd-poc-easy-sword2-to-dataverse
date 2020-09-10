@@ -46,7 +46,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
 
-    val validation = validateDansBag(deposit.bagDir.path)
+//    val validation = validateDansBag(deposit.bagDir.path)
 
 //    validation match {
 //      case Success(v) => {
