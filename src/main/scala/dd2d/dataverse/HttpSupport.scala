@@ -57,7 +57,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       .asBytes
   }
 
-  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[String] = {
+  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
@@ -66,13 +66,13 @@ trait HttpSupport extends DebugEnhancedLogging {
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
       _ <- Try { resultOutput.print(output) }
-    } yield s"Posted to URL: $uri"
+    } yield response
   }
 
   /*
  * Helpers
  */
-  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[String] = {
+  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
@@ -81,43 +81,43 @@ trait HttpSupport extends DebugEnhancedLogging {
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
       _ <- Try { resultOutput.print(output) }
-    } yield s"Retrieved URL: $uri"
+    } yield response
   }
 
-  protected def postJson(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
+  protected def postJson(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
-    } yield new String(response.body)
+    } yield response
   }
 
-  protected def postText(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[String] = {
+  protected def postText(subPath: String = null)(expectedStatus: Int*)(body: String = null): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
-    } yield s"Successfully POSTed: $body"
+    } yield response
   }
 
-  protected def put(subPath: String = null)(body: String = null): Try[String] = {
+  protected def put(subPath: String = null)(body: String = null): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("PUT", uri, body, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
-    } yield s"Successfully PUT to $uri"
+    } yield response
   }
 
-  protected def deletePath(subPath: String = null): Try[String] = {
+  protected def deletePath(subPath: String = null): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- http("DELETE", uri, null, Map("X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, 200)
-    } yield s"Successfully DELETED: $uri"
+    } yield response
   }
 
   protected def tryReadFileToString(file: File): Try[String] = Try {

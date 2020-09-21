@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{ Path, Paths }
 
 import better.files.File
@@ -25,6 +26,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization
 import org.json4s.{ Formats, _ }
+import scalaj.http.HttpResponse
 
 import scala.util.{ Failure, Success, Try }
 
@@ -63,9 +65,10 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         logger.error(s"Bag files xml could not be retrieved. Error message: ${ e.getMessage }")
         Failure(e)
       }
-    }
+    }.get
+
     Try {
-      mapper.mapFilesToJson(filesXml.get).foreach(fileMetadata => {
+      mapper.mapFilesToJson(filesXml).foreach(fileMetadata => {
         val path = rootToInboxPath + fileMetadata.directoryLabel.getOrElse("")
 
         // Dataverse uses a "File Path" indicating which folder the file should be uploaded to within the dataset.
@@ -77,8 +80,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }
   }
 
-  private def readIdFromResponse(responseJson: String): Try[String] = Try {
-    (parse(responseJson) \\ "persistentId")
+  private def readIdFromResponse(response: HttpResponse[Array[Byte]]): Try[String] = Try {
+    val responseBodyAsString = new String(response.body, StandardCharsets.UTF_8)
+    (parse(responseBodyAsString) \\ "persistentId")
       .extract[String]
   }
 
