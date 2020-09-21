@@ -45,63 +45,39 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
   override def run(): Try[Unit] = Try {
     trace(())
     debug(s"Ingesting $deposit into Dataverse")
+    val bagDirPath = deposit.bagDir.path
 
-//    val validation = validateDansBag(deposit.bagDir.path)
-
-//    validation match {
-//      case Success(v) => {
-        deposit.tryDdm match {
-          case Success(ddm) => {
-            mapper.mapToJson(ddm) match {
-              case Success(json) => {
-                dataverse.dataverse("root")
-                  .createDataset(json) match {
-                  case Success(responseJson) => {
-                    val dvId = readIdFromResponse(responseJson)
-                    uploadFilesToDataset(dvId)
-                  }
-                  case Failure(exception) => {
-                    logger.info("Creating dataset failed: " + exception.getMessage)
-                  }
-                }
-              }
-              case Failure(exception) => {
-                logger.info("Mapping DDM to Dataverse Json failed: " + exception.getMessage)
-                Failure(exception)
-              }
-            }
-          }
-          case Failure(exception) => {
-            logger.info(exception.getMessage)
-            Failure(exception)
-          }
-        }
-      }
-//      case Failure(exception) => {
-//        logger.info(exception.getMessage)
-//        Failure(exception)
-//      }
-//    }
-//  }
+    for {
+      //_ <- validateDansBag(bagDirPath)
+      ddm <- deposit.tryDdm
+      json <- mapper.mapToJson(ddm)
+      response <- dataverse.dataverse("root").createDataset(json)
+      dvId <- readIdFromResponse(response)
+      _ <- uploadFilesToDataset(dvId)
+    } yield ()
+  }
 
   private def uploadFilesToDataset(dvId: String): Try[Unit] = {
-    deposit.tryFilesXml match {
-      case Success(filesXml) => Try {
-        mapper.mapFilesToJson(filesXml).foreach(fileMetadata => {
-          val path = rootToInboxPath + fileMetadata.directoryLabel.getOrElse("")
-
-          // Dataverse uses a "File Path" indicating which folder the file should be uploaded to within the dataset.
-          // The filepath attribute (excluding the filename) of the Bags files.xml is used for this purpose.
-          val fileMetadataUpdated = fileMetadata.copy(directoryLabel = getDirPath(fileMetadata.directoryLabel))
-          dataverse.dataverse(dvId)
-            .uploadFileToDataset(dvId, File(path), Some(Serialization.writePretty(fileMetadataUpdated)))
-        })
+    val filesXml = deposit.tryFilesXml.recoverWith {
+      case e: IllegalArgumentException => {
+        logger.error(s"Bag files xml could not be retrieved. Error message: ${ e.getMessage }")
+        Failure(e)
       }
-      case Failure(exception) => Failure(exception)
+    }
+    Try {
+      mapper.mapFilesToJson(filesXml.get).foreach(fileMetadata => {
+        val path = rootToInboxPath + fileMetadata.directoryLabel.getOrElse("")
+
+        // Dataverse uses a "File Path" indicating which folder the file should be uploaded to within the dataset.
+        // The filepath attribute (excluding the filename) of the Bags files.xml is used for this purpose.
+        val fileMetadataUpdated = fileMetadata.copy(directoryLabel = getDirPath(fileMetadata.directoryLabel))
+        dataverse.dataverse(dvId)
+          .uploadFileToDataset(dvId, File(path), Some(Serialization.writePretty(fileMetadataUpdated)))
+      })
     }
   }
 
-  private def readIdFromResponse(responseJson: String): String = {
+  private def readIdFromResponse(responseJson: String): Try[String] = Try {
     (parse(responseJson) \\ "persistentId")
       .extract[String]
   }
