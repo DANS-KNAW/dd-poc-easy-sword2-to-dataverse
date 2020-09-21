@@ -17,7 +17,8 @@ package nl.knaw.dans.easy.dd2d
 
 import java.nio.file.Paths
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, FileMetadata, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import better.files.File
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, FileInformation, FileMetadata, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
@@ -40,6 +41,8 @@ class DdmToDataverseMapper() {
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificMetadata = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
+  //todo Why is absolute path not complete using better.files.File?
+  val projectRootToFilePathAttribute = "data/inbox/valid-easy-submitted/example-bag-medium/"
 
   object Spatial {
     /** coordinate order y, x = latitude (DCX_SPATIAL_Y), longitude (DCX_SPATIAL_X) */
@@ -49,20 +52,17 @@ class DdmToDataverseMapper() {
     val RD_SRS_NAME = "http://www.opengis.net/def/crs/EPSG/0/28992"
   }
 
-  def mapFilesToJson(filesXml: Node): Seq[FileMetadata] = {
-    val files = new ListBuffer[FileMetadata]
+  def extractFileInfoFromFilesXml(filesXml: Node): Seq[FileInformation] = {
+    val files = new ListBuffer[FileInformation]
     (filesXml \\ "file").filter(_.nonEmpty).foreach(n => {
       val description = (n \ "description").headOption.map(_.text)
       val directoryLabel = (n \ "@filepath").headOption.map(_.text)
       //todo how to map permissions?
       val restrict = Some("false")
-      files += FileMetadata(description, directoryLabel, restrict)
+      files += FileInformation(File(projectRootToFilePathAttribute + directoryLabel.get),
+        FileMetadata(description, getDirPath(directoryLabel), restrict))
     })
     files.toList
-  }
-
-  def getDirPath(fullPath: Option[String]): Option[String] = {
-    fullPath.map(p => Paths.get(p).getParent.toString)
   }
 
   /**
@@ -514,6 +514,10 @@ class DdmToDataverseMapper() {
     else {
       BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
     }
+  }
+
+  def getDirPath(fullPath: Option[String]): Option[String] = {
+    fullPath.map(p => Paths.get(p).getParent.toString)
   }
 }
 

@@ -16,7 +16,7 @@
 package nl.knaw.dans.easy.s2d
 
 import nl.knaw.dans.easy.dd2d.DdmToDataverseMapper
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, FileMetadata, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, FileInformation, FileMetadata, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 import org.scalatest.{ FlatSpec, Matchers, OneInstancePerTest }
 
@@ -25,7 +25,7 @@ class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Ma
   implicit val format = DefaultFormats
   val mapper = new DdmToDataverseMapper
 
-  "DDM files.xml" should "be mapped to a list of FileMetadata case classes" in {
+  "DDM files.xml" should "be mapped to a list of FileInformation case classes" in {
     val filesXml =
         <files xmlns:dcterms="http://purl.org/dc/terms/">
             <file filepath="data/random images/image01.png">
@@ -47,17 +47,18 @@ class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Ma
             </file>
         </files>
 
-    val result = mapper.mapFilesToJson(filesXml)
+    val result = mapper.extractFileInfoFromFilesXml(filesXml)
     result should have size 3
-    result should equal(List(FileMetadata(Some("This description will be archived, but not displayed anywhere in the Web-UI"), Some("data/random images/image01.png"), Some("false")),
-      FileMetadata(None, Some("data/random images/image02.jpeg"), Some("false")),
-      FileMetadata(None, Some("data/reisverslag/centaur.mpg"), Some("false"))))
-    result should not contain FileMetadata(None, Some("images/image02.jpeg"), None)
+    result should matchPattern { case List(
+    FileInformation(_, FileMetadata(Some("This description will be archived, but not displayed anywhere in the Web-UI"), Some("data/random images"), Some("false"))),
+    FileInformation(_, FileMetadata(None, Some("data/random images"), Some("false"))),
+    FileInformation(_, FileMetadata(None, Some("data/reisverslag"), Some("false")))) =>
+    }
   }
 
   "DDM with no files" should "return an empty list" in {
     val filesXml = <ddm></ddm>
-    val result = mapper.mapFilesToJson(filesXml)
+    val result = mapper.extractFileInfoFromFilesXml(filesXml)
     result should have size 0
     result shouldBe a[List[_]]
   }

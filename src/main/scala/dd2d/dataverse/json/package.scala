@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.dataverse
 
+import better.files.File
 import org.json4s.{ DefaultFormats, Formats }
 
 package object json {
@@ -49,5 +50,7 @@ package object json {
   case class FileMetadata(description: Option[String] = None,
                           directoryLabel: Option[String] = None,
                           restrict: Option[String] = None)
+
+  case class FileInformation(file: File, fileMetadata: FileMetadata)
 
 }

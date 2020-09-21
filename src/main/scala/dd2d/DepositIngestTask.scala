@@ -16,9 +16,8 @@
 package nl.knaw.dans.easy.dd2d
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{ Path, Paths }
+import java.nio.file.Path
 
-import better.files.File
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.easy.s2d.{ FailedDepositException, RejectedDepositException, ValidateBag }
@@ -68,14 +67,9 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }.get
 
     Try {
-      mapper.mapFilesToJson(filesXml).foreach(fileMetadata => {
-        val path = rootToInboxPath + fileMetadata.directoryLabel.getOrElse("")
-
-        // Dataverse uses a "File Path" indicating which folder the file should be uploaded to within the dataset.
-        // The filepath attribute (excluding the filename) of the Bags files.xml is used for this purpose.
-        val fileMetadataUpdated = fileMetadata.copy(directoryLabel = getDirPath(fileMetadata.directoryLabel))
+      mapper.extractFileInfoFromFilesXml(filesXml).foreach(fileInformation => {
         dataverse.dataverse(dvId)
-          .uploadFileToDataset(dvId, File(path), Some(Serialization.writePretty(fileMetadataUpdated)))
+          .uploadFileToDataset(dvId, fileInformation.file, Some(Serialization.writePretty(fileInformation.fileMetadata)))
       })
     }
   }
@@ -84,10 +78,6 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     val responseBodyAsString = new String(response.body, StandardCharsets.UTF_8)
     (parse(responseBodyAsString) \\ "persistentId")
       .extract[String]
-  }
-
-  private def getDirPath(fullPath: Option[String]): Option[String] = {
-    fullPath.map(p => Paths.get(p).getParent.toString)
   }
 
   private def validateDansBag(bagDir: Path): Try[Unit] = {
