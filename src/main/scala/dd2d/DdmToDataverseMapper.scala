@@ -42,7 +42,7 @@ class DdmToDataverseMapper() {
   lazy val archaeologySpecificMetadata = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
   //todo Why is absolute path not complete using better.files.File?
-  val projectRootToFilePathAttribute = "data/inbox/valid-easy-submitted/example-bag-medium/"
+  private val projectRootToFilePathAttribute = File("data/inbox/valid-easy-submitted/example-bag-medium/")
 
   object Spatial {
     /** coordinate order y, x = latitude (DCX_SPATIAL_Y), longitude (DCX_SPATIAL_X) */
@@ -520,4 +520,3 @@ class DdmToDataverseMapper() {
     fullPath.map(p => Paths.get(p).getParent.toString)
   }
 }
-
