@@ -118,7 +118,7 @@ class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Ma
     citationFields should contain(PrimitiveFieldMultipleValues("subject", true, "controlledVocabulary", List("Law", "Agricultural Sciences")))
     citationFields should contain(PrimitiveFieldMultipleValues("language", true, "controlledVocabulary", List("Dutch", "Bosnian", "English", "Dutch", "Breton")))
     citationFields should not contain PrimitiveFieldMultipleValues("dataSources", true, "primitive", List())
-    val archaeologyFields = mapper.archaeologySpecificMetadata
+    val archaeologyFields = mapper.archaeologySpecificFields
     archaeologyFields should have size 3
     archaeologyFields should contain(PrimitiveFieldMultipleValues("archisZaakId", true, "primitive", List("abc", "def")))
     archaeologyFields should contain(PrimitiveFieldMultipleValues("period", true, "controlledVocabulary", List("Paleolithicum laat: 35000 C14 - 8800 vC")))

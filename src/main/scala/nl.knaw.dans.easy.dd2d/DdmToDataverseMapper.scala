@@ -19,6 +19,7 @@ import java.nio.file.Paths
 
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, FileInformation, FileMetadata, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.mapping.NarcisCode
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
@@ -39,7 +40,7 @@ class DdmToDataverseMapper() {
   lazy val access_and_LicenceFields = new ListBuffer[Field]
   lazy val depositAgreementFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
-  lazy val archaeologySpecificMetadata = new ListBuffer[Field]
+  lazy val archaeologySpecificFields = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
   //todo Why is absolute path not complete using better.files.File?
   private val projectRootToFilePathAttribute = File("data/inbox/valid-easy-submitted/example-bag-medium/")
@@ -75,7 +76,7 @@ class DdmToDataverseMapper() {
   def mapToJson(node: Node): Try[String] = Try {
     // Todo Which title: DV allows only one
     val title = (node \\ "title").head.text
-    addPrimitiveFieldToMetadataBlock("title", multi = false, "primitive", Some(title), None, "citation")
+    addPrimitiveFieldToMetadataBlock(citationFields, "title", multi = false, "primitive", Some(title), None)
 
     mapToPrimitiveFieldsSingleValue(node)
     mapToPrimitiveFieldsMultipleValues(node)
@@ -95,8 +96,8 @@ class DdmToDataverseMapper() {
       val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
       versionMap += ("basicInformation" -> basicInformation)
     }
-    if (archaeologySpecificMetadata.nonEmpty) {
-      val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificMetadata.toList)
+    if (archaeologySpecificFields.nonEmpty) {
+      val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificFields.toList)
       versionMap += ("archaeologyMetadata" -> archaeologyMetadataBlock)
     }
     if (temporalSpatialFields.nonEmpty) {
@@ -111,18 +112,18 @@ class DdmToDataverseMapper() {
 
   def mapToPrimitiveFieldsSingleValue(node: Node): Try[Unit] = Try {
     (node \\ "_").foreach {
-      case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock("alternativeTitle", multi = false, "primitive", Some(e.text), None, "citation")
+      case e @ Elem("dcterms", "alternative", _, _, _) => addPrimitiveFieldToMetadataBlock(citationFields, "alternativeTitle", multi = false, "primitive", Some(e.text), None)
       //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
-      case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock("productionDate", multi = false, "primitive", Some(e.text), None, "citation")
-      case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock("accessrights", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
-      case e @ Elem("dcterms", "license", _, _, _) => addPrimitiveFieldToMetadataBlock("license", multi = false, "controlledVocabulary", Some(e.text), None, "access_and_licence")
+      case e @ Elem("ddm", "created", _, _, _) => addPrimitiveFieldToMetadataBlock(citationFields, "productionDate", multi = false, "primitive", Some(e.text), None)
+      case e @ Elem("ddm", "accessRights", _, _, _) => addPrimitiveFieldToMetadataBlock(access_and_LicenceFields, "accessrights", multi = false, "controlledVocabulary", Some(e.text), None)
+      case e @ Elem("dcterms", "license", _, _, _) => addPrimitiveFieldToMetadataBlock(access_and_LicenceFields, "license", multi = false, "controlledVocabulary", Some(e.text), None)
       //Todo get the correct element
-      case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock("accept", multi = false, "controlledVocabulary", Some(e.text), None, "depositAgreement")
+      case e @ Elem(_, "instructionalMethod", _, _, _) => addPrimitiveFieldToMetadataBlock(depositAgreementFields, "accept", multi = false, "controlledVocabulary", Some(e.text), None)
       case _ => ()
     }
     //just search in "profile" because "dcmiMetadata" can also contain data available
     (node \ "profile").head.nonEmptyChildren.foreach {
-      case e @ Elem("ddm", "available", _, _, _) => addPrimitiveFieldToMetadataBlock("dateavailable", multi = false, "primitive", Some(e.text), None, "access_and_licence")
+      case e @ Elem("ddm", "available", _, _, _) => addPrimitiveFieldToMetadataBlock(access_and_LicenceFields, "dateavailable", multi = false, "primitive", Some(e.text), None)
       case _ => ()
     }
 
@@ -132,41 +133,41 @@ class DdmToDataverseMapper() {
       .map(_.value).getOrElse("")
       .toString
 
-    addPrimitiveFieldToMetadataBlock("languageofmetadata", multi = false, "controlledVocabulary", Some(languageOfDescription), None, "basicInformation")
+    addPrimitiveFieldToMetadataBlock(basicInformationFields, "languageofmetadata", multi = false, "controlledVocabulary", Some(languageOfDescription), None)
   }
 
   def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
     // Todo create mapping for EASY Dropdown values (d2700 etc.) to DV values
     val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
     if (audience.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("subject", multi = true, "controlledVocabulary", None, Some(audience), "citation")
+      addPrimitiveFieldToMetadataBlock(citationFields, "subject", multi = true, "controlledVocabulary", None, Some(audience))
 
     val language = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
     if (language.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("language", multi = true, "controlledVocabulary", None, Some(language), "citation")
+      addPrimitiveFieldToMetadataBlock(citationFields, "language", multi = true, "controlledVocabulary", None, Some(language))
 
     val source = (node \\ "source").filter(e => !e.text.equals("")).map(_.text).toList
     if (source.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("dataSources", multi = true, "primitive", None, Some(source), "citation")
+      addPrimitiveFieldToMetadataBlock(citationFields, "dataSources", multi = true, "primitive", None, Some(source))
 
     val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (zaakId.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("archisZaakId", multi = true, "primitive", None, Some(zaakId), "archaeologyMetadata")
+      addPrimitiveFieldToMetadataBlock(archaeologySpecificFields, "archisZaakId", multi = true, "primitive", None, Some(zaakId))
 
     val abrComplex = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRcomplex")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (abrComplex.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("subjectAbr", multi = true, "controlledVocabulary", None, Some(abrComplex), "archaeologyMetadata")
+      addPrimitiveFieldToMetadataBlock(archaeologySpecificFields, "subjectAbr", multi = true, "controlledVocabulary", None, Some(abrComplex))
 
     val period = (node \\ "temporal").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (period.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("period", multi = true, "controlledVocabulary", None, Some(period), "archaeologyMetadata")
+      addPrimitiveFieldToMetadataBlock(archaeologySpecificFields, "period", multi = true, "controlledVocabulary", None, Some(period))
 
     val temporalCoverage = (node \\ "temporal").filterNot(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (temporalCoverage.nonEmpty)
-      addPrimitiveFieldToMetadataBlock("temporal-coverage", true, "primitive", None, Some(temporalCoverage), "temporalSpatial")
+      addPrimitiveFieldToMetadataBlock(archaeologySpecificFields, "temporal-coverage", true, "primitive", None, Some(temporalCoverage))
 
     val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
-    addPrimitiveFieldToMetadataBlock("languageFiles", multi = true, "primitive", None, Some(languageOfFiles), "basicInformation")
+    addPrimitiveFieldToMetadataBlock(basicInformationFields, "languageFiles", multi = true, "primitive", None, Some(languageOfFiles))
   }
 
   def mapToCompoundFields(node: Node): Try[Unit] = Try {
@@ -193,7 +194,7 @@ class DdmToDataverseMapper() {
         //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
         objectList += subFields.toMap
       })
-    addCompoundFieldToMetadataBlock("citation", CompoundField("dsDescription", multiple = true, "compound", objectList.toList))
+    addCompoundFieldToMetadataBlock(citationFields, CompoundField("dsDescription", multiple = true, "compound", objectList.toList))
   }
 
   def addSpatialBox(node: Node): Unit = {
@@ -227,7 +228,7 @@ class DdmToDataverseMapper() {
       subFields += ("easy-tsm-spatial-box-west" -> PrimitiveFieldSingleValue("easy-tsm-spatial-box-west", false, "primitive", boxCoordinate.west))
       objectList += subFields.toMap
     })
-    addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-spatial-box", multiple = true, "compound", objectList.toList))
+    addCompoundFieldToMetadataBlock(temporalSpatialFields, CompoundField("easy-spatial-box", multiple = true, "compound", objectList.toList))
   }
 
   def addSpatialPoint(node: Node): Unit = {
@@ -246,7 +247,7 @@ class DdmToDataverseMapper() {
       subFields += ("easy-tsm-y" -> PrimitiveFieldSingleValue("easy-tsm-y", false, "primitive", coordinate.y))
       objectList += subFields.toMap
     })
-    addCompoundFieldToMetadataBlock("temporalSpatial", CompoundField("easy-tsm", multiple = true, "compound", objectList.toList))
+    addCompoundFieldToMetadataBlock(temporalSpatialFields, CompoundField("easy-tsm", multiple = true, "compound", objectList.toList))
   }
 
   def addKeywords(node: Node): Try[Unit] = Try {
@@ -260,7 +261,7 @@ class DdmToDataverseMapper() {
         //subFields += ("keywordVocabularyURI" -> PrimitiveFieldSingleValue("keywordVocabularyURI", multiple = false, "primitive", "NOT AVAILABLE IN EASY"))
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("citation", CompoundField("keyword", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(citationFields, CompoundField("keyword", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -286,7 +287,7 @@ class DdmToDataverseMapper() {
         }
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-pno", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(basicInformationFields, CompoundField("easy-pno", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -312,7 +313,7 @@ class DdmToDataverseMapper() {
         }
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("citation", CompoundField("author", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(citationFields, CompoundField("author", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -338,7 +339,7 @@ class DdmToDataverseMapper() {
         }
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("citation", CompoundField("contributor", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(citationFields, CompoundField("contributor", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -355,7 +356,7 @@ class DdmToDataverseMapper() {
           objectList += subFields.toMap
         }
       })
-      addCompoundFieldToMetadataBlock("citation", CompoundField("otherId", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(citationFields, CompoundField("otherId", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -376,7 +377,7 @@ class DdmToDataverseMapper() {
         subFields += ("esy-date-val" -> PrimitiveFieldSingleValue("esy-date-val", multiple = false, "primitive", date._2))
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-date", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(basicInformationFields, CompoundField("easy-date", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -396,7 +397,7 @@ class DdmToDataverseMapper() {
         subFields += ("easy-date-val-free" -> PrimitiveFieldSingleValue("easy-date-val-free", multiple = false, "primitive", date._2))
         objectList += subFields.toMap
       })
-      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-date-free", multiple = true, "compound", objectList.toList))
+      addCompoundFieldToMetadataBlock(basicInformationFields, CompoundField("easy-date-free", multiple = true, "compound", objectList.toList))
     }
   }
 
@@ -425,32 +426,20 @@ class DdmToDataverseMapper() {
           relIdUrlList += subFields.toMap
         }
       })
-      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid", multiple = true, "compound", relIdList.toList))
-      addCompoundFieldToMetadataBlock("basicInformation", CompoundField("easy-relid-url", multiple = true, "compound", relIdUrlList.toList))
+      addCompoundFieldToMetadataBlock(basicInformationFields, CompoundField("easy-relid", multiple = true, "compound", relIdList.toList))
+      addCompoundFieldToMetadataBlock(basicInformationFields, CompoundField("easy-relid-url", multiple = true, "compound", relIdUrlList.toList))
     }
   }
 
-  def addPrimitiveFieldToMetadataBlock(fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]], metadataBlockName: String): Unit = {
-    if (!multi)
-      getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldSingleValue(fieldName, multiple = multi, typeClass, value.getOrElse(""))
+  def addPrimitiveFieldToMetadataBlock(metadataBlock: ListBuffer[Field], fieldName: String, multi: Boolean, typeClass: String, value: Option[String], values: Option[List[String]]): Unit = {
+    if (multi)
+      metadataBlock += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
     else
-      getMetadatablockFieldList(metadataBlockName) += PrimitiveFieldMultipleValues(fieldName, multiple = multi, typeClass, values.getOrElse(List()))
+      metadataBlock += PrimitiveFieldSingleValue(fieldName, multiple = multi, typeClass, value.getOrElse(""))
   }
 
-  def addCompoundFieldToMetadataBlock(metadataBlockName: String, compoundField: CompoundField): Unit = {
-    getMetadatablockFieldList(metadataBlockName) += compoundField
-  }
-
-  def getMetadatablockFieldList(name: String): ListBuffer[Field] = {
-    name match {
-      case "citation" => citationFields
-      case "access_and_licence" => access_and_LicenceFields
-      case "depositAgreement" => depositAgreementFields
-      case "basicInformation" => basicInformationFields
-      case "archaeologyMetadata" => archaeologySpecificMetadata
-      case "temporalSpatial" => temporalSpatialFields
-      case _ => new ListBuffer[Field]
-    }
+  def addCompoundFieldToMetadataBlock(metadataBlock: ListBuffer[Field], compoundField: CompoundField): Unit = {
+     metadataBlock += compoundField
   }
 
   def getAuthorName(author: Node): String = {
