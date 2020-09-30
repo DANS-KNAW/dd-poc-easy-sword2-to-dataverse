@@ -15,19 +15,21 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createCompoundFieldMultipleValues, createPrimitiveFieldSingleValue }
+import org.apache.commons.lang.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import scala.xml.{ Elem, MetaData, Node }
+import scala.xml.{ Elem, MetaData, Node, NodeSeq }
 
 /**
  * Maps DANS Dataset Metadata to Dataverse Json
  */
 class DdmToDataverseMapper() {
-  private implicit val format = DefaultFormats
+  private implicit val format: DefaultFormats.type = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
   case class PointCoordinate(x: String, y: String)
   case class BoxCoordinate(north: String, south: String, east: String, west: String)
@@ -56,6 +58,53 @@ class DdmToDataverseMapper() {
     val NWO: IdScheme.Value = Value("NWO ProjectNr")
     val OTHER: IdScheme.Value = Value("other")
     val DEFAULT: IdScheme.Value = Value("")
+  }
+
+  def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
+    // Profile fields
+    addPrimitiveFieldSingleValue(citationFields, "title", (ddm \ "profile" \ "title")) // TODO: Conflict: is multi-value in DDM
+    addCompoundFieldMultipleValues(citationFields, "dsDescription", createDescriptionValueObjectsFrom((ddm \ "profile" \ "description")))
+    addCompoundFieldMultipleValues(citationFields, "author", createAuthorValueObjectsFromCreatorDetails((ddm \ "profile" \ "creatorDetails")))
+
+    // TODO: creator, structured
+    addPrimitiveFieldSingleValue(citationFields, "productionDate", (ddm \ "profile" \ "created"))
+
+
+    // dcmiMetadata
+    addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", (ddm \ "dcmiMetadata" \ "alternative"))
+
+    assembleDataverseDataset()
+  }
+
+  private def assembleDataverseDataset(): DataverseDataset = {
+    val versionMap = mutable.Map[String, MetadataBlock]()
+    addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
+
+    val datasetVersion = DatasetVersion(versionMap.toMap)
+    DataverseDataset(datasetVersion)
+  }
+
+  private def addPrimitiveFieldSingleValue(metadataBlockFields: ListBuffer[Field], name: String, elements: NodeSeq): Unit = {
+    if (elements.nonEmpty) {
+      metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", elements.map(_.text).head)
+    }
+  }
+
+  def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, valueObjects: List[Map[String, Field]]): Unit = {
+    metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects)
+  }
+
+
+  private def addMultipleFieldValueField(metadataBlockFields: ListBuffer[Field], name: String, elements: NodeSeq): Unit = {
+    if (elements.nonEmpty) {
+      metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "primitive", elements.map(_.text).toList)
+    }
+  }
+
+  private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[Field]): Unit = {
+    if (fields.nonEmpty) {
+      versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.toList))
+    }
   }
 
   /**
@@ -174,6 +223,42 @@ class DdmToDataverseMapper() {
     addSpatialPoint(node)
     addSpatialBox(node)
     addDescriptions(node)
+  }
+
+  def createDescriptionValueObjectsFrom(descriptionElements: NodeSeq): List[Map[String, Field]] = {
+    val valueObjects = new ListBuffer[Map[String, Field]]()
+    descriptionElements
+      .foreach(d => {
+        valueObjects += Map(
+          "dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", d.text)
+          // TODO: add date subfield?
+        )
+      })
+    valueObjects.toList
+  }
+
+  def createAuthorValueObjectsFromCreatorDetails(creatorDetailsElements: NodeSeq): List[Map[String, Field]] = {
+    val valueObjects = new ListBuffer[Map[String, Field]]()
+    creatorDetailsElements
+      .foreach(e => {
+        val authorElement = (e \ "author")
+        val titles = (authorElement \ "titles").map(_.text).headOption.getOrElse("")
+        val initials = (authorElement \ "initials").map(_.text).headOption.getOrElse("")
+        val insertions = (authorElement \ "insertions").map(_.text).headOption.getOrElse("")
+        val surname = (authorElement \ "surname").map(_.text).headOption.getOrElse("")
+        val organization = (authorElement \ "organization" \ "name").map(_.text).headOption.getOrElse("")
+        val name = List(titles, initials, insertions, surname).mkString(" ").trim().replaceAll("\\s+", " ")
+        val valueObject = mutable.Map[String, Field]()
+
+        if(StringUtils.isNotBlank(name)) {
+          valueObject.put("authorName", createPrimitiveFieldSingleValue("authorName", name))
+        }
+        if(StringUtils.isNotBlank(organization)) {
+          valueObject.put("authorAffiliation", createPrimitiveFieldSingleValue("authorAffiliation", organization))
+        }
+        valueObjects += valueObject.toMap
+      })
+    valueObjects.toList
   }
 
   def addDescriptions(node: Node): Unit = {

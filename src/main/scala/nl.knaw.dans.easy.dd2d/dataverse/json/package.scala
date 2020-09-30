@@ -30,9 +30,8 @@ package object json {
 
   case class PrimitiveFieldSingleValue(typeName: String,
                                        multiple: Boolean,
-                                       typeClass: String, // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
+                                       typeClass: String,
                                        value: String
-                                       //Todo create enum
                                       ) extends Field
 
   case class PrimitiveFieldMultipleValues(typeName: String,
@@ -44,8 +43,8 @@ package object json {
 
   case class CompoundField(typeName: String,
                            multiple: Boolean,
-                           typeClass: String = "compound", // TODO: idem
-                           value: List[Map[String, Field]]) extends Field
+                           typeClass: String = "compound",
+                           values: List[Map[String, Field]]) extends Field
 
   case class FileMetadata(description: Option[String] = None,
                           directoryLabel: Option[String] = None,
@@ -53,4 +52,19 @@ package object json {
 
   case class FileInformation(file: File, fileMetadata: FileMetadata)
 
+  def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
+    PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
+  }
+
+  def createPrimitiveFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
+    PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
+  }
+
+  def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
+    CompoundField(name, multiple = false, typeClass = "compound", values = List(value))
+  }
+
+  def createCompoundFieldMultipleValues(name: String, values: List[Map[String, Field]]): CompoundField = {
+    CompoundField(name, multiple = true, typeClass = "compound", values)
+  }
 }
