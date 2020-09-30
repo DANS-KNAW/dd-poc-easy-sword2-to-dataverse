@@ -31,7 +31,6 @@ class FilesXmlToDataverseMapper {
     (filesXml \\ "file").filter(_.nonEmpty).foreach(n => {
       val description = (n \ "description").headOption.map(_.text)
       val directoryLabel = (n \ "@filepath").headOption.map(_.text)
-      //todo how to map permissions?
       val restrict = Some("false")
       files += FileInformation(File(projectRootToFilePathAttribute + directoryLabel.get),
         FileMetadata(description, getDirPath(directoryLabel), restrict))

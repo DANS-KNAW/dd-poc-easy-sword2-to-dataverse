@@ -17,6 +17,8 @@ package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createCompoundFieldMultipleValues, createPrimitiveFieldSingleValue }
 import org.apache.commons.lang.StringUtils
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization
 
@@ -39,7 +41,6 @@ class DdmToDataverseMapper() {
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificFields = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
-  //todo Why is absolute path not complete using better.files.File?
 
   object Spatial {
     /** coordinate order y, x = latitude (DCX_SPATIAL_Y), longitude (DCX_SPATIAL_X) */
@@ -66,8 +67,8 @@ class DdmToDataverseMapper() {
     addCompoundFieldMultipleValues(citationFields, "dsDescription", createDescriptionValueObjectsFrom((ddm \ "profile" \ "description")))
     addCompoundFieldMultipleValues(citationFields, "author", createAuthorValueObjectsFromCreatorDetails((ddm \ "profile" \ "creatorDetails")))
     // TODO: creator unstructured
-    addPrimitiveFieldSingleValue(citationFields, "productionDate", (ddm \ "profile" \ "created"))
-    addPrimitiveFieldSingleValue(citationFields, "distributionDate", (ddm \ "profile" \ "available")) // TODO: correct target for available?
+    addPrimitiveFieldSingleValue(citationFields, "productionDate", formatDateAsYYYYMMDD((ddm \ "profile" \ "created")).headOption)
+    addPrimitiveFieldSingleValue(citationFields, "distributionDate", formatDateAsYYYYMMDD((ddm \ "profile" \ "available")).headOption) // TODO: correct target for available?
     addCvFieldMultipleValues(citationFields, "subject", createSubjectsFromNarcisCodes((ddm \ "profile" \ "audience")))
 
     // dcmiMetadata
@@ -88,6 +89,10 @@ class DdmToDataverseMapper() {
     if (elements.nonEmpty) {
       metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", elements.map(_.text).head)
     }
+  }
+
+  private def addPrimitiveFieldSingleValue(metadataBlockFields: ListBuffer[Field], name: String, valueOpt: Option[String]): Unit = {
+    valueOpt.foreach(v => metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", v))
   }
 
   def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, valueObjects: List[Map[String, Field]]): Unit = {
@@ -129,8 +134,7 @@ class DdmToDataverseMapper() {
    * @return Json String
    */
   def mapToJson(ddm: Node): Try[String] = Try {
-    // Todo Which title: DV allows only one
-    val title = (ddm \\ "title").head.text
+   val title = (ddm \\ "title").head.text
     citationFields += PrimitiveFieldSingleValue("title", multiple = false, "primitive", Some(title).getOrElse(""))
 
     mapToPrimitiveFieldsSingleValue(ddm)
@@ -172,7 +176,6 @@ class DdmToDataverseMapper() {
       case e @ Elem("ddm", "created", _, _, _) => citationFields += PrimitiveFieldSingleValue("productionDate", multiple = false, "primitive", Some(e.text).getOrElse(""))
       case e @ Elem("ddm", "accessRights", _, _, _) => accessAndLicenseFields += PrimitiveFieldSingleValue("accessrights", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
       case e @ Elem("dcterms", "license", _, _, _) => accessAndLicenseFields += PrimitiveFieldSingleValue("license", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
-      //Todo get the correct element
       case e @ Elem(_, "instructionalMethod", _, _, _) => depositAgreementFields += PrimitiveFieldSingleValue("accept", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
       case _ => ()
     }
@@ -192,7 +195,6 @@ class DdmToDataverseMapper() {
   }
 
   def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
-    // Todo create mapping for EASY Dropdown values (d2700 etc.) to DV values
     val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
     if (audience.nonEmpty)
       citationFields += PrimitiveFieldMultipleValues("subject", multiple = true, "controlledVocabulary", Some(audience).getOrElse(List()))
@@ -307,7 +309,6 @@ class DdmToDataverseMapper() {
       .foreach(d => {
         var subFields = collection.mutable.Map[String, Field]()
         subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", false, "primitive", d.text))
-        //todo descriptionDate omitted because it doesn't exist in EASY
         //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
         objectList += subFields.toMap
       })
@@ -382,7 +383,6 @@ class DdmToDataverseMapper() {
     }
   }
 
-  //Todo change UI rendering order and formatting in .tsv files
   def addPeopleAndOrganisation(node: Node): Try[Unit] = Try {
     val po = node \\ "author"
     val objectList = new ListBuffer[Map[String, Field]]()
@@ -477,7 +477,6 @@ class DdmToDataverseMapper() {
     }
   }
 
-  //todo create mapping from date elements in EASY to date elements in DV
   def addDates(node: Node): Try[Unit] = Try {
     val objectList = new ListBuffer[Map[String, Field]]()
     val dateElements = (node \\ "_").collect {
@@ -599,4 +598,14 @@ class DdmToDataverseMapper() {
       BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
     }
   }
+
+  // TODO: Make this more robust
+  // TODO: What if precision of the input is less than day-level?
+  def formatDateAsYYYYMMDD(nodeSeq: NodeSeq): List[String] = {
+    nodeSeq.toList.map {
+      n =>
+        DateTimeFormat.forPattern("YYYY-MM-dd").print(DateTime.parse(n.text))
+    }
+  }
+
 }
