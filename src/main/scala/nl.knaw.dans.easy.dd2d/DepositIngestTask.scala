@@ -89,7 +89,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       case Success(validationResult) =>
         if (validationResult.isCompliant) {
           debug(s"Validation result: $validationResult")
-          logger.info("Success!")
+          logger.info("Bag is a valid DANS bag.")
           Success(())
         }
         else

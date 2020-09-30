@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy
+package nl.knaw.dans.easy.dd2d
 
-package object dd2d {
+import better.files.File
 
-  type DepositName = String
+case class DepositsDir(dir: File) {
+  private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
 
-  case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
-    extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
-
-  case class FailedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
-    extends Exception(s"Failed ${ deposit.dir }: $msg", cause)
-
-
-
+  def list: List[File] = {
+    dirs
+  }
 }

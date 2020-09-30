@@ -15,33 +15,28 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.io.PrintStream
-
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
-import nl.knaw.dans.easy.dd2d.queue.{ ActiveTaskQueue, PassiveTaskQueue }
+import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.{ DefaultFormats, Formats }
+import org.json4s.Formats
 
 import scala.util.Try
 
-class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnhancedLogging {
-  private implicit val resultOutput: PrintStream = Console.out
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
+class InboxProcessor(dataverse: DataverseInstance)(implicit jsonFormats: Formats)  extends DebugEnhancedLogging {
 
-  private val dataverse = new DataverseInstance(configuration.dataverse)
-  private val inboxMonitor = new InboxMonitor(configuration.inboxDir, dataverse)
-  private val inboxProcessor = new InboxProcessor(dataverse)
-
-  def importDeposits(inbox: File): Try[Unit] = Try {
-    inboxProcessor.process(inbox)
-  }
-
-  def start(): Try[Unit] = Try {
-    inboxMonitor.start()
-  }
-
-  def stop(): Try[Unit] = Try {
-    inboxMonitor.stop()
+  def process(inbox: File): Try[Unit] = Try {
+    trace(())
+    val ingestTasks = new PassiveTaskQueue()
+    val dirs = DepositsDir(inbox).list
+    logger.info(s"Queueing ${ dirs.size } directories...")
+    dirs.foreach {
+      d => {
+        debug(s"Adding $d")
+        ingestTasks.add(DepositIngestTask(Deposit(d), dataverse))
+      }
+    }
+    logger.info("Processing queue...")
+    ingestTasks.process()
   }
 }

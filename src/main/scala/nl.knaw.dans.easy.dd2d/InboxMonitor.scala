@@ -30,13 +30,12 @@ import scala.concurrent.ExecutionContext
  * it schedules an DepositIngestTask on an ActiveTaskQueue. This task ingests the deposit to the
  * the Dataverse instance represented by `dataverse`.
  *
- * @param inbox the inbox directory to monitor
+ * @param inbox     the inbox directory to monitor
  * @param dataverse the Dataverse instance to ingest to
  */
-class InboxMonitor(inbox: File, dataverse: DataverseInstance) extends DebugEnhancedLogging {
+class InboxMonitor(inbox: File, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends DebugEnhancedLogging {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
-  private val ingestTasks = new ActiveTaskQueue()
+  private val ingestTasks: ActiveTaskQueue = new ActiveTaskQueue()
   private val watcher = new FileMonitor(inbox, maxDepth = 1) {
     override def onCreate(d: File, count: Int): Unit = {
       trace(d, count)
