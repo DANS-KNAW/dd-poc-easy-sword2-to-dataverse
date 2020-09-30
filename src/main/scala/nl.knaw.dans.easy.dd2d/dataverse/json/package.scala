@@ -44,7 +44,7 @@ package object json {
   case class CompoundField(typeName: String,
                            multiple: Boolean,
                            typeClass: String = "compound",
-                           values: List[Map[String, Field]]) extends Field
+                           value: List[Map[String, Field]]) extends Field
 
   case class FileMetadata(description: Option[String] = None,
                           directoryLabel: Option[String] = None,
@@ -61,7 +61,7 @@ package object json {
   }
 
   def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
-    CompoundField(name, multiple = false, typeClass = "compound", values = List(value))
+    CompoundField(name, multiple = false, typeClass = "compound", value = List(value))
   }
 
   def createCompoundFieldMultipleValues(name: String, values: List[Map[String, Field]]): CompoundField = {

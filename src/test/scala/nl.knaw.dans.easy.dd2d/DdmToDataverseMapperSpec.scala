@@ -110,7 +110,7 @@ class DdmToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Mat
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
-        val valueObjectsOfCompoundFields = metadataBlocks("citation").fields.filter(_.isInstanceOf[CompoundField]).map(_.asInstanceOf[CompoundField]).flatMap(_.values)
+        val valueObjectsOfCompoundFields = metadataBlocks("citation").fields.filter(_.isInstanceOf[CompoundField]).map(_.asInstanceOf[CompoundField]).flatMap(_.value)
         valueObjectsOfCompoundFields should contain(
           Map(
             "authorName" -> createPrimitiveFieldSingleValue("authorName", "Dr A van Helsing"),

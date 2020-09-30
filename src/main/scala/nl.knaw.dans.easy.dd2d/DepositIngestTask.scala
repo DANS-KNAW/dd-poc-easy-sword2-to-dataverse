@@ -49,7 +49,11 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     for {
       _ <- validateDansBag(bagDirPath)
       ddm <- deposit.tryDdm
-      json <- ddmMapper.mapToJson(ddm)
+      dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
+      json = Serialization.writePretty(dataverseDataset)
+      _ = if (logger.underlying.isDebugEnabled) {
+        debug(json)
+      }
       response <- dataverse.dataverse("root").createDataset(json)
       dvId <- readIdFromResponse(response)
       _ <- uploadFilesToDataset(dvId)

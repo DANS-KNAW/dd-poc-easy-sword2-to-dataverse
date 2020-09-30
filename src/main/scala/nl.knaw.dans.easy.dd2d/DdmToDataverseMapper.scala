@@ -65,10 +65,10 @@ class DdmToDataverseMapper() {
     addPrimitiveFieldSingleValue(citationFields, "title", (ddm \ "profile" \ "title")) // TODO: Conflict: is multi-value in DDM
     addCompoundFieldMultipleValues(citationFields, "dsDescription", createDescriptionValueObjectsFrom((ddm \ "profile" \ "description")))
     addCompoundFieldMultipleValues(citationFields, "author", createAuthorValueObjectsFromCreatorDetails((ddm \ "profile" \ "creatorDetails")))
-
-    // TODO: creator, structured
+    // TODO: creator unstructured
     addPrimitiveFieldSingleValue(citationFields, "productionDate", (ddm \ "profile" \ "created"))
-
+    addPrimitiveFieldSingleValue(citationFields, "distributionDate", (ddm \ "profile" \ "available")) // TODO: correct target for available?
+    addCvFieldMultipleValues(citationFields, "subject", createSubjectsFromNarcisCodes((ddm \ "profile" \ "audience")))
 
     // dcmiMetadata
     addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", (ddm \ "dcmiMetadata" \ "alternative"))
@@ -91,15 +91,29 @@ class DdmToDataverseMapper() {
   }
 
   def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, valueObjects: List[Map[String, Field]]): Unit = {
-    metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects)
+    if (valueObjects.nonEmpty) {
+      metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects)
+    }
   }
 
-
-  private def addMultipleFieldValueField(metadataBlockFields: ListBuffer[Field], name: String, elements: NodeSeq): Unit = {
+  private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, elements: NodeSeq): Unit = {
     if (elements.nonEmpty) {
       metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "primitive", elements.map(_.text).toList)
     }
   }
+
+  private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, values: List[String]): Unit = {
+    if (values.nonEmpty) {
+      metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
+    }
+  }
+
+  private def addCvFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, values: List[String]): Unit = {
+    if (values.nonEmpty) {
+      metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "controlledVocabulary", values)
+    }
+  }
+
 
   private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[Field]): Unit = {
     if (fields.nonEmpty) {
@@ -250,15 +264,41 @@ class DdmToDataverseMapper() {
         val name = List(titles, initials, insertions, surname).mkString(" ").trim().replaceAll("\\s+", " ")
         val valueObject = mutable.Map[String, Field]()
 
-        if(StringUtils.isNotBlank(name)) {
+        if (StringUtils.isNotBlank(name)) {
           valueObject.put("authorName", createPrimitiveFieldSingleValue("authorName", name))
         }
-        if(StringUtils.isNotBlank(organization)) {
+        if (StringUtils.isNotBlank(organization)) {
           valueObject.put("authorAffiliation", createPrimitiveFieldSingleValue("authorAffiliation", organization))
         }
+
+        // TODO: Add DAI, ISNI, ORCID
         valueObjects += valueObject.toMap
       })
     valueObjects.toList
+  }
+
+  def createSubjectsFromNarcisCodes(audiences: NodeSeq): List[String] = {
+    val narcisToSubject = Map(
+      "D11" -> "Mathematical Sciences",
+      "D12" -> "Physics",
+      "D13" -> "Chemistry",
+      "D14" -> "Engineering",
+      "D16" -> "Computer and Information Science",
+      "D17" -> "Astronomy and Astrophysics",
+      "D18" -> "Agricultural Sciences",
+      "D2" -> "Medicine, Health and Life Sciences",
+      "D3" -> "Arts and Humanities",
+      "D4" -> "Law",
+      "D6" -> "Social Sciences",
+      "D7" -> "Business and Management",
+      "E15" -> "Earth and Environmental Sciences"
+   )
+
+    audiences.toList.map {
+      a =>
+        val code = a.text.take(3).takeWhile(_ != '0') // TODO: check this algorithm
+        narcisToSubject.getOrElse(code, "Other")
+    }
   }
 
   def addDescriptions(node: Node): Unit = {
