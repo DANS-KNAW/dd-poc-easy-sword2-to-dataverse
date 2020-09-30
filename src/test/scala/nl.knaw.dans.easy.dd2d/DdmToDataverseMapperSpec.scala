@@ -13,55 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.s2d
+package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.DdmToDataverseMapper
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, FileInformation, FileMetadata, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 import org.scalatest.{ FlatSpec, Matchers, OneInstancePerTest }
 
-class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Matchers {
+class DdmToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Matchers {
 
-  implicit val format = DefaultFormats
-  val mapper = new DdmToDataverseMapper
-
-  "DDM files.xml" should "be mapped to a list of FileInformation case classes" in {
-    val filesXml =
-        <files xmlns:dcterms="http://purl.org/dc/terms/">
-            <file filepath="data/random images/image01.png">
-                <dcterms:title>The first image</dcterms:title>
-                <dcterms:description>This description will be archived, but not displayed anywhere in the Web-UI</dcterms:description>
-                <dcterms:format>image/png</dcterms:format>
-                <dcterms:created>2016-11-11</dcterms:created>
-            </file>
-            <file filepath="data/random images/image02.jpeg">
-                <dcterms:format>image/jpeg</dcterms:format>
-                <dcterms:created>2016-11-10</dcterms:created>
-            </file>
-            <file filepath="data/reisverslag/centaur.mpg">
-                <dcterms:type>http://schema.org/VideoObject</dcterms:type>
-                <dcterms:title>cemtair</dcterms:title>
-                <dcterms:relation xml:lang="en">data/reisverslag/centaur.srt</dcterms:relation>
-                <dcterms:relation xml:lang="nl">data/reisverslag/centaur-nederlands.srt</dcterms:relation>
-                <accessibleToRights>ANONYMOUS</accessibleToRights>
-            </file>
-        </files>
-
-    val result = mapper.extractFileInfoFromFilesXml(filesXml)
-    result should have size 3
-    result should matchPattern { case List(
-    FileInformation(_, FileMetadata(Some("This description will be archived, but not displayed anywhere in the Web-UI"), Some("data/random images"), Some("false"))),
-    FileInformation(_, FileMetadata(None, Some("data/random images"), Some("false"))),
-    FileInformation(_, FileMetadata(None, Some("data/reisverslag"), Some("false")))) =>
-    }
-  }
-
-  "DDM with no files" should "return an empty list" in {
-    val filesXml = <ddm></ddm>
-    val result = mapper.extractFileInfoFromFilesXml(filesXml)
-    result should have size 0
-    result shouldBe a[List[_]]
-  }
+  implicit val format: DefaultFormats.type = DefaultFormats
+  private val mapper = new DdmToDataverseMapper
 
   "Primitive fields single value" should "be added to metadatablocks" in {
     val ddm =
@@ -83,7 +44,7 @@ class EasyToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Ma
     citationFields should contain(PrimitiveFieldSingleValue("productionDate", false, "primitive", "2012-12"))
     citationFields should contain(PrimitiveFieldSingleValue("alternativeTitle", false, "primitive", "alternatief"))
     citationFields should not contain PrimitiveFieldSingleValue("dateavailable", false, "primitive", "2012-12")
-    val access_and_license = mapper.access_and_LicenceFields
+    val access_and_license = mapper.accessAndLicenseFields
     access_and_license should have size 2
     access_and_license should contain(PrimitiveFieldSingleValue("license", false, "controlledVocabulary", "MIT"))
     access_and_license should contain(PrimitiveFieldSingleValue("accessrights", false, "controlledVocabulary", "Restricted Access"))

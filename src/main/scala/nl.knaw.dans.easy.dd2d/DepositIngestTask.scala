@@ -38,7 +38,8 @@ import scala.util.{ Failure, Success, Try }
 case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with ValidateBag with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
-  val mapper = new DdmToDataverseMapper()
+  val ddmMapper = new DdmToDataverseMapper()
+  val filesXmlMapper = new FilesXmlToDataverseMapper()
 
   override def run(): Try[Unit] = {
     trace(())
@@ -48,7 +49,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     for {
       _ <- validateDansBag(bagDirPath)
       ddm <- deposit.tryDdm
-      json <- mapper.mapToJson(ddm)
+      json <- ddmMapper.mapToJson(ddm)
       response <- dataverse.dataverse("root").createDataset(json)
       dvId <- readIdFromResponse(response)
       _ <- uploadFilesToDataset(dvId)
@@ -64,7 +65,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     }.get
 
     Try {
-      mapper.extractFileInfoFromFilesXml(filesXml).foreach(fileInformation => {
+      filesXmlMapper.extractFileInfoFromFilesXml(filesXml).foreach(fileInformation => {
         dataverse.dataverse(dvId)
           .uploadFileToDataset(dvId, fileInformation.file, Some(Serialization.writePretty(fileInformation.fileMetadata)))
       })
