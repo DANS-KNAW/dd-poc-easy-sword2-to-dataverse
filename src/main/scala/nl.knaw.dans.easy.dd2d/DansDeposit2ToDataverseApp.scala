@@ -28,12 +28,15 @@ import scala.util.Try
 class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnhancedLogging {
   private implicit val resultOutput: PrintStream = Console.out
   private val dataverse = new DataverseInstance(configuration.dataverse)
+  private val bagValidator = new BagValidator(configuration.validatorServiceUrl)
   private val inboxWatcher = new InboxWatcher(new Inbox(configuration.inboxDir, dataverse))
 
-//  private def checkPreconditions(): Try[Unit] = {
-//
-//
-//  }
+  def checkPreconditions(): Try[Unit] = {
+    for {
+      _ <- bagValidator.checkConnection()
+      _ <- dataverse.checkConnection()
+    } yield ()
+  }
 
   def importDeposits(inbox: File): Try[Unit] = Try {
     new InboxProcessor(new Inbox(inbox, dataverse)).process()

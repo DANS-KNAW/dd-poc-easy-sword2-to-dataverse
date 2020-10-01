@@ -32,13 +32,15 @@ object Command extends App with DebugEnhancedLogging {
   }
 
   val app = new DansDeposit2ToDataverseApp(configuration)
-
-  val result: Try[FeedBackMessage] = commandLine.subcommand match {
-    case Some(cmd @ commandLine.importCommand) =>
-      Try { app.importDeposits(cmd.depositsInbox()) }.map(_ => "Done importing deposits")
-    case Some(_ @ commandLine.runService) => runAsService()
-    case _ => Try { s"Unknown command: ${ commandLine.subcommand }" }
-  }
+  val result = for {
+    _ <- app.checkPreconditions()
+    msg <- commandLine.subcommand match {
+      case Some(cmd @ commandLine.importCommand) =>
+        Try { app.importDeposits(cmd.depositsInbox()) }.map(_ => "Done importing deposits")
+      case Some(_ @ commandLine.runService) => runAsService()
+      case _ => Try { s"Unknown command: ${ commandLine.subcommand }" }
+    }
+  } yield msg
 
   result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))
     .doIfFailure { case e => logger.error(e.getMessage, e) }

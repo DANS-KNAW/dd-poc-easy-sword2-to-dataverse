@@ -17,7 +17,20 @@ package nl.knaw.dans.easy.dd2d.dataverse
 
 import java.io.PrintStream
 
-class DataverseInstance(config: DataverseInstanceConfig)(implicit resultOutputStream: PrintStream) {
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+
+import scala.util.Try
+
+class DataverseInstance(config: DataverseInstanceConfig)(implicit resultOutputStream: PrintStream) extends DebugEnhancedLogging {
+  def checkConnection(): Try[Unit] = {
+    logger.info("Checking if root dataverse can be reached...")
+    dataverse("root").view().map {
+      _ =>
+        logger.info("OK: root dataverse is reachable.")
+        ()
+    }
+  }
+
   def dataverse(dvId: String): Dataverse = {
     new Dataverse(dvId: String, config)
   }
