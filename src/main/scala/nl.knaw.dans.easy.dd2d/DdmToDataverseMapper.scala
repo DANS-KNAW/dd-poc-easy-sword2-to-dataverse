@@ -16,11 +16,9 @@
 package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createCompoundFieldMultipleValues, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.mapping._
 import org.apache.commons.lang.StringUtils
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.json4s.DefaultFormats
-import org.json4s.native.Serialization
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -62,16 +60,19 @@ class DdmToDataverseMapper() {
   def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
     // Profile fields
     addPrimitiveFieldSingleValue(citationFields, "title", (ddm \ "profile" \ "title")) // TODO: Conflict: is multi-value in DDM
-    addCompoundFieldMultipleValues(citationFields, "dsDescription", createDescriptionValueObjectsFrom((ddm \ "profile" \ "description")))
-    addCompoundFieldMultipleValues(citationFields, "author", createAuthorValueObjectsFromCreatorDetails((ddm \ "profile" \ "creatorDetails")))
+    addCompoundFieldMultipleValues(citationFields, "dsDescription", DescriptionNodes((ddm \ "profile" \ "description")).toValueObjects)
+    addCompoundFieldMultipleValues(citationFields, "author", CreatorDetailsNodes((ddm \ "profile" \ "creatorDetails")).toAuthorValueObjects)
     // TODO: creator unstructured
-    addPrimitiveFieldSingleValue(citationFields, "productionDate", formatDateAsYYYYMMDD((ddm \ "profile" \ "created")).headOption)
-    addPrimitiveFieldSingleValue(citationFields, "distributionDate", formatDateAsYYYYMMDD((ddm \ "profile" \ "available")).headOption) // TODO: correct target for available?
-    addCvFieldMultipleValues(citationFields, "subject", createSubjectsFromNarcisCodes((ddm \ "profile" \ "audience")))
+    addPrimitiveFieldSingleValue(citationFields, "productionDate", CreatedNodes((ddm \ "profile" \ "created")).toProductionDates.headOption) // TODO: what if there are more than one?
+    addPrimitiveFieldSingleValue(citationFields, "distributionDate", AvailableNodes((ddm \ "profile" \ "available")).toDistributionDates.headOption) // TODO: correct target for available?
+    addCvFieldMultipleValues(citationFields, "subject", AudienceNodes((ddm \ "profile" \ "audience")).toCitationBlockSubjects)
 
     // dcmiMetadata
-    addCvFieldMultipleValues(citationFields, "language", (ddm \ "dcmiMetadata" \ "language").toList.map(_.text))
+    addCvFieldMultipleValues(citationFields, "language", LanguageNodes(ddm \ "dcmiMetadata" \ "language").toDataverseLanguages)
     addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", (ddm \ "dcmiMetadata" \ "alternative"))
+    addPrimitiveFieldMultipleValues(citationFields, "dataSources", (ddm \ "dcmiMetadata" \ "source"))
+    addPrimitiveFieldMultipleValues(archaeologySpecificFields, "archisZaakId", IdentifierNodes((ddm \ "dcmiMetadata" \ "identifier")).toArchisZaakIds)
+
 
     assembleDataverseDataset()
   }
@@ -121,7 +122,6 @@ class DdmToDataverseMapper() {
     }
   }
 
-
   private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[Field]): Unit = {
     if (fields.nonEmpty) {
       versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.toList))
@@ -129,15 +129,6 @@ class DdmToDataverseMapper() {
   }
 
   def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
-
-    val language = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
-    if (language.nonEmpty)
-      citationFields += PrimitiveFieldMultipleValues("language", multiple = true, "controlledVocabulary", Some(language).getOrElse(List()))
-
-    val source = (node \\ "source").filter(e => !e.text.equals("")).map(_.text).toList
-    if (source.nonEmpty)
-      citationFields += PrimitiveFieldMultipleValues("dataSources", multiple = true, "primitive", Some(source).getOrElse(List()))
-
     val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).filter(e => !e.text.equals("")).toList.map(_.text)
     if (zaakId.nonEmpty)
       archaeologySpecificFields += PrimitiveFieldMultipleValues("archisZaakId", multiple = true, "primitive", Some(zaakId).getOrElse(List()))
@@ -207,30 +198,6 @@ class DdmToDataverseMapper() {
         valueObjects += valueObject.toMap
       })
     valueObjects.toList
-  }
-
-  def createSubjectsFromNarcisCodes(audiences: NodeSeq): List[String] = {
-    val narcisToSubject = Map(
-      "D11" -> "Mathematical Sciences",
-      "D12" -> "Physics",
-      "D13" -> "Chemistry",
-      "D14" -> "Engineering",
-      "D16" -> "Computer and Information Science",
-      "D17" -> "Astronomy and Astrophysics",
-      "D18" -> "Agricultural Sciences",
-      "D2" -> "Medicine, Health and Life Sciences",
-      "D3" -> "Arts and Humanities",
-      "D4" -> "Law",
-      "D6" -> "Social Sciences",
-      "D7" -> "Business and Management",
-      "E15" -> "Earth and Environmental Sciences"
-   )
-
-    audiences.toList.map {
-      a =>
-        val code = a.text.take(3).takeWhile(_ != '0') // TODO: check this algorithm
-        narcisToSubject.getOrElse(code, "Other")
-    }
   }
 
   def addSpatialBox(node: Node): Unit = {
@@ -516,14 +483,4 @@ class DdmToDataverseMapper() {
       BoxCoordinate(upper.head, lower.head, upper(1), lower(1))
     }
   }
-
-  // TODO: Make this more robust
-  // TODO: What if precision of the input is less than day-level?
-  def formatDateAsYYYYMMDD(nodeSeq: NodeSeq): List[String] = {
-    nodeSeq.toList.map {
-      n =>
-        DateTimeFormat.forPattern("YYYY-MM-dd").print(DateTime.parse(n.text))
-    }
-  }
-
 }

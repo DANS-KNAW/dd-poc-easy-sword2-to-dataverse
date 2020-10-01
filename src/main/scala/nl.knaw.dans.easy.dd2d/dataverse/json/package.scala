@@ -20,6 +20,7 @@ import org.json4s.{ DefaultFormats, Formats }
 
 package object json {
   type MetadataBlockName = String
+  type ValueObject = Map[String, Field]
 
   abstract class Field
   implicit val jsonFormats: Formats = DefaultFormats

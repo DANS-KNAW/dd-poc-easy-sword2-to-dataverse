@@ -39,6 +39,10 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     } yield ()
   }
 
+  def importSingleDeposit(deposit: File) = Try {
+    new SingleDepositProcessor(deposit, dansBagValidator, dataverse).process()
+  }
+
   def importDeposits(inbox: File): Try[Unit] = Try {
     new InboxProcessor(new Inbox(inbox, dansBagValidator, dataverse)).process()
   }

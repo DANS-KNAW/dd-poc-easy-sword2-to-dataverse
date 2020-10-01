@@ -30,6 +30,7 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
     s"""
        |  $printedName run-service
        |  $printedName import <inbox>
+       |  $printedName import -s <single-deposit>
        |  """.stripMargin
 
   version(s"$printedName v${ configuration.version }")
@@ -52,13 +53,15 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   }
   addSubcommand(runService)
   val importCommand = new Subcommand("import") {
-    descr("Imports deposits in the directory specified. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.")
-    val depositsInbox: ScallopOption[Path] = trailArg(name = "inbox",
-      descr = "Directory containing as sub-directories the deposit dirs to be imported")
-    validatePathExists(depositsInbox)
+    descr("Imports one ore more deposits. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.")
+    val singleDeposit: ScallopOption[Boolean] = opt(name = "single", descr = "Single deposit instead of a deposits inbox")
+    val depositsInboxOrSingleDeposit: ScallopOption[Path] = trailArg(name = "inbox-or-single-deposit",
+      descr = "Directory containing as sub-directories the deposit dirs to be imported or a single deposit")
+    validatePathExists(depositsInboxOrSingleDeposit)
     footer(SUBCOMMAND_SEPARATOR)
   }
   addSubcommand(importCommand)
+
 
   footer("")
 }

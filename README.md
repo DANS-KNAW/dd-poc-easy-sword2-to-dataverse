@@ -9,6 +9,7 @@ SYNOPSIS
 
     dd-dans-deposit-to-dataverse run-service
     dd-dans-deposit-to-dataverse import <inbox>
+    dd-dans-deposit-to-dataverse import -s <single-deposit>
 
 DESCRIPTION
 -----------
@@ -25,7 +26,7 @@ ARGUMENTS
     
     Subcommands:
       run-service   Starts DANS Deposit To Dataverse as a daemon that processes deposit directories as they appear in the configured inbox.
-      import        Imports deposits in the directory specified. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.
+      import        Imports one ore more deposits. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.
 
 INSTALLATION AND CONFIGURATION
 ------------------------------
