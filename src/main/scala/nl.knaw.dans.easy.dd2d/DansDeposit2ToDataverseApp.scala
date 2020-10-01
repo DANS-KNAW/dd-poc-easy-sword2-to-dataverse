@@ -27,21 +27,23 @@ import scala.util.Try
 
 class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnhancedLogging {
   private implicit val resultOutput: PrintStream = Console.out
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
-
   private val dataverse = new DataverseInstance(configuration.dataverse)
-  private val inboxMonitor = new InboxMonitor(configuration.inboxDir, dataverse)
-  private val inboxProcessor = new InboxProcessor(dataverse)
+  private val inboxWatcher = new InboxWatcher(new Inbox(configuration.inboxDir, dataverse))
+
+//  private def checkPreconditions(): Try[Unit] = {
+//
+//
+//  }
 
   def importDeposits(inbox: File): Try[Unit] = Try {
-    inboxProcessor.process(inbox)
+    new InboxProcessor(new Inbox(inbox, dataverse)).process()
   }
 
   def start(): Try[Unit] = Try {
-    inboxMonitor.start()
+    inboxWatcher.start()
   }
 
   def stop(): Try[Unit] = Try {
-    inboxMonitor.stop()
+    inboxWatcher.stop()
   }
 }

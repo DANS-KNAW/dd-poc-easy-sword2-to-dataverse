@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d
+package nl.knaw.dans.easy.dd2d.queue
 
-import better.files.File
+/**
+ * Interface to add tasks to a queue.
+ */
+trait TaskQueue {
 
-case class DepositsDir(dir: File) {
-  private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
-
-  def list: List[File] = {
-    dirs
-  }
+  /**
+   * Add a Task to the queue
+   *
+   * @param task the Task to add
+   */
+  def add(task: Task)
 }

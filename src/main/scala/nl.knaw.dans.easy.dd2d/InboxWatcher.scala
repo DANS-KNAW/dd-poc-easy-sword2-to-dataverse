@@ -31,39 +31,25 @@ import scala.concurrent.ExecutionContext
  * the Dataverse instance represented by `dataverse`.
  *
  * @param inbox     the inbox directory to monitor
- * @param dataverse the Dataverse instance to ingest to
  */
-class InboxMonitor(inbox: File, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends DebugEnhancedLogging {
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
+class InboxWatcher(inbox: Inbox) extends DebugEnhancedLogging {
+  implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
   private val ingestTasks: ActiveTaskQueue = new ActiveTaskQueue()
-  private val watcher = new FileMonitor(inbox, maxDepth = 1) {
-    override def onCreate(d: File, count: Int): Unit = {
-      trace(d, count)
-      if (d.isDirectory) {
-        logger.debug(s"Detected new subdirectory in inbox. Adding $d")
-        ingestTasks.add(DepositIngestTask(Deposit(d), dataverse))
-      }
-    }
-  }
+  private val monitor = inbox.createFileMonitor(ingestTasks)
 
   def start(): Unit = {
     trace(())
-    val dirs = inbox.list(_.isDirectory, maxDepth = 1).filterNot(_ == inbox).toList
-    logger.info(s"Queueing existing directories: $dirs")
-    dirs.foreach {
-      d => {
-        debug(s"Adding $d")
-        ingestTasks.add(DepositIngestTask(Deposit(d), dataverse))
-      }
-    }
-
-    logger.info("Starting inbox watcher...")
+    logger.info("Enqueuing deposits found in inbox...")
+    inbox.enqueue(ingestTasks)
+    logger.info("Start processing deposits...")
     ingestTasks.start()
-    watcher.start()
+    logger.info("Starting inbox monitor...")
+    monitor.start()
   }
 
   def stop(): Unit = {
     trace(())
+    logger.info("Sending stop item to queue...")
     ingestTasks.stop()
   }
 }

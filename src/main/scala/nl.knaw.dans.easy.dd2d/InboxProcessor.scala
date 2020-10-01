@@ -15,28 +15,20 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import better.files.File
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.Formats
 
 import scala.util.Try
 
-class InboxProcessor(dataverse: DataverseInstance)(implicit jsonFormats: Formats)  extends DebugEnhancedLogging {
+class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
 
-  def process(inbox: File): Try[Unit] = Try {
+  def process(): Try[Unit] = Try {
     trace(())
     val ingestTasks = new PassiveTaskQueue()
-    val dirs = DepositsDir(inbox).list
-    logger.info(s"Queueing ${ dirs.size } directories...")
-    dirs.foreach {
-      d => {
-        debug(s"Adding $d")
-        ingestTasks.add(DepositIngestTask(Deposit(d), dataverse))
-      }
-    }
+    logger.info("Enqueuing deposits found in inbox...")
+    inbox.enqueue(ingestTasks)
     logger.info("Processing queue...")
     ingestTasks.process()
+    logger.info("Done processing.")
   }
 }

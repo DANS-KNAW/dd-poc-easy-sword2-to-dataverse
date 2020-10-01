@@ -15,14 +15,14 @@
  */
 package nl.knaw.dans.easy.dd2d.queue
 
-import java.util
-import java.util.concurrent.LinkedBlockingDeque
-
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.collection.mutable.ListBuffer
 
-class PassiveTaskQueue() extends DebugEnhancedLogging {
+/**
+ * A TaskQueue that processes all of its tasks synchronously.
+ */
+class PassiveTaskQueue() extends TaskQueue with DebugEnhancedLogging {
   private val tasks = new ListBuffer[Task]
 
   /**
@@ -40,12 +40,13 @@ class PassiveTaskQueue() extends DebugEnhancedLogging {
    * Process items on the queue
    */
   def process(): Unit = {
-    logger.info("Processing thread ready for running tasks")
+    trace(())
     tasks.map {
-      t => t.run().recover {
-        case e: Throwable => logger.warn(s"Task $t failed", e);
-      }
+      t =>
+        t.run().recover {
+          case e: Throwable => logger.warn(s"Task $t failed", e);
+        }
     }
-    logger.info("Finished processing tasks.")
+    logger.info("Done processing tasks.")
   }
 }

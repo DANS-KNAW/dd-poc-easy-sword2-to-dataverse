@@ -17,6 +17,15 @@ package nl.knaw.dans.easy.dd2d.queue
 
 import scala.util.Try
 
+/**
+ * A task that can succeed or fail.
+ */
 trait Task {
+
+  /**
+   * Runs the task.
+   *
+   * @return success or failure
+   */
   def run(): Try[Unit]
 }
