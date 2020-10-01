@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.{ File, FileMonitor }
+import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.TaskQueue
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -28,7 +29,7 @@ import org.json4s.{ DefaultFormats, Formats }
  * @param dir the file system directory
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
-class Inbox(dir: File, dataverse: DataverseInstance) extends DebugEnhancedLogging {
+class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance) extends DebugEnhancedLogging {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
   private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
 
@@ -41,7 +42,7 @@ class Inbox(dir: File, dataverse: DataverseInstance) extends DebugEnhancedLoggin
     dirs.foreach {
       d => {
         debug(s"Adding $d")
-        q.add(DepositIngestTask(Deposit(d), dataverse))
+        q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse))
       }
     }
   }
@@ -60,7 +61,7 @@ class Inbox(dir: File, dataverse: DataverseInstance) extends DebugEnhancedLoggin
         trace(d, count)
         if (d.isDirectory) {
           logger.debug(s"Detected new subdirectory in inbox. Adding $d")
-          q.add(DepositIngestTask(Deposit(d), dataverse))
+          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse))
         }
       }
     }

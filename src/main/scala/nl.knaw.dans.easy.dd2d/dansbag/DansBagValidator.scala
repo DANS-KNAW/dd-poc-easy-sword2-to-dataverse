@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d
+package nl.knaw.dans.easy.dd2d.dansbag
 
 import java.net.URI
 import java.nio.file.Path
@@ -23,7 +23,7 @@ import scalaj.http.Http
 
 import scala.util.Try
 
-class BagValidator(serviceUri: URI) extends DebugEnhancedLogging {
+class DansBagValidator(serviceUri: URI) extends DebugEnhancedLogging {
   def checkConnection(): Try[Unit] = {
     logger.info("Checking if validator service can be reached")
     Try {
@@ -44,7 +44,7 @@ class BagValidator(serviceUri: URI) extends DebugEnhancedLogging {
   def validateBag(bagDir: Path): Try[DansBagValidationResult] = {
     trace(bagDir)
     Try {
-      val validationUri = serviceUri.resolve("validate?infoPackageType=SIP&uri=${bagDir.toUri}")
+      val validationUri = serviceUri.resolve(s"validate?infoPackageType=SIP&uri=${bagDir.toUri}")
       logger.info(s"Calling Dans Bag Validation Service with ${ validationUri.toASCIIString }")
       Http(s"${ validationUri.toASCIIString }")
         // TODO: Make timeouts configurable

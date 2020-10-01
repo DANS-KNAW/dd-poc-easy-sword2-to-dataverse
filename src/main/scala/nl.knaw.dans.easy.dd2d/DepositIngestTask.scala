@@ -17,11 +17,13 @@ package nl.knaw.dans.easy.dd2d
 
 import java.nio.charset.StandardCharsets
 
+import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 import org.json4s.native.Serialization
+import org.json4s.native.JsonMethods._
 import scalaj.http.HttpResponse
 
 import scala.util.{ Failure, Try }
@@ -33,7 +35,7 @@ import scala.util.{ Failure, Try }
  * @param dataverse   the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
-case class DepositIngestTask(deposit: Deposit, dansBagValidator: BagValidator, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
+case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
   val ddmMapper = new DdmToDataverseMapper()
