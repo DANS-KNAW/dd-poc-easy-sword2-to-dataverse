@@ -36,8 +36,6 @@ class DdmToDataverseMapper() {
   case class PointCoordinate(x: String, y: String)
   case class BoxCoordinate(north: String, south: String, east: String, west: String)
   lazy val citationFields = new ListBuffer[Field]
-  lazy val accessAndLicenseFields = new ListBuffer[Field]
-  lazy val depositAgreementFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificFields = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
@@ -72,6 +70,7 @@ class DdmToDataverseMapper() {
     addCvFieldMultipleValues(citationFields, "subject", createSubjectsFromNarcisCodes((ddm \ "profile" \ "audience")))
 
     // dcmiMetadata
+    addCvFieldMultipleValues(citationFields, "language", (ddm \ "dcmiMetadata" \ "language").toList.map(_.text))
     addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", (ddm \ "dcmiMetadata" \ "alternative"))
 
     assembleDataverseDataset()
@@ -80,6 +79,9 @@ class DdmToDataverseMapper() {
   private def assembleDataverseDataset(): DataverseDataset = {
     val versionMap = mutable.Map[String, MetadataBlock]()
     addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
+    addMetadataBlock(versionMap, "basicInformation", "Basic Information", basicInformationFields)
+    addMetadataBlock(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
+    addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
 
     val datasetVersion = DatasetVersion(versionMap.toMap)
     DataverseDataset(datasetVersion)
@@ -126,78 +128,7 @@ class DdmToDataverseMapper() {
     }
   }
 
-  /**
-   * Converts easy-ddm xml to Scala case classes which at the end
-   * are converted to json using the Json4s library
-   *
-   * @param ddm easy-ddm
-   * @return Json String
-   */
-  def mapToJson(ddm: Node): Try[String] = Try {
-   val title = (ddm \\ "title").head.text
-    citationFields += PrimitiveFieldSingleValue("title", multiple = false, "primitive", Some(title).getOrElse(""))
-
-    mapToPrimitiveFieldsSingleValue(ddm)
-    mapToPrimitiveFieldsMultipleValues(ddm)
-    mapToCompoundFields(ddm)
-    val citationBlock = MetadataBlock("Citation Metadata", citationFields.toList)
-    var versionMap = scala.collection.mutable.Map("citation" -> citationBlock)
-
-    if (accessAndLicenseFields.nonEmpty) {
-      val accessAndLicenseBlock = MetadataBlock("Access and License", accessAndLicenseFields.toList)
-      versionMap += ("access-and-license" -> accessAndLicenseBlock)
-    }
-    if (depositAgreementFields.nonEmpty) {
-      val depositAgreementBlock = MetadataBlock("Deposit Agreement", depositAgreementFields.toList)
-      versionMap += ("depositAgreement" -> depositAgreementBlock)
-    }
-    if (basicInformationFields.nonEmpty) {
-      val basicInformation = MetadataBlock("Basic Information", basicInformationFields.toList)
-      versionMap += ("basicInformation" -> basicInformation)
-    }
-    if (archaeologySpecificFields.nonEmpty) {
-      val archaeologyMetadataBlock = MetadataBlock("archaeologyMetadata", archaeologySpecificFields.toList)
-      versionMap += ("archaeologyMetadata" -> archaeologyMetadataBlock)
-    }
-    if (temporalSpatialFields.nonEmpty) {
-      val temporalSpatialBlock = MetadataBlock("Temporal and Spatial Coverage", temporalSpatialFields.toList)
-      versionMap += ("temporal-spatial" -> temporalSpatialBlock)
-    }
-
-    val datasetVersion = DatasetVersion(versionMap.toMap)
-    val dataverseDataset = DataverseDataset(datasetVersion)
-    Serialization.writePretty(dataverseDataset)
-  }
-
-  def mapToPrimitiveFieldsSingleValue(ddm: Node): Try[Unit] = Try {
-    (ddm \\ "_").foreach {
-      case e @ Elem("dcterms", "alternative", _, _, _) => citationFields += PrimitiveFieldSingleValue("alternativeTitle", multiple = false, "primitive", Some(e.text).getOrElse(""))
-      //case node @ _ if node.label.equals("creatorDetails") => addCreator(node)
-      case e @ Elem("ddm", "created", _, _, _) => citationFields += PrimitiveFieldSingleValue("productionDate", multiple = false, "primitive", Some(e.text).getOrElse(""))
-      case e @ Elem("ddm", "accessRights", _, _, _) => accessAndLicenseFields += PrimitiveFieldSingleValue("accessrights", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
-      case e @ Elem("dcterms", "license", _, _, _) => accessAndLicenseFields += PrimitiveFieldSingleValue("license", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
-      case e @ Elem(_, "instructionalMethod", _, _, _) => depositAgreementFields += PrimitiveFieldSingleValue("accept", multiple = false, "controlledVocabulary", Some(e.text).getOrElse(""))
-      case _ => ()
-    }
-    //just search in "profile" because "dcmiMetadata" can also contain data available
-    (ddm \ "profile").head.nonEmptyChildren.foreach {
-      case e @ Elem("ddm", "available", _, _, _) => accessAndLicenseFields += PrimitiveFieldSingleValue("dateavailable", multiple = false, "primitive", Some(e.text).getOrElse(""))
-      case _ => ()
-    }
-
-    val languageOfDescription: String = (ddm \\ "description")
-      .headOption
-      .map(_.attributes.filter(_.key == "lang"))
-      .map(_.value).getOrElse("")
-      .toString
-
-    basicInformationFields += PrimitiveFieldSingleValue("languageofmetadata", multiple = false, "controlledVocabulary", Some(languageOfDescription).getOrElse(""))
-  }
-
   def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
-    val audience = (node \\ "audience").filter(e => !e.text.equals("")).map(_.text).toList
-    if (audience.nonEmpty)
-      citationFields += PrimitiveFieldMultipleValues("subject", multiple = true, "controlledVocabulary", Some(audience).getOrElse(List()))
 
     val language = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
     if (language.nonEmpty)
@@ -238,7 +169,6 @@ class DdmToDataverseMapper() {
     addKeywords(node)
     addSpatialPoint(node)
     addSpatialBox(node)
-    addDescriptions(node)
   }
 
   def createDescriptionValueObjectsFrom(descriptionElements: NodeSeq): List[Map[String, Field]] = {
@@ -301,18 +231,6 @@ class DdmToDataverseMapper() {
         val code = a.text.take(3).takeWhile(_ != '0') // TODO: check this algorithm
         narcisToSubject.getOrElse(code, "Other")
     }
-  }
-
-  def addDescriptions(node: Node): Unit = {
-    val objectList = new ListBuffer[Map[String, Field]]()
-    ((node \ "profile" \ "description") ++ (node \ "dcmiMetadata" \ "description"))
-      .foreach(d => {
-        var subFields = collection.mutable.Map[String, Field]()
-        subFields += ("dsDescriptionValue" -> PrimitiveFieldSingleValue("dsDescriptionValue", false, "primitive", d.text))
-        //subFields += ("dsDescriptionDate" -> PrimitiveFieldSingleValue("dsDescriptionDate", false, "primitive", "NA"))
-        objectList += subFields.toMap
-      })
-    citationFields += CompoundField("dsDescription", multiple = true, "compound", objectList.toList)
   }
 
   def addSpatialBox(node: Node): Unit = {
