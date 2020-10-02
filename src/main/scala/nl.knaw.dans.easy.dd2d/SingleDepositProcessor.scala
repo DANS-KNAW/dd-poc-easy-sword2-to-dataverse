@@ -27,7 +27,7 @@ class SingleDepositProcessor(deposit: File, dansBagValidator: DansBagValidator, 
   private implicit val jsonFormats: Formats = new DefaultFormats {}
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue()
-    ingestTasks.add(new DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse))
+    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse))
     ingestTasks.process()
   }
 }

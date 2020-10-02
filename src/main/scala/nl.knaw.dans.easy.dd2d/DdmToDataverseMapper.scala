@@ -17,7 +17,6 @@ package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, Field, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createCompoundFieldMultipleValues, createPrimitiveFieldSingleValue }
 import nl.knaw.dans.easy.dd2d.mapping._
-import org.apache.commons.lang.StringUtils
 import org.json4s.DefaultFormats
 
 import scala.collection.mutable
@@ -26,8 +25,9 @@ import scala.util.Try
 import scala.xml.{ Elem, MetaData, Node, NodeSeq }
 
 /**
- * Maps DANS Dataset Metadata to Dataverse Json
+ * Maps DANS Dataset Metadata to Dataverse Json.
  */
+// TODO: Rename if we also need to take elements from EMD
 class DdmToDataverseMapper() {
   private implicit val format: DefaultFormats.type = DefaultFormats
   case class RelatedIdentifier(relationType: String, schemeOrUrl: String, value: String, isRelatedIdentifier: Boolean)
@@ -58,21 +58,24 @@ class DdmToDataverseMapper() {
   }
 
   def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
-    // Profile fields
-    addPrimitiveFieldSingleValue(citationFields, "title", (ddm \ "profile" \ "title")) // TODO: Conflict: is multi-value in DDM
-    addCompoundFieldMultipleValues(citationFields, "dsDescription", DescriptionNodes((ddm \ "profile" \ "description")).toValueObjects)
-    addCompoundFieldMultipleValues(citationFields, "author", CreatorDetailsNodes((ddm \ "profile" \ "creatorDetails")).toAuthorValueObjects)
+    // Please keep ordered by order in Dataverse UI as much as possible
+
+    // Citation
+    addPrimitiveFieldSingleValue(citationFields, "title", ddm \ "profile" \ "title") // TODO: Conflict: is multi-value in DDM
+    addCompoundFieldMultipleValues(citationFields, "dsDescription", DescriptionNodes(ddm \ "profile" \ "description").toValueObjects)
+    addCompoundFieldMultipleValues(citationFields, "author", CreatorDetailsNodes(ddm \ "profile" \ "creatorDetails").toAuthorValueObjects)
     // TODO: creator unstructured
-    addPrimitiveFieldSingleValue(citationFields, "productionDate", CreatedNodes((ddm \ "profile" \ "created")).toProductionDates.headOption) // TODO: what if there are more than one?
-    addPrimitiveFieldSingleValue(citationFields, "distributionDate", AvailableNodes((ddm \ "profile" \ "available")).toDistributionDates.headOption) // TODO: correct target for available?
-    addCvFieldMultipleValues(citationFields, "subject", AudienceNodes((ddm \ "profile" \ "audience")).toCitationBlockSubjects)
+    addPrimitiveFieldSingleValue(citationFields, "productionDate", CreatedNodes(ddm \ "profile" \ "created").toProductionDates.headOption) // TODO: what if there are more than one?
+    addPrimitiveFieldSingleValue(citationFields, "distributionDate", AvailableNodes(ddm \ "profile" \ "available").toDistributionDates.headOption) // TODO: correct target for available?
+    addCvFieldMultipleValues(citationFields, "subject", AudienceNodes(ddm \ "profile" \ "audience").toCitationBlockSubjects)
+    addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", ddm \ "dcmiMetadata" \ "alternative")
+    addPrimitiveFieldMultipleValues(citationFields, "dataSources", ddm \ "dcmiMetadata" \ "source")
 
-    // dcmiMetadata
-    addCvFieldMultipleValues(citationFields, "language", LanguageNodes(ddm \ "dcmiMetadata" \ "language").toDataverseLanguages)
-    addPrimitiveFieldSingleValue(citationFields, "alternativeTitle", (ddm \ "dcmiMetadata" \ "alternative"))
-    addPrimitiveFieldMultipleValues(citationFields, "dataSources", (ddm \ "dcmiMetadata" \ "source"))
-    addPrimitiveFieldMultipleValues(archaeologySpecificFields, "archisZaakId", IdentifierNodes((ddm \ "dcmiMetadata" \ "identifier")).toArchisZaakIds)
+    // Basic information
+    addPrimitiveFieldMultipleValues(basicInformationFields, "languageOfFiles", LanguageNodes(ddm \ "dcmiMetadata" \ "language").toDataverseLanguages)
 
+    // Archaeology specific
+    addPrimitiveFieldMultipleValues(archaeologySpecificFields, "archisZaakId", IdentifierNodes(ddm \ "dcmiMetadata" \ "identifier").toArchisZaakIds)
 
     assembleDataverseDataset()
   }
@@ -128,29 +131,7 @@ class DdmToDataverseMapper() {
     }
   }
 
-  def mapToPrimitiveFieldsMultipleValues(node: Node): Try[Unit] = Try {
-    val zaakId = (node \\ "_").filter(_.attributes.exists(_.value.text == "id-type:ARCHIS-ZAAK-IDENTIFICATIE")).filter(e => !e.text.equals("")).toList.map(_.text)
-    if (zaakId.nonEmpty)
-      archaeologySpecificFields += PrimitiveFieldMultipleValues("archisZaakId", multiple = true, "primitive", Some(zaakId).getOrElse(List()))
-
-    val abrComplex = (node \\ "_").filter(_.attributes.exists(_.value.text == "abr:ABRcomplex")).filter(e => !e.text.equals("")).toList.map(_.text)
-    if (abrComplex.nonEmpty)
-      archaeologySpecificFields += PrimitiveFieldMultipleValues("subjectAbr", multiple = true, "controlledVocabulary", Some(abrComplex).getOrElse(List()))
-
-    val period = (node \\ "temporal").filter(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
-    if (period.nonEmpty)
-      archaeologySpecificFields += PrimitiveFieldMultipleValues("period", multiple = true, "controlledVocabulary", Some(period).getOrElse(List()))
-
-    val temporalCoverage = (node \\ "temporal").filterNot(_.attributes.exists(_.value.text == "abr:ABRperiode")).filter(e => !e.text.equals("")).toList.map(_.text)
-    if (temporalCoverage.nonEmpty)
-      archaeologySpecificFields += PrimitiveFieldMultipleValues("temporal-coverage", multiple = true, "primitive", Some(temporalCoverage).getOrElse(List()))
-
-    val languageOfFiles = (node \\ "language").filter(e => !e.text.equals("")).map(_.text).toList
-    basicInformationFields += PrimitiveFieldMultipleValues("languageFiles", multiple = true, "primitive", Some(languageOfFiles).getOrElse(List()))
-  }
-
   def mapToCompoundFields(node: Node): Try[Unit] = Try {
-    addCreator(node)
     addContributors(node)
     addAlternativeIdentifier(node)
     addDates(node)
@@ -160,44 +141,6 @@ class DdmToDataverseMapper() {
     addKeywords(node)
     addSpatialPoint(node)
     addSpatialBox(node)
-  }
-
-  def createDescriptionValueObjectsFrom(descriptionElements: NodeSeq): List[Map[String, Field]] = {
-    val valueObjects = new ListBuffer[Map[String, Field]]()
-    descriptionElements
-      .foreach(d => {
-        valueObjects += Map(
-          "dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", d.text)
-          // TODO: add date subfield?
-        )
-      })
-    valueObjects.toList
-  }
-
-  def createAuthorValueObjectsFromCreatorDetails(creatorDetailsElements: NodeSeq): List[Map[String, Field]] = {
-    val valueObjects = new ListBuffer[Map[String, Field]]()
-    creatorDetailsElements
-      .foreach(e => {
-        val authorElement = (e \ "author")
-        val titles = (authorElement \ "titles").map(_.text).headOption.getOrElse("")
-        val initials = (authorElement \ "initials").map(_.text).headOption.getOrElse("")
-        val insertions = (authorElement \ "insertions").map(_.text).headOption.getOrElse("")
-        val surname = (authorElement \ "surname").map(_.text).headOption.getOrElse("")
-        val organization = (authorElement \ "organization" \ "name").map(_.text).headOption.getOrElse("")
-        val name = List(titles, initials, insertions, surname).mkString(" ").trim().replaceAll("\\s+", " ")
-        val valueObject = mutable.Map[String, Field]()
-
-        if (StringUtils.isNotBlank(name)) {
-          valueObject.put("authorName", createPrimitiveFieldSingleValue("authorName", name))
-        }
-        if (StringUtils.isNotBlank(organization)) {
-          valueObject.put("authorAffiliation", createPrimitiveFieldSingleValue("authorAffiliation", organization))
-        }
-
-        // TODO: Add DAI, ISNI, ORCID
-        valueObjects += valueObject.toMap
-      })
-    valueObjects.toList
   }
 
   def addSpatialBox(node: Node): Unit = {
@@ -290,32 +233,6 @@ class DdmToDataverseMapper() {
         objectList += subFields.toMap
       })
       basicInformationFields += CompoundField("easy-pno", multiple = true, "compound", objectList.toList)
-    }
-  }
-
-  def addCreator(node: Node): Try[Unit] = Try {
-    val creators = ((node \\ "creatorDetails") ++ (node \\ "creator")) \\ "author"
-    val objectList = new ListBuffer[Map[String, Field]]()
-    if (creators.nonEmpty) {
-      creators.foreach(creatorNode => {
-        var subFields = collection.mutable.Map[String, Field]()
-        subFields += ("authorName" -> PrimitiveFieldSingleValue("authorName", multiple = false, "primitive", getAuthorName(creatorNode.head)))
-        creatorNode.nonEmptyChildren.foreach {
-          case node @ _ if node.label.equals("organization") => subFields += ("authorAffiliation" -> PrimitiveFieldSingleValue("authorAffiliation", false, "primitive", (node \ "name").head.text))
-          case e @ Elem("dcx-dai", "DAI", _, _, _) =>
-            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "ISNI", _, _, _) =>
-            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-          case e @ Elem("dcx-dai", "ORCID", _, _, _) =>
-            subFields += ("authorIdentifierScheme" -> PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", e.label))
-            subFields += ("authorIdentifier" -> PrimitiveFieldSingleValue("authorIdentifier", multiple = false, "primitive", e.text))
-          case _ => ()
-        }
-        objectList += subFields.toMap
-      })
-      citationFields += CompoundField("author", multiple = true, "compound", objectList.toList)
     }
   }
 

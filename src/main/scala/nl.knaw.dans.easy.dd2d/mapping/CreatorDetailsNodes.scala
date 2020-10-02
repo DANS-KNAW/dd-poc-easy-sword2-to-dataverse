@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ Field, ValueObject, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ Field, PrimitiveFieldSingleValue, ValueObject, createPrimitiveFieldSingleValue }
 import org.apache.commons.lang.StringUtils
 
 import scala.collection.mutable
@@ -32,6 +32,9 @@ case class CreatorDetailsNodes(nodes: NodeSeq) {
         val initials = (authorElement \ "initials").map(_.text).headOption.getOrElse("")
         val insertions = (authorElement \ "insertions").map(_.text).headOption.getOrElse("")
         val surname = (authorElement \ "surname").map(_.text).headOption.getOrElse("")
+        val dai = (authorElement \ "DAI").map(_.text).headOption.getOrElse("")
+        val isni = (authorElement \ "ISNI").map(_.text).headOption.getOrElse("")
+        val orcid = (authorElement \ "ORCID").map(_.text).headOption.getOrElse("")
         val organization = (authorElement \ "organization" \ "name").map(_.text).headOption.getOrElse("")
         val name = List(titles, initials, insertions, surname).mkString(" ").trim().replaceAll("\\s+", " ")
         val valueObject = mutable.Map[String, Field]()
@@ -39,13 +42,29 @@ case class CreatorDetailsNodes(nodes: NodeSeq) {
         if (StringUtils.isNotBlank(name)) {
           valueObject.put("authorName", createPrimitiveFieldSingleValue("authorName", name))
         }
+
+        if (StringUtils.isNotBlank(orcid)) {
+          addIdentifier(valueObject, "ORCID", orcid)
+        }
+        else if (StringUtils.isNotBlank(isni)) {
+          addIdentifier(valueObject, "ISNI", isni)
+        }
+             else if (StringUtils.isNotBlank(dai)) {
+               addIdentifier(valueObject, "DAI", dai)
+             }
+
         if (StringUtils.isNotBlank(organization)) {
           valueObject.put("authorAffiliation", createPrimitiveFieldSingleValue("authorAffiliation", organization))
         }
-
-        // TODO: Add DAI, ISNI, ORCID
         valueObjects += valueObject.toMap
       })
     valueObjects.toList
+  }
+
+  private def addIdentifier(valueObject: mutable.Map[String, Field], scheme: String, value: String): Unit = {
+    if (StringUtils.isNotBlank(value)) {
+      valueObject.put("authorIdentifierScheme", PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", scheme))
+      valueObject.put("authorIdentifier", createPrimitiveFieldSingleValue("authorIdentifier", value))
+    }
   }
 }
