@@ -61,6 +61,14 @@ package object json {
     PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
   }
 
+  def createCvFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
+    PrimitiveFieldSingleValue(name, multiple = false, "controlledVocabulary", value)
+  }
+
+  def createCvFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
+    PrimitiveFieldMultipleValues(name, multiple = true, "controlledVocabulary", values)
+  }
+
   def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
     CompoundField(name, multiple = false, typeClass = "compound", value = List(value))
   }

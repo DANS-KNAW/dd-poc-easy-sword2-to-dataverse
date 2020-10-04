@@ -15,14 +15,16 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import org.joda.time.DateTime
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ ValueObject, createPrimitiveFieldSingleValue }
 
-import scala.xml.NodeSeq
+import scala.xml.Node
 
-case class AvailableNodes(nodes: NodeSeq) {
-  def toDistributionDates: List[String] = {
-    // TODO: Make this more robust
-    // TODO: What if precision of the input is less than day-level?
-    nodes.toList.map(n => yyyyddmmPattern.print(DateTime.parse(n.text)))
+object Description {
+
+  def toDescriptionValueObject(node: Node): ValueObject = {
+    Map(
+      "dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", node.text)
+      // TODO: add date subfield?
+    )
   }
 }

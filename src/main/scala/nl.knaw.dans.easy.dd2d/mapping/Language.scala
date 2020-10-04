@@ -15,32 +15,17 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.xml.{ Node, NodeSeq }
+import scala.xml.Node
 
-case class LanguageNodes(nodes: NodeSeq) {
+object Language {
   private val shortIsoToDataverse = Map(
     "eng" -> "English",
     "nld" -> "Dutch"
     // TODO: extend, and probably load from resource file
   )
 
-  def toDataverseLanguages: List[String] = {
-    nodes.toList.map {
-      n =>
-        if (hasXsiType(n, "ISO639-2")) shortIsoToDataverse.get(n.text)
-        else Some(n.text)
-    }.filter(_.isDefined).map(_.get)
-  }
-
-  //
-  private def iso639_2ToDataverse(s: String): Option[String] = {
-
-    ???
-  }
-
-  // TODO: if after normalizing spaces and converting to lowercase it is found, return the corresponding item om the DV terms list
-  private def toDataverseLanguage(s: String): Option[String] = {
-
-    ???
+  def toCitationBlockLanguage(node: Node): Option[String] = {
+    if(hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
+    else Option.empty[String] // TODO: try to map to Dataverse vocabulary?
   }
 }

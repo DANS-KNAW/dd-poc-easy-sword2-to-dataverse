@@ -15,14 +15,10 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import org.joda.time.DateTime
+import scala.xml.Node
 
-import scala.xml.NodeSeq
-
-case class CreatedNodes(nodes: NodeSeq) {
-  def toProductionDates: List[String] = {
-    // TODO: Make this more robust
-    // TODO: What if precision of the input is less than day-level?
-    nodes.toList.map(n => yyyyddmmPattern.print(DateTime.parse(n.text)))
+object Generic {
+  def toText(node: Node): Option[String] = {
+    Some(node.text)
   }
 }

@@ -15,14 +15,20 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.xml.NodeSeq
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ ValueObject, createPrimitiveFieldSingleValue }
 
-case class IdentifierNodes(nodes: NodeSeq) {
-  def toArchisZaakIds: List[String] = {
-    nodes.map {
-      n =>
-        if (hasXsiType(n, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(n.text)
-        else Option.empty
-    }.filter(_.isDefined).map(_.get).toList
+import scala.xml.Node
+
+object IsFormatOf {
+
+  def toArchisZaakId(node: Node): Option[String] = {
+    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
+    else Option.empty
+  }
+
+  def toOtherIdValueObject(node: Node): ValueObject = {
+    Map("otherIdValue" -> createPrimitiveFieldSingleValue("otherIdValue", node.text)
+    // TODO: can a sensible value be found for "otherIdAgency"?
+    )
   }
 }

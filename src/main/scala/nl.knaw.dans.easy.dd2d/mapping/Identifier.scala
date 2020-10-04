@@ -15,21 +15,13 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ ValueObject, createPrimitiveFieldSingleValue }
+import scala.xml.Node
 
-import scala.collection.mutable.ListBuffer
-import scala.xml.NodeSeq
+object Identifier {
+// TODO: can ArchisZaakId be in an identifier element?
 
-case class DescriptionNodes(nodes: NodeSeq) {
-  def toValueObjects: List[ValueObject] = {
-    val valueObjects = new ListBuffer[ValueObject]()
-    nodes
-      .foreach(d => {
-        valueObjects += Map(
-          "dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", d.text)
-          // TODO: add date subfield?
-        )
-      })
-    valueObjects.toList
-  }
+//  def toArchisZaakId(node: Node): Option[String] = {
+//    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
+//    else Option.empty
+//  }
 }
