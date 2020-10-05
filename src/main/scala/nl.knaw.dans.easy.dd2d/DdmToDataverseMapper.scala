@@ -59,7 +59,7 @@ class DdmToDataverseMapper() {
       val directoryLabel = (n \ "@filepath").headOption.map(_.text)
       //todo how to map permissions?
       val restrict = Some("false")
-      files += FileInformation(File(projectRootToFilePathAttribute + directoryLabel.get),
+      files += FileInformation(projectRootToFilePathAttribute / directoryLabel.get,
         FileMetadata(description, getDirPath(directoryLabel), restrict))
     })
     files.toList
