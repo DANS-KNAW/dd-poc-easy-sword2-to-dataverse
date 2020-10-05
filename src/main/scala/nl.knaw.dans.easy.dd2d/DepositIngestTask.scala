@@ -18,7 +18,7 @@ package nl.knaw.dans.easy.dd2d
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
+import nl.knaw.dans.easy.dd2d.dataverse.{ DataverseInstance, DepositState }
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.native.JsonMethods._
@@ -45,14 +45,26 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
     debug(s"Ingesting $deposit into Dataverse")
     val bagDirPath = deposit.bagDir.path
 
-    for {
+    val result = for {
       _ <- validateDansBag(bagDirPath)
       ddm <- deposit.tryDdm
       json <- mapper.mapToJson(ddm)
       response <- dataverse.dataverse("root").createDataset(json)
       dvId <- readIdFromResponse(response)
       _ <- uploadFilesToDataset(dvId)
+      _ <- DepositProperties.add(deposit.dir, DepositState.PUBLISHED.toString, "Deposit is valid and successfully imported in Dataverse")
     } yield ()
+
+    result.recover {
+      case e: RejectedDepositException => {
+        DepositProperties.add(deposit.dir, DepositState.REJECTED.toString, e.getMessage)
+        Failure(e)
+      }
+      case e: Throwable => {
+        DepositProperties.add(deposit.dir, DepositState.FAILED.toString, e.getMessage)
+        Failure(e)
+      }
+    }
   }
 
   private def uploadFilesToDataset(dvId: String): Try[Unit] = {
@@ -62,7 +74,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
         logger.error(s"Bag files xml could not be retrieved. Error message: ${ e.getMessage }")
         Failure(e)
     }.get
-
+    //todo: implement fail fast
     Try {
       mapper.extractFileInfoFromFilesXml(filesXml).foreach(fileInformation => {
         dataverse.dataverse(dvId)
@@ -84,7 +96,6 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       case Success(validationResult) =>
         if (validationResult.isCompliant) {
           debug(s"Validation result: $validationResult")
-          logger.info("Success!")
           Success(())
         }
         else
@@ -97,6 +108,7 @@ case class DepositIngestTask(deposit: Deposit, dataverse: DataverseInstance)(imp
       case Failure(f) =>
         depositFailed(s"Problem calling easy-validate-dans-bag: ${ f.getMessage }", f)
     }
+    depositRejected("rejected")
   }
 
   protected def depositRejected[T](message: => String, t: Throwable = null): Try[T] = {

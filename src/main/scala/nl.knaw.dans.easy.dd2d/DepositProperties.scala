@@ -15,11 +15,20 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-package object dataverse {
-  case class CommandFailedException(status: Int, msg: String, body: String) extends Exception(s"Command could not be executed. Server returned: status line: '$msg', body: '$body'")
+import better.files.File
+import org.apache.commons.configuration.PropertiesConfiguration
 
-  object DepositState extends Enumeration {
-    type DepositState = Value
-    val SUBMITTED, PUBLISHED, REJECTED, FAILED = Value
+import scala.util.Try
+
+object DepositProperties {
+
+  def add(depositDir: File, state: String, description: String): Try[Unit] = Try {
+    val pathToPropertiesFile = (depositDir / "deposit.properties").toJava
+    new PropertiesConfiguration() {
+      load(pathToPropertiesFile)
+      addProperty("state.label", state)
+      addProperty("state.description", description)
+      save(pathToPropertiesFile)
+    }
   }
 }
