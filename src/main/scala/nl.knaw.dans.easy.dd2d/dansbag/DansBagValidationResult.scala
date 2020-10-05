@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d
+package nl.knaw.dans.easy.dd2d.dansbag
 
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.native.JsonMethods.parse

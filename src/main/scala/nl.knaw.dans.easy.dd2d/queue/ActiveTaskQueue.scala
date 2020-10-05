@@ -22,11 +22,11 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scala.concurrent.ExecutionContext
 
 /**
- * A queue that processes Tasks on a dedicated thread.
+ * TaskQueue that processes its Tasks on a dedicated thread.
  *
  * @param capacity the maximum capacity of the queue
  */
-class ActiveTaskQueue(capacity: Int = 200) extends DebugEnhancedLogging {
+class ActiveTaskQueue(capacity: Int = 100000) extends TaskQueue with DebugEnhancedLogging {
   private val executionContext: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
   private val tasks = new LinkedBlockingDeque[Option[Task]](capacity)
 

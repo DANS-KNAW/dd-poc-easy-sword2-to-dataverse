@@ -20,6 +20,7 @@ import org.json4s.{ DefaultFormats, Formats }
 
 package object json {
   type MetadataBlockName = String
+  type ValueObject = Map[String, Field]
 
   abstract class Field
   implicit val jsonFormats: Formats = DefaultFormats
@@ -30,9 +31,8 @@ package object json {
 
   case class PrimitiveFieldSingleValue(typeName: String,
                                        multiple: Boolean,
-                                       typeClass: String, // TODO: Can be nothing else; how to fix this value? Subclassing doesn't seem to work.
+                                       typeClass: String,
                                        value: String
-                                       //Todo create enum
                                       ) extends Field
 
   case class PrimitiveFieldMultipleValues(typeName: String,
@@ -44,7 +44,7 @@ package object json {
 
   case class CompoundField(typeName: String,
                            multiple: Boolean,
-                           typeClass: String = "compound", // TODO: idem
+                           typeClass: String = "compound",
                            value: List[Map[String, Field]]) extends Field
 
   case class FileMetadata(description: Option[String] = None,
@@ -53,4 +53,27 @@ package object json {
 
   case class FileInformation(file: File, fileMetadata: FileMetadata)
 
+  def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
+    PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
+  }
+
+  def createPrimitiveFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
+    PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
+  }
+
+  def createCvFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
+    PrimitiveFieldSingleValue(name, multiple = false, "controlledVocabulary", value)
+  }
+
+  def createCvFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
+    PrimitiveFieldMultipleValues(name, multiple = true, "controlledVocabulary", values)
+  }
+
+  def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
+    CompoundField(name, multiple = false, typeClass = "compound", value = List(value))
+  }
+
+  def createCompoundFieldMultipleValues(name: String, values: List[Map[String, Field]]): CompoundField = {
+    CompoundField(name, multiple = true, typeClass = "compound", values)
+  }
 }

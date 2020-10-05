@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.util.Try
+import org.joda.time.DateTime
+import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+import scala.xml.Node
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+object DateTypeElement {
+  private val yyyyddmmPattern: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
+
+  def toYearMonthDayFormat(node: Node): Option[String] = Option {
+    yyyyddmmPattern.print(DateTime.parse(node.text))
+  }
 }

@@ -15,17 +15,38 @@
  */
 package nl.knaw.dans.easy.dd2d.queue
 
-import scala.util.Try
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+
+import scala.collection.mutable.ListBuffer
 
 /**
- * A task that can succeed or fail.
+ * A TaskQueue that processes all of its tasks synchronously.
  */
-trait Task {
+class PassiveTaskQueue() extends TaskQueue with DebugEnhancedLogging {
+  private val tasks = new ListBuffer[Task]
 
   /**
-   * Runs the task.
+   * Adds a new task to the queue.
    *
-   * @return success or failure
+   * @param t the task to add
    */
-  def run(): Try[Unit]
+  def add(t: Task): Unit = {
+    trace(t)
+    tasks += t
+    debug("Task added to queue")
+  }
+
+  /**
+   * Process items on the queue
+   */
+  def process(): Unit = {
+    trace(())
+    tasks.map {
+      t =>
+        t.run().recover {
+          case e: Throwable => logger.warn(s"Task $t failed", e);
+        }
+    }
+    logger.info("Done processing tasks.")
+  }
 }

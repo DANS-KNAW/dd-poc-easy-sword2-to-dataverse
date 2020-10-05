@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2020 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
  *
@@ -14,27 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d
+package nl.knaw.dans.easy.dd2d.dansbag
 
+import java.net.URI
 import java.nio.file.Path
 
-import better.files.File
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scalaj.http.Http
 
-import scala.util.{ Failure, Try }
+import scala.util.Try
 
-trait ValidateBag extends DebugEnhancedLogging {
-
-  private val configuration: Configuration = Configuration(File(System.getProperty("app.home")))
-  private val validatorServiceUrl = configuration.validatorServiceUrl
+class DansBagValidator(serviceUri: URI) extends DebugEnhancedLogging {
+  def checkConnection(): Try[Unit] = {
+    logger.info("Checking if validator service can be reached")
+    Try {
+      Http(s"$serviceUri")
+        // TODO: Make timeouts configurable
+        .timeout(connTimeoutMs = 10000, readTimeoutMs = 10000)
+        .method("GET")
+        .header("Accept", "text/plain")
+        .asString
+    } map {
+      case r if r.code == 200 =>
+        logger.info("OK: validator service is reachable.")
+        ()
+      case _ => throw new RuntimeException("Connection to Validate DANS Bag Service could not be established")
+    }
+  }
 
   def validateBag(bagDir: Path): Try[DansBagValidationResult] = {
     trace(bagDir)
     Try {
-      val validationUrlString = s"${ validatorServiceUrl }validate?infoPackageType=SIP&uri=${bagDir.toUri}"
-      logger.info(s"Calling Dans Bag Validation Service with ${ validationUrlString }")
-      Http(s"${ validationUrlString }")
+      val validationUri = serviceUri.resolve(s"validate?infoPackageType=SIP&uri=${bagDir.toUri}")
+      logger.info(s"Calling Dans Bag Validation Service with ${ validationUri.toASCIIString }")
+      Http(s"${ validationUri.toASCIIString }")
         // TODO: Make timeouts configurable
         .timeout(connTimeoutMs = 10000, readTimeoutMs = 10000)
         .method("POST")
@@ -44,8 +56,7 @@ trait ValidateBag extends DebugEnhancedLogging {
       case r if r.code == 200 =>
         DansBagValidationResult.fromJson(r.body)
       case r =>
-        // TODO: THIS DOES NOT WORK. PLEASE TEST THAT FAILURES ACTUALLY GET PASSED UP.
-        Failure(new RuntimeException(s"Dans Bag Validation failed (${ r.code }): ${ r.body }"))
+        throw new RuntimeException(s"DANS Bag Validation failed (${ r.code }): ${ r.body }")
     }
   }
 }

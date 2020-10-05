@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.util.Try
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ ValueObject, createPrimitiveFieldSingleValue }
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+import scala.xml.Node
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+object Description {
+
+  def toDescriptionValueObject(node: Node): ValueObject = {
+    Map(
+      "dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", node.text)
+      // TODO: add date subfield?
+    )
+  }
 }

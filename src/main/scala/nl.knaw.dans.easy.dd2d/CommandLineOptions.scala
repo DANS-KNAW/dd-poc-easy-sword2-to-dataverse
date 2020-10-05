@@ -15,7 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import org.rogach.scallop.{ ScallopConf, Subcommand }
+import java.nio.file.Path
+
+import org.rogach.scallop.{ ScallopConf, ScallopOption, Subcommand }
 
 class CommandLineOptions(args: Array[String], configuration: Configuration) extends ScallopConf(args) {
   appendDefaultToDescription = true
@@ -27,6 +29,8 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   val synopsis: String =
     s"""
        |  $printedName run-service
+       |  $printedName import <inbox>
+       |  $printedName import -s <single-deposit>
        |  """.stripMargin
 
   version(s"$printedName v${ configuration.version }")
@@ -41,12 +45,23 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
        |Options:
        |""".stripMargin)
 
+  shortSubcommandsHelp(true)
   val runService = new Subcommand("run-service") {
     descr(
-      "Starts DANS Deposit To Dataverse as a daemon that services HTTP requests")
+      "Starts DANS Deposit To Dataverse as a daemon that processes deposit directories as they appear in the configured inbox.")
     footer(SUBCOMMAND_SEPARATOR)
   }
   addSubcommand(runService)
+  val importCommand = new Subcommand("import") {
+    descr("Imports one ore more deposits. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.")
+    val singleDeposit: ScallopOption[Boolean] = opt(name = "single", descr = "Single deposit instead of a deposits inbox")
+    val depositsInboxOrSingleDeposit: ScallopOption[Path] = trailArg(name = "inbox-or-single-deposit",
+      descr = "Directory containing as sub-directories the deposit dirs to be imported or a single deposit")
+    validatePathExists(depositsInboxOrSingleDeposit)
+    footer(SUBCOMMAND_SEPARATOR)
+  }
+  addSubcommand(importCommand)
+
 
   footer("")
 }

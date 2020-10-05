@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d
+
+import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+  def process(): Try[Unit] = Try {
+    trace(())
+    val ingestTasks = new PassiveTaskQueue()
+    logger.info("Enqueuing deposits found in inbox...")
+    inbox.enqueue(ingestTasks)
+    logger.info("Processing queue...")
+    ingestTasks.process()
+    logger.info("Done processing.")
+  }
 }

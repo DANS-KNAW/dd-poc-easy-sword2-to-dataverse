@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.util.Try
+import scala.xml.Node
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+object Identifier {
+// TODO: can ArchisZaakId be in an identifier element?
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+//  def toArchisZaakId(node: Node): Option[String] = {
+//    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
+//    else Option.empty
+//  }
 }

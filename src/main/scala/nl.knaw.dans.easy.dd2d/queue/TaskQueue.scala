@@ -15,17 +15,15 @@
  */
 package nl.knaw.dans.easy.dd2d.queue
 
-import scala.util.Try
-
 /**
- * A task that can succeed or fail.
+ * Interface to add tasks to a queue.
  */
-trait Task {
+trait TaskQueue {
 
   /**
-   * Runs the task.
+   * Add a Task to the queue
    *
-   * @return success or failure
+   * @param task the Task to add
    */
-  def run(): Try[Unit]
+  def add(task: Task)
 }

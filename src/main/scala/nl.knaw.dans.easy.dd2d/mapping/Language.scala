@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.util.Try
+import scala.xml.Node
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+object Language {
+  private val shortIsoToDataverse = Map(
+    "eng" -> "English",
+    "nld" -> "Dutch"
+    // TODO: extend, and probably load from resource file
+  )
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+  def toCitationBlockLanguage(node: Node): Option[String] = {
+    if(hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
+    else Option.empty[String] // TODO: try to map to Dataverse vocabulary?
+  }
 }

@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.easy.dd2d.queue
+package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.util.Try
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ ValueObject, createPrimitiveFieldSingleValue }
 
-/**
- * A task that can succeed or fail.
- */
-trait Task {
+import scala.xml.Node
 
-  /**
-   * Runs the task.
-   *
-   * @return success or failure
-   */
-  def run(): Try[Unit]
+object IsFormatOf {
+
+  def toArchisZaakId(node: Node): Option[String] = {
+    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
+    else Option.empty
+  }
+
+  def toOtherIdValueObject(node: Node): ValueObject = {
+    Map("otherIdValue" -> createPrimitiveFieldSingleValue("otherIdValue", node.text)
+    // TODO: can a sensible value be found for "otherIdAgency"?
+    )
+  }
 }

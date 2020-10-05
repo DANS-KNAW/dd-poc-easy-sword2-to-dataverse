@@ -17,20 +17,41 @@ package nl.knaw.dans.easy.dd2d
 
 import java.io.PrintStream
 
+import better.files.File
+import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
+import nl.knaw.dans.easy.dd2d.queue.{ ActiveTaskQueue, PassiveTaskQueue }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import org.json4s.{ DefaultFormats, Formats }
 
 import scala.util.Try
 
-class DansDeposit2ToDataverseApp(configuration: Configuration) {
+class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnhancedLogging {
   private implicit val resultOutput: PrintStream = Console.out
+  private val dataverse = new DataverseInstance(configuration.dataverse)
+  private val dansBagValidator = new DansBagValidator(configuration.validatorServiceUrl)
+  private val inboxWatcher = new InboxWatcher(new Inbox(configuration.inboxDir, dansBagValidator, dataverse))
 
-  private val inboxMonitor = new InboxMonitor(configuration.inboxDir, new DataverseInstance(configuration.dataverse))
+  def checkPreconditions(): Try[Unit] = {
+    for {
+      _ <- dansBagValidator.checkConnection()
+      _ <- dataverse.checkConnection()
+    } yield ()
+  }
+
+  def importSingleDeposit(deposit: File): Try[Unit] = {
+    new SingleDepositProcessor(deposit, dansBagValidator, dataverse).process()
+  }
+
+  def importDeposits(inbox: File): Try[Unit] = Try {
+    new InboxProcessor(new Inbox(inbox, dansBagValidator, dataverse)).process()
+  }
 
   def start(): Try[Unit] = Try {
-    inboxMonitor.start()
+    inboxWatcher.start()
   }
 
   def stop(): Try[Unit] = Try {
-    inboxMonitor.stop()
+    inboxWatcher.stop()
   }
 }

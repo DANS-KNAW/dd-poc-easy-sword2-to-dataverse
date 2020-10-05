@@ -16,9 +16,12 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
+import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.language.reflectiveCalls
+import scala.util.Try
+import scala.util.control.NonFatal
 
 object Command extends App with DebugEnhancedLogging {
   type FeedBackMessage = String
@@ -27,16 +30,36 @@ object Command extends App with DebugEnhancedLogging {
   val commandLine: CommandLineOptions = new CommandLineOptions(args, configuration) {
     verify()
   }
-  val app = new DansDeposit2ToDataverseApp(configuration)
-  logger.info("Starting application...")
-  app.start()
 
-  Runtime.getRuntime.addShutdownHook(new Thread("service-shutdown") {
-    override def run(): Unit = {
-      logger.info("Received request to shut down service ...")
-      app.stop()
-      logger.info("Service stopped.")
+  val app = new DansDeposit2ToDataverseApp(configuration)
+  val result = for {
+    _ <- app.checkPreconditions()
+    msg <- commandLine.subcommand match {
+      case Some(cmd @ commandLine.importCommand) =>
+        Try {
+          if (cmd.singleDeposit()) app.importSingleDeposit(cmd.depositsInboxOrSingleDeposit())
+          else app.importDeposits(cmd.depositsInboxOrSingleDeposit())
+        }.map(_ => "Done importing deposits")
+      case Some(_ @ commandLine.runService) => runAsService()
+      case _ => Try { s"Unknown command: ${ commandLine.subcommand }" }
     }
-  })
-  Thread.currentThread().join()
+  } yield msg
+
+  result.doIfSuccess(msg => Console.err.println(s"OK: $msg"))
+    .doIfFailure { case e => logger.error(e.getMessage, e) }
+    .doIfFailure { case NonFatal(e) => Console.err.println(s"FAILED: ${ e.getMessage }") }
+
+  private def runAsService(): Try[FeedBackMessage] = Try {
+    Runtime.getRuntime.addShutdownHook(new Thread("service-shutdown") {
+      override def run(): Unit = {
+        logger.info("Received request to shut down service ...")
+        app.stop()
+        logger.info("Service stopped.")
+      }
+    })
+    app.start()
+    logger.info("Service started ...")
+    Thread.currentThread.join()
+    "Service terminated normally."
+  }
 }
