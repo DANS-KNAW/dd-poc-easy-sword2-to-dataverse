@@ -18,15 +18,15 @@ package nl.knaw.dans.easy.dd2d
 import java.nio.charset.StandardCharsets
 
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
+import nl.knaw.dans.easy.dd2d.dataverse.{ DataverseInstance, DepositState }
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
-import org.json4s.native.Serialization
 import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization
 import scalaj.http.HttpResponse
 
-import scala.util.{ Failure, Try }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -46,15 +46,15 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     debug(s"Ingesting $deposit into Dataverse")
     val bagDirPath = deposit.bagDir.path
 
-    for {
+    val result = for {
       validationResult <- dansBagValidator.validateBag(bagDirPath)
       _ <- Try {
-        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
+        if (!validationResult.isCompliant) throw RejectedDepositException(deposit.dir,
           s"""
              |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
              |Violations:
              |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-          """.stripMargin)
+                      """.stripMargin)
       }
       ddm <- deposit.tryDdm
       dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
@@ -65,7 +65,21 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       response <- dataverse.dataverse("root").createDataset(json)
       dvId <- readIdFromResponse(response)
       _ <- uploadFilesToDataset(dvId)
+      _ <- DepositProperties.add(deposit.dir, DepositState.PUBLISHED.toString, "Deposit is valid and successfully imported in Dataverse")
     } yield ()
+
+    result.recoverWith {
+      case e: DepositPropertiesException =>
+        Failure(e)
+
+      case e: RejectedDepositException =>
+        val propertiesAdded = DepositProperties.add(deposit.dir, DepositState.REJECTED.toString, e.getMessage)
+        returnNewExceptionIfMethodFails(propertiesAdded, e)
+
+      case e: Throwable =>
+        val propertiesAdded = DepositProperties.add(deposit.dir, DepositState.FAILED.toString, e.getMessage)
+        returnNewExceptionIfMethodFails(propertiesAdded, e)
+    }
   }
 
   private def formatViolation(v: (String, String)): String = v match {
@@ -95,5 +109,21 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     val responseBodyAsString = new String(response.body, StandardCharsets.UTF_8)
     (parse(responseBodyAsString) \\ "persistentId")
       .extract[String]
+  }
+
+  /**
+   * If method result is Failure(Throwable) then this is returned. If method result is Success() a Failure with the original Throwable is returned.
+   * Usage: a method that results in a Try[U] is called in a recover or recoverWith method. For example to write to a properties file.
+   *
+   * @param methodResult
+   * @param throwable
+   * @tparam U
+   * @return Failure[U]
+   */
+  private def returnNewExceptionIfMethodFails[U](methodResult: Try[U], throwable: Throwable): Failure[U] = {
+    methodResult match {
+      case Success(_) => Failure(throwable)
+      case Failure(exception) => Failure(exception)
+    }
   }
 }

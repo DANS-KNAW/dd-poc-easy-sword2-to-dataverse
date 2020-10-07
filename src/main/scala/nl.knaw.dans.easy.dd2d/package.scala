@@ -15,16 +15,19 @@
  */
 package nl.knaw.dans.easy
 
+import better.files.File
+
 package object dd2d {
 
   type DepositName = String
 
-  case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
-    extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
+  case class RejectedDepositException(depositDir: File, msg: String, cause: Throwable = null)
+    extends Exception(s"Rejected ${ depositDir }: $msg", cause)
 
-  case class FailedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
-    extends Exception(s"Failed ${ deposit.dir }: $msg", cause)
+  case class FailedDepositException(depositDir: File, msg: String, cause: Throwable = null)
+    extends Exception(s"Failed ${ depositDir }: $msg", cause)
 
-
+  case class DepositPropertiesException(depositDir: File, msg: String, cause: Throwable = null)
+    extends Exception(s"Failed ${ depositDir }: $msg", cause)
 
 }

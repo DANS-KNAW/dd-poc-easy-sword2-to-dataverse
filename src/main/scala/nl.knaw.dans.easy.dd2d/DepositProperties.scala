@@ -18,17 +18,17 @@ package nl.knaw.dans.easy.dd2d
 import better.files.File
 import org.apache.commons.configuration.PropertiesConfiguration
 
-import scala.util.Try
+import scala.util.{ Failure, Try }
 
 object DepositProperties {
 
   def add(depositDir: File, state: String, description: String): Try[Unit] = Try {
     val pathToPropertiesFile = (depositDir / "deposit.properties").toJava
-    new PropertiesConfiguration() {
+    val config = new PropertiesConfiguration() {
       load(pathToPropertiesFile)
-      addProperty("state.label", state)
-      addProperty("state.description", description)
+      addProperty("dv.state.label", state)
+      addProperty("dv.state.description", description)
       save(pathToPropertiesFile)
     }
-  }
+  }.recoverWith { case e: Throwable => Failure(DepositPropertiesException(depositDir, "Deposit properties could not be updated")) }
 }
