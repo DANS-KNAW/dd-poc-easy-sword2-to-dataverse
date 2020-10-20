@@ -58,7 +58,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       .asBytes
   }
 
-  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
+  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
@@ -67,14 +67,13 @@ trait HttpSupport extends DebugEnhancedLogging {
       body <- handleResponse(response, expectedStatus)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
-      _ <- Try { resultOutput.print(output) }
     } yield response
   }
 
   /*
  * Helpers
  */
-  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
+  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
@@ -82,7 +81,6 @@ trait HttpSupport extends DebugEnhancedLogging {
       body <- handleResponse(response, 200)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
-      _ <- Try { resultOutput.print(output) }
     } yield response
   }
 

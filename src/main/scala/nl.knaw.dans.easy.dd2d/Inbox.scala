@@ -29,7 +29,7 @@ import org.json4s.{ DefaultFormats, Formats }
  * @param dir the file system directory
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
-class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance) extends DebugEnhancedLogging {
+class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) extends DebugEnhancedLogging {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
   private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
 
@@ -42,7 +42,7 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
     dirs.foreach {
       d => {
         debug(s"Adding $d")
-        q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse))
+        q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
       }
     }
   }
@@ -61,7 +61,7 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
         trace(d, count)
         if (d.isDirectory) {
           logger.debug(s"Detected new subdirectory in inbox. Adding $d")
-          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse))
+          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
         }
       }
     }

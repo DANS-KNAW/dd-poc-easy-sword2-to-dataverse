@@ -116,11 +116,6 @@ class Dataverse(dvId: String, configuration: DataverseInstanceConfig)(implicit r
     put(s"dataverses/$dvId/metadatablocks/isRoot")(isRoot.toString.toLowerCase)
   }
 
-  def uploadFileToDataset(dvId: String, file: File, jsonMetadata: Option[String]): Try[HttpResponse[Array[Byte]]] = {
-    trace(dvId, file, jsonMetadata)
-    postFile(s"datasets/:persistentId/add?persistentId=$dvId", file, jsonMetadata)(201)
-  }
-
   def createDataset(json: File): Try[HttpResponse[Array[Byte]]] = {
     trace(json)
     tryReadFileToString(json).flatMap(postJson(s"dataverses/$dvId/datasets")(201))
