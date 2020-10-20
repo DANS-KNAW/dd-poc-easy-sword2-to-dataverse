@@ -42,7 +42,12 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
     dirs.foreach {
       d => {
         debug(s"Adding $d")
-        q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
+        try {
+          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
+        }
+        catch {
+          case e: Exception => logger.error(e.getMessage)
+        }
       }
     }
   }
@@ -61,7 +66,12 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
         trace(d, count)
         if (d.isDirectory) {
           logger.debug(s"Detected new subdirectory in inbox. Adding $d")
-          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
+          try {
+            q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
+          }
+          catch {
+            case e: Exception => logger.error(e.getMessage)
+          }
         }
       }
     }
