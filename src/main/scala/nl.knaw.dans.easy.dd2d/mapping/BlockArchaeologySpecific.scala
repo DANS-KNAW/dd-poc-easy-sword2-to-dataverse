@@ -17,6 +17,13 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 trait BlockArchaeologySpecific {
   val ARCHIS_ZAAK_ID = "dansArchisZaakId"
-  val ABR_SUBJECT = "dansAbrSubject"
-  val ABR_PERIOD = "dansAbrPeriod"
+  val ABR_SUBJECT = "dansAbrSubjectCv"
+  val ABR_SUBJECT_VALUE = "dansAbrSubjectCvValue"
+  val ABR_SUBJECT_VOCABULARY = "dansAbrSubjectCvVocabulary"
+  val ABR_SUBJECT_VOCABULARY_URL = "dansAbrSubjectCvVocabularyURI"
+  val ABR_PERIOD = "dansAbrPeriodCv"
+  val ABR_PERIOD_VALUE = "dansAbrPeriodCvValue"
+  val ABR_PERIOD_VOCABULARY = "dansAbrPeriodCvVocabulary"
+  val ABR_PERIOD_VOCABULARY_URL = "dansAbrPeriodCvVocabularyURI"
+  val ABR_BASE_URL = "https://data.cultureelerfgoed.nl/term/id/abr/"
 }
