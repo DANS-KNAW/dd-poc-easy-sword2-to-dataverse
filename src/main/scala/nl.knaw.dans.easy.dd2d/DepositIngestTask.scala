@@ -19,8 +19,8 @@ import java.nio.charset.StandardCharsets
 
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.dataverse.{ DataverseInstance, DepositState }
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
+import nl.knaw.dans.easy.dd2d.dataverse.DepositState._
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.error._
@@ -30,9 +30,8 @@ import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization
 import scalaj.http.HttpResponse
 
-import scala.util.{ Failure, Success, Try }
 import scala.language.postfixOps
-import scala.util.{ Success, Try }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -55,12 +54,12 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     val result = for {
       validationResult <- dansBagValidator.validateBag(bagDirPath)
       _ <- Try {
-        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
+        if (!validationResult.isCompliant) throw RejectedDepositException(deposit.dir,
           s"""
              |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
              |Violations:
              |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-          """.stripMargin)
+                """.stripMargin)
       }
       ddm <- deposit.tryDdm
       dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
@@ -80,8 +79,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
              debug("Keeping dataset on DRAFT")
              Success(())
            }
-      _ <- DepositProperties.add(deposit.dir, DepositState.PUBLISHED.toString, "Deposit is valid and successfully imported in Dataverse")
-
+      _ <- deposit.setState(SUBMITTED)
     } yield ()
     // TODO: delete draft if something went wrong
 
@@ -90,12 +88,12 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
         Failure(e)
 
       case e: RejectedDepositException =>
-        val propertiesAdded = DepositProperties.add(deposit.dir, DepositState.REJECTED.toString, e.getMessage)
-        returnNewExceptionIfMethodFails(propertiesAdded, e)
+        val stateSetResult = deposit.setState(REJECTED, e.getMessage)
+        returnNewExceptionIfMethodFails(stateSetResult, e)
 
       case e: Throwable =>
-        val propertiesAdded = DepositProperties.add(deposit.dir, DepositState.FAILED.toString, e.getMessage)
-        returnNewExceptionIfMethodFails(propertiesAdded, e)
+        val stateSetResult = deposit.setState(FAILED, e.getMessage)
+        returnNewExceptionIfMethodFails(stateSetResult, e)
     }
   }
 

@@ -18,12 +18,12 @@ package nl.knaw.dans.easy.dd2d
 import better.files.File
 import gov.loc.repository.bagit.domain.Bag
 import gov.loc.repository.bagit.reader.BagReader
+import nl.knaw.dans.easy.dd2d.dataverse.DepositState.{ DepositState, SUBMITTED }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-
-import scala.util.{ Failure, Success, Try }
-import scala.xml.{ Node, Utility, XML }
-import nl.knaw.dans.lib.error._
 import org.apache.commons.configuration.PropertiesConfiguration
+
+import scala.util.{ Failure, Try }
+import scala.xml.{ Node, Utility, XML }
 
 /**
  * Represents a deposit directory and provides access to the files and metadata in it.
@@ -74,6 +74,13 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
 
   private def checkCondition(check: File => Boolean, msg: String): Unit = {
     if (!check(dir)) throw new RuntimeException(s"Not a deposit: $msg")
+  }
+
+  def setState(state: DepositState, description: String = ""): Try[Unit] = {
+    state match {
+      case SUBMITTED => DepositProperties.add(dir, state.toString, "Deposit is valid and successfully imported in Dataverse")
+      case _ => DepositProperties.add(dir, state.toString, description)
+    }
   }
 
   override def toString: String = s"Deposit at $dir"

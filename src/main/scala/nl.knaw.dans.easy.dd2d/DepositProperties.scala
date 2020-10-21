@@ -24,11 +24,10 @@ object DepositProperties {
 
   def add(depositDir: File, state: String, description: String): Try[Unit] = Try {
     val pathToPropertiesFile = (depositDir / "deposit.properties").toJava
-    val config = new PropertiesConfiguration() {
+    new PropertiesConfiguration() {
       load(pathToPropertiesFile)
       addProperty("dv.state.label", state)
       addProperty("dv.state.description", description)
-      save(pathToPropertiesFile)
-    }
-  }.recoverWith { case e: Throwable => Failure(DepositPropertiesException(depositDir, "Deposit properties could not be updated")) }
+    }.save(pathToPropertiesFile)
+  }.recoverWith { case e: Throwable => Failure(DepositPropertiesException(depositDir, s"Deposit properties could not be updated. Exception message: ${ e.getMessage }")) }
 }
