@@ -20,8 +20,10 @@ import gov.loc.repository.bagit.domain.Bag
 import gov.loc.repository.bagit.reader.BagReader
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import scala.util.{ Failure, Try }
+import scala.util.{ Failure, Success, Try }
 import scala.xml.{ Node, Utility, XML }
+import nl.knaw.dans.lib.error._
+import org.apache.commons.configuration.PropertiesConfiguration
 
 /**
  * Represents a deposit directory and provides access to the files and metadata in it.
@@ -31,9 +33,11 @@ import scala.xml.{ Node, Utility, XML }
 case class Deposit(dir: File) extends DebugEnhancedLogging {
   trace(dir)
   val bagDir: File = {
+    checkCondition(_.isDirectory, s"$dir is not a directory")
+    checkCondition(_.list.count(_.isDirectory) == 1, s"$dir has more or fewer than one subdirectory")
+    checkCondition(_.list.exists(_.name == "deposit.properties"), s"$dir does not contain a deposit.properties file")
+    checkCondition(_.list.filter(_.isDirectory).toList.head.list.exists(_.name == "bagit.txt"), s"$dir does not contain a bag")
     val dirs = dir.list(_.isDirectory, maxDepth = 1).filter(_ != dir).toList
-    debug(s"dirs = $dirs")
-    if (dirs.size != 1) throw new IllegalArgumentException(s"$dir is not a valid deposit. Found ${dirs.size} subdirectories instead of 1")
     dirs.head
   }
   debug(s"bagDir = $bagDir")
@@ -41,6 +45,10 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   private val bagReader = new BagReader()
   private val ddmPath = bagDir / "metadata" / "dataset.xml"
   private val filesXmlPath = bagDir / "metadata" / "files.xml"
+  private val depositProperties = new PropertiesConfiguration() {
+    setDelimiterParsingDisabled(true)
+    load((dir / "deposit.properties").toJava)
+  }
 
   lazy val tryBag: Try[Bag] = Try { bagReader.read(bagDir.path) }
 
@@ -58,6 +66,14 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
     }
   }.recoverWith {
     case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
+  }
+
+  def doi: String = {
+    depositProperties.getString("identifier.doi", "")
+  }
+
+  private def checkCondition(check: File => Boolean, msg: String): Unit = {
+    if (!check(dir)) throw new RuntimeException(s"Not a deposit: $msg")
   }
 
   override def toString: String = s"Deposit at $dir"

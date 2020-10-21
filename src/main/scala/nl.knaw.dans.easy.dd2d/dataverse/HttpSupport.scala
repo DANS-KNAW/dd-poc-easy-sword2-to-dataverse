@@ -46,6 +46,7 @@ trait HttpSupport extends DebugEnhancedLogging {
   }
 
   protected def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
+    trace(())
     val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", data = file.byteArray) +:
       optJsonMetadata.map {
         json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
@@ -57,22 +58,22 @@ trait HttpSupport extends DebugEnhancedLogging {
       .asBytes
   }
 
-  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
+  protected def postFile(subPath: String, file: File, optJsonMetadata: Option[String] = None)(expectedStatus: Int, formatResponseAsJson: Boolean = false): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
+      _ = debug(s"response: ${response.statusLine}, ${new String(response.body, StandardCharsets.UTF_8)}")
       body <- handleResponse(response, expectedStatus)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
-      _ <- Try { resultOutput.print(output) }
     } yield response
   }
 
   /*
  * Helpers
  */
-  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true)(implicit resultOutput: PrintStream): Try[HttpResponse[Array[Byte]]] = {
+  protected def get(subPath: String = null, formatResponseAsJson: Boolean = true): Try[HttpResponse[Array[Byte]]] = {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
@@ -80,7 +81,6 @@ trait HttpSupport extends DebugEnhancedLogging {
       body <- handleResponse(response, 200)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
-      _ <- Try { resultOutput.print(output) }
     } yield response
   }
 

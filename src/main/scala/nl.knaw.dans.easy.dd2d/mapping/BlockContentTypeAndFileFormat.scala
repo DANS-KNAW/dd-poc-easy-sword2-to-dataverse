@@ -15,10 +15,10 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.xml.Node
-
-object Generic {
-  def toText(node: Node): Option[String] = {
-    Some(node.text)
-  }
+trait BlockContentTypeAndFileFormat {
+  val CONTENT_TYPE  = "dansContentType"
+  val CONTENT_TYPE_FREE = "dansContentTypeFree"
+  val FORMAT = "dansFormat"
+  val FORMAT_FREE = "dansFormatFree"
+  val CONTAINS_CLARIN_METADATA = "dansContainsClarinMetadata"
 }

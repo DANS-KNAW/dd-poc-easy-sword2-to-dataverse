@@ -20,7 +20,7 @@ import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 import scala.xml.Node
 
 package object mapping {
-  private val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
+  val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
 
   /**
    * Returns whether the node has an xsi:type attribute with the specified type. Note that namespace-prefix of the *value* is ignored.
@@ -30,6 +30,7 @@ package object mapping {
    * @return true or false
    */
   def hasXsiType(node: Node, xsiType: String): Boolean = {
+    // TODO: check attribute value's namespace
     node.attribute(XML_SCHEMA_INSTANCE_URI, "type").map(_.text).map(t => t.endsWith(s":$xsiType") || t == xsiType).exists(identity)
   }
 

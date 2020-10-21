@@ -17,9 +17,8 @@ package nl.knaw.dans.easy.dd2d.dataverse
 
 import java.net.URI
 
-case class DataverseInstanceConfig(
-                                    connectionTimeout: Int,
-                                    readTimeout: Int,
-                                    baseUrl: URI,
-                                    apiToken: String,
-                                    apiVersion: String)
+case class DataverseInstanceConfig(connectionTimeout: Int,
+                                   readTimeout: Int,
+                                   baseUrl: URI,
+                                   apiToken: String,
+                                   apiVersion: String)

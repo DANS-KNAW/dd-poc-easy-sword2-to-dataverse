@@ -18,14 +18,35 @@ package nl.knaw.dans.easy.dd2d.dataverse
 import better.files.File
 import org.json4s.{ DefaultFormats, Formats }
 
+import scala.collection.mutable
+
 package object json {
   type MetadataBlockName = String
-  type ValueObject = Map[String, Field]
+  type JsonObject = Map[String, Field]
+
+  implicit val jsonFormats: Formats = DefaultFormats
 
   abstract class Field
-  implicit val jsonFormats: Formats = DefaultFormats
-  case class MetadataBlock(displayName: String, fields: List[Field])
 
+  case class FieldMap() {
+    private val fields = mutable.Map[String, Field]()
+
+    def addPrimitiveField(name: String, value: String): Unit = {
+      fields.put(name, createPrimitiveFieldSingleValue(name, value))
+    }
+
+    def addCvField(name: String, value: String): Unit = {
+      fields.put(name, createCvFieldSingleValue(name, value))
+    }
+
+    def addCompoundField(name: String, value: Map[String, Field]): Unit = {
+      fields.put(name, createCompoundFieldSingleValue(name, value))
+    }
+
+    def toJsonObject: JsonObject = fields.toMap
+  }
+
+  case class MetadataBlock(displayName: String, fields: List[Field])
   case class DatasetVersion(metadataBlocks: Map[MetadataBlockName, MetadataBlock])
   case class DataverseDataset(datasetVersion: DatasetVersion)
 
@@ -37,7 +58,6 @@ package object json {
 
   case class PrimitiveFieldMultipleValues(typeName: String,
                                           multiple: Boolean,
-                                          //create enum
                                           typeClass: String,
                                           value: List[String]
                                          ) extends Field
@@ -47,11 +67,10 @@ package object json {
                            typeClass: String = "compound",
                            value: List[Map[String, Field]]) extends Field
 
-  case class FileMetadata(description: Option[String] = None,
-                          directoryLabel: Option[String] = None,
-                          restrict: Option[String] = None)
-
-  case class FileInformation(file: File, fileMetadata: FileMetadata)
+  case class DataverseFile(description: Option[String] = None,
+                           directoryLabel: Option[String] = None,
+                           restrict: Option[String] = Some("true"),
+                           categories: List[String] = List.empty[String])
 
   def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
     PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
@@ -70,7 +89,7 @@ package object json {
   }
 
   def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
-    CompoundField(name, multiple = false, typeClass = "compound", value = List(value))
+    CompoundField(name, multiple = false, value = List(value))
   }
 
   def createCompoundFieldMultipleValues(name: String, values: List[Map[String, Field]]): CompoundField = {

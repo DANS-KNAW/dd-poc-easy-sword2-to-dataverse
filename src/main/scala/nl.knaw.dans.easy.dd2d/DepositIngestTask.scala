@@ -17,9 +17,13 @@ package nl.knaw.dans.easy.dd2d
 
 import java.nio.charset.StandardCharsets
 
+import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.{ DataverseInstance, DepositState }
+import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
+import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
+import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 import org.json4s.native.JsonMethods._
@@ -27,6 +31,8 @@ import org.json4s.native.Serialization
 import scalaj.http.HttpResponse
 
 import scala.util.{ Failure, Success, Try }
+import scala.language.postfixOps
+import scala.util.{ Success, Try }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -35,26 +41,26 @@ import scala.util.{ Failure, Success, Try }
  * @param dataverse   the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
-case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, dataverse: DataverseInstance)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
+case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
-  val ddmMapper = new DdmToDataverseMapper()
-  val filesXmlMapper = new FilesXmlToDataverseMapper()
+  private val ddmMapper = new DdmToDataverseMapper()
+  private val bagDirPath = File(deposit.bagDir.path)
+  private val filesXmlMapper = new FilesXmlToDataverseMapper(bagDirPath)
 
   override def run(): Try[Unit] = {
     trace(())
-    debug(s"Ingesting $deposit into Dataverse")
-    val bagDirPath = deposit.bagDir.path
+    logger.info(s"Ingesting $deposit into Dataverse")
 
     val result = for {
       validationResult <- dansBagValidator.validateBag(bagDirPath)
       _ <- Try {
-        if (!validationResult.isCompliant) throw RejectedDepositException(deposit.dir,
+        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
           s"""
              |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
              |Violations:
              |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-                      """.stripMargin)
+          """.stripMargin)
       }
       ddm <- deposit.tryDdm
       dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
@@ -62,11 +68,22 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       _ = if (logger.underlying.isDebugEnabled) {
         debug(json)
       }
-      response <- dataverse.dataverse("root").createDataset(json)
-      dvId <- readIdFromResponse(response)
-      _ <- uploadFilesToDataset(dvId)
+      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(json, isDdi = false, "doi:" + deposit.doi, keepOnDraft = true)
+                  else dataverse.dataverse("root").createDataset(json)
+      datasetId <- readIdFromResponse(response)
+      _ <- uploadFilesToDataset(datasetId)
+      _ <- if (publish) {
+        debug("Publishing dataset")
+        publishDataset(datasetId)
+      }
+           else {
+             debug("Keeping dataset on DRAFT")
+             Success(())
+           }
       _ <- DepositProperties.add(deposit.dir, DepositState.PUBLISHED.toString, "Deposit is valid and successfully imported in Dataverse")
+
     } yield ()
+    // TODO: delete draft if something went wrong
 
     result.recoverWith {
       case e: DepositPropertiesException =>
@@ -86,22 +103,15 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     case (nr, msg) => s" - [$nr] $msg"
   }
 
-  private def uploadFilesToDataset(dvId: String): Try[Unit] = {
-    trace(dvId)
-    val filesXml = deposit.tryFilesXml.recoverWith {
-      case e: IllegalArgumentException =>
-        logger.error(s"Bag files xml could not be retrieved. Error message: ${
-          e.getMessage
-        }")
-        Failure(e)
-    }.get
-
-    Try {
-      filesXmlMapper.extractFileInfoFromFilesXml(filesXml).foreach(fileInformation => {
-        dataverse.dataverse(dvId)
-          .uploadFileToDataset(dvId, fileInformation.file, Some(Serialization.writePretty(fileInformation.fileMetadata)))
-      })
-    }
+  private def uploadFilesToDataset(datasetId: String): Try[Unit] = {
+    trace(datasetId)
+    for {
+      filesXml <- deposit.tryFilesXml
+      ddm <- deposit.tryDdm
+      defaultRestrict <- Try { (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict) }
+      files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
+      _ <- files.map(f => dataverse.dataset(datasetId, isPersistentId = true).addFile(f.file, Option.empty[File], Some(Serialization.writePretty(f.metadata)))).collectResults
+    } yield ()
   }
 
   private def readIdFromResponse(response: HttpResponse[Array[Byte]]): Try[String] = Try {
@@ -109,6 +119,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     val responseBodyAsString = new String(response.body, StandardCharsets.UTF_8)
     (parse(responseBodyAsString) \\ "persistentId")
       .extract[String]
+  }
+
+  private def publishDataset(datasetId: String): Try[Unit] = {
+    dataverse.dataset(datasetId, isPersistentId = true).publish("major").map(_ => ())
   }
 
   /**

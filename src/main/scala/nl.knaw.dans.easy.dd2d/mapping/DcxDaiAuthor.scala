@@ -15,13 +15,13 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ Field, PrimitiveFieldSingleValue, ValueObject, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ Field, JsonObject, FieldMap, PrimitiveFieldSingleValue, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
 import org.apache.commons.lang.StringUtils
 
 import scala.collection.mutable
 import scala.xml.Node
 
-object DcxDaiAuthor extends Contributor {
+object DcxDaiAuthor extends Contributor with BlockCitation {
   // TODO: handle case where a DcxDaiOrganization is specified
 
   private case class Author(titles: Option[String],
@@ -46,46 +46,45 @@ object DcxDaiAuthor extends Contributor {
     role = (authorElement \ "role").map(_.text).headOption,
     organization = (authorElement \ "organization" \ "name").map(_.text).headOption)
 
-  def toAuthorValueObject(node: Node): ValueObject = {
-    val valueObject = mutable.Map[String, Field]()
+  def toAuthorValueObject(node: Node): JsonObject = {
+    val m = FieldMap()
     val author = parseAuthor(node)
     val name = formatName(author)
 
     if (StringUtils.isNotBlank(name)) {
-      valueObject.put("authorName", createPrimitiveFieldSingleValue("authorName", name))
+      m.addPrimitiveField(AUTHOR_NAME, name)
     }
 
     if (author.orcid.isDefined) {
-      addIdentifier(valueObject, "ORCID", author.orcid.get)
+      addIdentifier(m, "ORCID", author.orcid.get)
     }
     else if (author.isni.isDefined) {
-      addIdentifier(valueObject, "ISNI", author.isni.get)
+      addIdentifier(m, "ISNI", author.isni.get)
     }
          else if (author.dai.isDefined) {
-           addIdentifier(valueObject, "DAI", author.dai.get)
+           addIdentifier(m, "DAI", author.dai.get)
          }
 
     if (author.organization.isDefined) {
-      valueObject.put("authorAffiliation", createPrimitiveFieldSingleValue("authorAffiliation", author.organization.get))
+      m.addPrimitiveField(AUTHOR_AFFILIATION, author.organization.get)
     }
-    valueObject.toMap
+    m.toJsonObject
   }
 
-  def toContributorValueObject(node: Node): ValueObject = {
-    val valueObject = mutable.Map[String, Field]()
+  def toContributorValueObject(node: Node): JsonObject = {
+    val m = FieldMap()
     val author = parseAuthor(node)
     val name = formatName(author)
     if (StringUtils.isNotBlank(name)) {
-      valueObject.put("contributorName", createPrimitiveFieldSingleValue("contributorName", name))
+      m.addPrimitiveField(CONTRIBUTOR_NAME, name)
     }
     else if (author.organization.isDefined) {
-      valueObject.put("contributorName", createPrimitiveFieldSingleValue("contributorName", name))
+      m.addPrimitiveField(CONTRIBUTOR_NAME, name)
     }
     if(author.role.isDefined) {
-      valueObject.put("contributorType",
-        createCvFieldSingleValue("contributorType", author.role.map(contributoreRoleToContributorType.getOrElse(_, "Other")).getOrElse("Other")))
+      m.addCvField(CONTRIBUTOR_TYPE, author.role.map(contributoreRoleToContributorType.getOrElse(_, "Other")).getOrElse("Other"))
     }
-    valueObject.toMap
+    m.toJsonObject
   }
 
   private def formatName(author: Author): String = {
@@ -96,10 +95,10 @@ object DcxDaiAuthor extends Contributor {
       .mkString(" ").trim().replaceAll("\\s+", " ")
   }
 
-  private def addIdentifier(valueObject: mutable.Map[String, Field], scheme: String, value: String): Unit = {
+  private def addIdentifier(m: FieldMap, scheme: String, value: String): Unit = {
     if (StringUtils.isNotBlank(value)) {
-      valueObject.put("authorIdentifierScheme", PrimitiveFieldSingleValue("authorIdentifierScheme", multiple = false, "controlledVocabulary", scheme))
-      valueObject.put("authorIdentifier", createPrimitiveFieldSingleValue("authorIdentifier", value))
+      m.addCvField(AUTHOR_IDENTIFIER_SCHEME, scheme)
+      m.addPrimitiveField(AUTHOR_IDENTIFIER, value)
     }
   }
 }

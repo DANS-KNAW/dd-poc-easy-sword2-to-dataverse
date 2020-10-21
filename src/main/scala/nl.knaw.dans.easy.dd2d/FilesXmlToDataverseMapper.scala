@@ -15,30 +15,22 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.nio.file.Paths
-
 import better.files.File
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FileInformation, FileMetadata }
+import nl.knaw.dans.easy.dd2d.dataverse.json.DataverseFile
+import nl.knaw.dans.easy.dd2d.mapping.FileElement
 
-import scala.collection.mutable.ListBuffer
+import scala.util.Try
 import scala.xml.Node
 
-class FilesXmlToDataverseMapper {
-  private val projectRootToFilePathAttribute = File("data/inbox/valid-easy-submitted/example-bag-medium/")
+case class FileInfo(file: File, metadata: DataverseFile)
 
-  def extractFileInfoFromFilesXml(filesXml: Node): Seq[FileInformation] = {
-    val files = new ListBuffer[FileInformation]
-    (filesXml \\ "file").filter(_.nonEmpty).foreach(n => {
-      val description = (n \ "description").headOption.map(_.text)
-      val directoryLabel = (n \ "@filepath").headOption.map(_.text)
-      val restrict = Some("false")
-      files += FileInformation(File(projectRootToFilePathAttribute + directoryLabel.get),
-        FileMetadata(description, getDirPath(directoryLabel), restrict))
-    })
-    files.toList
+class FilesXmlToDataverseMapper(bagDir: File) {
+  def toDataverseFiles(node: Node, defaultRestrict: Boolean): Try[List[FileInfo]] = Try {
+    (node \ "file").map(n => FileInfo(getFile(n), FileElement.toFileValueObject(n, defaultRestrict))).toList
   }
 
-  def getDirPath(fullPath: Option[String]): Option[String] = {
-    fullPath.map(p => Paths.get(p).getParent.toString)
+  private def getFile(node: Node): File = {
+    val filePathAttr = node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text
+    bagDir / filePathAttr
   }
 }

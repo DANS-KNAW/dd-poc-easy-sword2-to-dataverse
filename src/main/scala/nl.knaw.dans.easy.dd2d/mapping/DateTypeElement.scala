@@ -15,15 +15,49 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ JsonObject, FieldMap, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
 import org.joda.time.DateTime
 import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 
 import scala.xml.Node
 
-object DateTypeElement {
-  private val yyyyddmmPattern: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
+object DateTypeElement extends BlockBasicInformation {
+  private val NAMESPACE_DCTERMS = "http://purl.org/dc/terms/"
+
+  private val yyyymmddPattern: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
+
+  private val labelToDateType = Map(
+    "date" -> "Date",
+    "valid" -> "Valid",
+    "issued" -> "Issued",
+    "modified" -> "Modified",
+    "dateAccepted" -> "Date accepted",
+    "dateCopyrighted" -> "Date copyrighted"
+  )
+
+  def isDate(node: Node): Boolean = {
+    labelToDateType.keySet.contains(node.label)
+  }
+
+  def hasW3CFormat(node: Node): Boolean = {
+    hasXsiType(node, "W3CDTF")
+  }
 
   def toYearMonthDayFormat(node: Node): Option[String] = Option {
-    yyyyddmmPattern.print(DateTime.parse(node.text))
+    yyyymmddPattern.print(DateTime.parse(node.text))
+  }
+
+  def toBasicInfoFormattedDateValueObject(node: Node): JsonObject = {
+    val m = FieldMap()
+    m.addCvField(DATE_TYPE, labelToDateType.getOrElse(node.label, "Date"))
+    m.addPrimitiveField(DATE_VALUE, toYearMonthDayFormat(node).getOrElse(""))
+    m.toJsonObject
+  }
+
+  def toBasicInfoFreeDateValue(node: Node): JsonObject = {
+    val m = FieldMap()
+    m.addCvField(DATE_FREE_FORMAT_TYPE, labelToDateType.getOrElse(node.label, "Date"))
+    m.addPrimitiveField(DATE_FREE_FORMAT_VALUE, node.text)
+    m.toJsonObject
   }
 }

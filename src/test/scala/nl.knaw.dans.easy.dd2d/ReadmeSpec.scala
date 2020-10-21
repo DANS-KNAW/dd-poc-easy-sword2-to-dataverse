@@ -18,15 +18,15 @@ package nl.knaw.dans.easy.dd2d
 import java.io.ByteArrayOutputStream
 
 import better.files.File
-import org.scalatest._
 
-class ReadmeSpec extends FlatSpec with Matchers with CustomMatchers {
+class ReadmeSpec extends TestSupportFixture {
 
   private val configuration = Configuration(
     version = "my-version",
     inboxDir = null,
     validatorServiceUrl = null,
     dataverse = null,
+    autoPublish = true
   )
   private val clo = new CommandLineOptions(Array[String](), configuration) {
     // avoids System.exit() in case of invalid arguments or "--help"
