@@ -46,7 +46,7 @@ object Audience extends BlockBasicInformation {
    * @param node the audience element
    * @return A JsonObject with Subject CV fields
    */
-  def toCitationBlockSubjectCv(node: Node): JsonObject = {
+  def toBasicInformationBlockSubjectCv(node: Node): JsonObject = {
     val termAndUrl = getTermAndUrl(node)
     val m = FieldMap()
     m.addPrimitiveField(SUBJECT_CV_VALUE, termAndUrl.term)
