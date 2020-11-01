@@ -30,7 +30,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
   private implicit val resultOutput: PrintStream = Console.out
   private val dataverse = new DataverseInstance(configuration.dataverse)
   private val dansBagValidator = new DansBagValidator(configuration.validatorServiceUrl)
-  private val inboxWatcher = new InboxWatcher(new Inbox(configuration.inboxDir, dansBagValidator, dataverse))
+  private val inboxWatcher = new InboxWatcher(new Inbox(configuration.inboxDir, dansBagValidator, dataverse, configuration.autoPublish))
 
   def checkPreconditions(): Try[Unit] = {
     for {
@@ -39,12 +39,12 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     } yield ()
   }
 
-  def importSingleDeposit(deposit: File): Try[Unit] = {
-    new SingleDepositProcessor(deposit, dansBagValidator, dataverse).process()
+  def importSingleDeposit(deposit: File, autoPublish: Boolean): Try[Unit] = {
+    new SingleDepositProcessor(deposit, dansBagValidator, dataverse, autoPublish).process()
   }
 
-  def importDeposits(inbox: File): Try[Unit] = Try {
-    new InboxProcessor(new Inbox(inbox, dansBagValidator, dataverse)).process()
+  def importDeposits(inbox: File, autoPublish: Boolean): Try[Unit] = Try {
+    new InboxProcessor(new Inbox(inbox, dansBagValidator, dataverse, autoPublish)).process()
   }
 
   def start(): Try[Unit] = Try {

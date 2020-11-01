@@ -17,11 +17,10 @@ package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createPrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
-import org.scalatest.{ FlatSpec, Inside, Matchers, OneInstancePerTest }
 
 import scala.util.Success
 
-class DdmToDataverseMapperSpec extends FlatSpec with OneInstancePerTest with Matchers with Inside {
+class DdmToDataverseMapperSpec extends TestSupportFixture {
 
   implicit val format: DefaultFormats.type = DefaultFormats
   private val mapper = new DdmToDataverseMapper

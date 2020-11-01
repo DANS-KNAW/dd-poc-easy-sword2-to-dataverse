@@ -3,7 +3,7 @@
 BINPATH=`readlink -f $0`
 APPHOME=`dirname \`dirname $BINPATH \``
 MODULE=`basename $APPHOME`
-LOGBACK_HOME=$HOME/logback.xml
+LOGBACK_HOME=$HOME/logback-dd-dans-deposit-to-dataverse.xml
 LOGBACK_RPM=/etc/opt/dans.knaw.nl/$MODULE/logback.xml
 LOGBACK_APPHOME=$APPHOME/cfg/logback.xml
 

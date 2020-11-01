@@ -16,18 +16,11 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
-import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
-import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
-import org.json4s.{ DefaultFormats, Formats }
+import org.scalatest.{ FlatSpec, Inside, Matchers, OneInstancePerTest }
 
-import scala.util.Try
+trait TestSupportFixture extends FlatSpec with Matchers with Inside with CustomMatchers with OneInstancePerTest {
 
-class SingleDepositProcessor(deposit: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
-  def process(): Try[Unit] = Try {
-    val ingestTasks = new PassiveTaskQueue()
-    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish))
-    ingestTasks.process()
-  }
+  lazy val testDirValid: File = File("src/test/resources/examples")
+  lazy val testDirNonValid: File = File("src/test/resources//no-deposit")
 }
+

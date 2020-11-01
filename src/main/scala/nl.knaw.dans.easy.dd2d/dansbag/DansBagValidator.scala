@@ -46,7 +46,7 @@ class DansBagValidator(serviceUri: URI) extends DebugEnhancedLogging {
     trace(bagDir)
     Try {
       val validationUri = serviceUri.resolve(s"validate?infoPackageType=SIP&uri=${bagDir.path.toUri}")
-      logger.info(s"Calling Dans Bag Validation Service with ${ validationUri.toASCIIString }")
+      logger.debug(s"Calling Dans Bag Validation Service with ${ validationUri.toASCIIString }")
       Http(s"${ validationUri.toASCIIString }")
         // TODO: Make timeouts configurable
         .timeout(connTimeoutMs = 10000, readTimeoutMs = 10000)
