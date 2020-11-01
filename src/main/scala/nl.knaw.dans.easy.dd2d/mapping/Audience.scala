@@ -15,12 +15,15 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.xml.Node
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+
+import scala.xml.{ Node, XML }
 
 /**
- *  ddm:audience element with a NARCIS classification code in it.
+ * ddm:audience element with a NARCIS classification code in it.
+ * Used for Subject field in the Citation metadata block
  */
-object Audience {
+object Audience extends BlockBasicInformation {
   val narcisToSubject = Map(
     "D11" -> "Mathematical Sciences",
     "D12" -> "Physics",
@@ -38,7 +41,37 @@ object Audience {
   )
 
   /**
+   * Creates a Map with Subject CV fields for a Compound Field
+   *
+   * @param node the audience element
+   * @return A JsonObject with Subject CV fields
+   */
+  def toBasicInformationBlockSubjectCv(node: Node): JsonObject = {
+    val termAndUrl = getTermAndUrl(node)
+    val m = FieldMap()
+    m.addPrimitiveField(SUBJECT_CV_VALUE, termAndUrl.term)
+    m.addPrimitiveField(SUBJECT_CV_VOCABULARY, SUBJECT_NARCIS_CLASSIFICATION)
+    m.addPrimitiveField(SUBJECT_CV_VOCABULARY_URI, termAndUrl.url)
+    m.toJsonObject
+  }
+
+  /**
+   * Gets term and url from the NARCIS classification
+   *
+   * @param node the audience element
+   * @return the Dataverse subject term and url
+   */
+  private def getTermAndUrl(node: Node): TermAndUrl = {
+    val narcisClassification = XML.loadFile("src/main/resources/narcis_classification.xml")
+    val element = narcisClassification.child.filter(_.attributes.exists(_.value.text contains node.text))
+    val term = element.headOption.flatMap(_.child.find(_.label == "prefLabel")).map(_.text).getOrElse("Other")
+    val url = element.headOption.flatMap(_.attributes.value.headOption).getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString
+    TermAndUrl(term, url)
+  }
+
+  /**
    * Returns the best match for this NARCIS classification code in the Dataverse subject vocabulary
+   * used in the Citation metadata block
    *
    * @param node the audience element
    * @return the Dataverse subject term

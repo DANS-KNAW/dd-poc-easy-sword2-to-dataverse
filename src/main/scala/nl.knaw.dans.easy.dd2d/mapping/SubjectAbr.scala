@@ -119,11 +119,10 @@ object SubjectAbr extends BlockArchaeologySpecific {
   )
 
   def toSubjectAbrObject(node: Node): JsonObject = {
-    val t = node.text
     val m = FieldMap()
     m.addPrimitiveField(ABR_SUBJECT_VALUE, ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse("Other"))
     m.addPrimitiveField(ABR_SUBJECT_VOCABULARY, "ABR-complex")
-    m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.vocabularyUrl).getOrElse(ABR_BASE_URL))
+    m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
     m.toJsonObject
   }
 

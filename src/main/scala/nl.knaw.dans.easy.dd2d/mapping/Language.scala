@@ -15,17 +15,41 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+
 import scala.xml.Node
 
-object Language {
+object Language extends BlockBasicInformation {
   private val shortIsoToDataverse = Map(
     "eng" -> "English",
-    "nld" -> "Dutch"
+    "nld" -> "Dutch",
+    "dut" -> "Dutch",
+    "fre" -> "French",
+    "fra" -> "French",
+    "ger" -> "German",
+    "deu" -> "German"
     // TODO: extend, and probably load from resource file
   )
 
+  def toBasicInformationBlockLanguage(node: Node): JsonObject = {
+    val isoLanguage = getISOLanguage(node)
+    val m = FieldMap()
+    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VALUE, isoLanguage)
+    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
+    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL)
+    m.toJsonObject
+  }
+
+  def isISOLanguage(node: Node): Boolean = {
+    hasXsiType(node, "ISO639-2")
+  }
+
+  def getISOLanguage(node: Node): String = {
+    shortIsoToDataverse.getOrElse(node.text, "Other")
+  }
+
   def toCitationBlockLanguage(node: Node): Option[String] = {
-    if(hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
+    if (hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
     else Option.empty[String] // TODO: try to map to Dataverse vocabulary?
   }
 }

@@ -82,7 +82,7 @@ object TemporalAbr extends BlockArchaeologySpecific {
     val m = FieldMap()
     m.addPrimitiveField(ABR_PERIOD_VALUE, ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("Other"))
     m.addPrimitiveField(ABR_PERIOD_VOCABULARY, "ABR-periode")
-    m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.vocabularyUrl).getOrElse(ABR_BASE_URL))
+    m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
     m.toJsonObject
   }
 
