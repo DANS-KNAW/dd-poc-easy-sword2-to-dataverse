@@ -28,11 +28,12 @@ import scala.xml.{ Node, NodeSeq }
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial {
+class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat {
   lazy val citationFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificFields = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
+  lazy val contentTypeAndFileFormatFields = new ListBuffer[Field]
 
   def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
     // Please keep ordered by order in Dataverse UI as much as possible
@@ -62,16 +63,17 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID_URL, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filterNot(Relation isRelatedIdentifier), Relation toRelatedUrlValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, DATE, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filter(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFormattedDateValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, DATE_FREE_FORMAT, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filterNot(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFreeDateValue)
-    addCompoundFieldMultipleValues(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv)
-    
+
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_SUBJECT, (ddm \\ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toSubjectAbrObject)
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \\ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+
+    //content type and file format
+    addCompoundFieldMultipleValues(contentTypeAndFileFormatFields, CONTENT_TYPE_CV, ddm \\ "type", Type toContentTypeAndFileFormatBlockType)
+    addCompoundFieldMultipleValues(contentTypeAndFileFormatFields, FORMAT_CV, ddm \\ "format", Format toContentTypeAndFileFormatBlockFormat)
 
     assembleDataverseDataset()
   }
@@ -82,6 +84,7 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     addMetadataBlock(versionMap, "basicInformation", "Basic Information", basicInformationFields)
     addMetadataBlock(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
     addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
+    addMetadataBlock(versionMap, "dansContentTypeAndFileFormat", "Content Type and File Format", contentTypeAndFileFormatFields)
     val datasetVersion = DatasetVersion(versionMap.toMap)
     DataverseDataset(datasetVersion)
   }

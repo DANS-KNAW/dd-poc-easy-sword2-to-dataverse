@@ -16,9 +16,22 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 trait BlockContentTypeAndFileFormat {
-  val CONTENT_TYPE  = "dansContentType"
+  val CONTENT_TYPE = "dansContentType"
   val CONTENT_TYPE_FREE = "dansContentTypeFree"
   val FORMAT = "dansFormat"
   val FORMAT_FREE = "dansFormatFree"
   val CONTAINS_CLARIN_METADATA = "dansContainsClarinMetadata"
+  val CONTENT_TYPE_CV = "dansContentTypeCv"
+  val CONTENT_TYPE_CV_VALUE = "dansContentTypeCvValue"
+  val CONTENT_TYPE_CV_VOCABULARY = "dansContentTypeCvVocabulary"
+  val CONTENT_TYPE_CV_VOCABULARY_URL = "dansContentTypeCvVocabularyURI"
+  val FORMAT_CV = "dansFormatCv"
+  val FORMAT_CV_VALUE = "dansFormatCvValue"
+  val FORMAT_CV_VOCABULARY = "dansFormatCvVocabulary"
+  val FORMAT_CV_VOCABUALRY_URL = "dansFormatCvVocabularyURI"
+  val DCMI_TYPE = "DCMI Type Vocabulary"
+  val DCMI_FORMAT = "MediaType"
+  val DCMI_TYPE_BASE_URL = "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dcmitype/"
+  val DCMI_FORMAT_BASE_URL = "https://www.iana.org/assignments/media-types/"
 }
+
