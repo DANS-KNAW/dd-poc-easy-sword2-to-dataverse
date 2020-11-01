@@ -15,29 +15,34 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import better.files.File
-import org.scalatest.{ FlatSpec, Matchers }
+import scala.util.Success
 
-import scala.util.{ Failure, Success }
-
-class DepositSpec extends FlatSpec with Matchers {
+class DepositSpec extends TestSupportFixture {
 
   "checkDeposit" should "succeed if directory is deposit" in {
-    Deposit(File("src/test/resources/examples/valid-easy-submitted")) shouldBe a[Deposit]
+    Deposit(testDirValid / "valid-easy-submitted") shouldBe a[Deposit]
   }
 
   it should "fail if it is not a directory but a file" in {
-    val file = File("src/test/resources/no-deposit/no-dir.txt")
-    the [RuntimeException] thrownBy Deposit(file) should have message(s"Not a deposit: $file is not a directory")
+    val file = testDirNonValid / "no-dir.txt"
+    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file is not a directory")
   }
 
   it should "fail if it has no sub-directoires" in {
-    val file = File("src/test/resources/no-deposit/no-subdir")
-    the [RuntimeException] thrownBy Deposit(file) should have message(s"Not a deposit: $file has more or fewer than one subdirectory")
+    val file = testDirNonValid / "no-subdir"
+    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file has more or fewer than one subdirectory")
   }
 
   it should "fail if it has no deposit.properties" in {
-    val file = File("src/test/resources/no-deposit/no-deposit-properties")
-    the [RuntimeException] thrownBy Deposit(file) should have message(s"Not a deposit: $file does not contain a deposit.properties file")
+    val file = testDirNonValid / "no-deposit-properties"
+    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file does not contain a deposit.properties file")
+  }
+
+  it should "return the DOI value in deposit.properties" in {
+    Deposit(testDirValid / "valid-easy-submitted").doi shouldBe "10.17026/dans-ztg-q3s4"
+  }
+
+  it should "return empty string when there is no identifier.doi defined in deposit.properties" in {
+    Deposit(testDirValid / "valid-easy-submitted-no-doi").doi shouldBe ""
   }
 }

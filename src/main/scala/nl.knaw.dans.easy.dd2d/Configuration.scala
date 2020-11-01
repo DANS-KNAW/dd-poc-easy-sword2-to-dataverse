@@ -26,6 +26,7 @@ case class Configuration(version: String,
                          inboxDir: File,
                          validatorServiceUrl: URI,
                          dataverse: DataverseInstanceConfig,
+                         autoPublish: Boolean
                         )
 
 object Configuration {
@@ -51,7 +52,8 @@ object Configuration {
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
         apiVersion = properties.getString("dataverse.api-version")
-      )
+      ),
+      autoPublish = properties.getString("deposits.auto-publish").toBoolean
     )
   }
 }

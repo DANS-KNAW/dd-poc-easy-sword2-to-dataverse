@@ -29,8 +29,8 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   val synopsis: String =
     s"""
        |  $printedName run-service
-       |  $printedName import <inbox>
-       |  $printedName import -s <single-deposit>
+       |  $printedName import [-d,--draft] <inbox>
+       |  $printedName import [-d,--draft] -s <single-deposit>
        |  """.stripMargin
 
   version(s"$printedName v${ configuration.version }")
@@ -55,6 +55,7 @@ class CommandLineOptions(args: Array[String], configuration: Configuration) exte
   val importCommand = new Subcommand("import") {
     descr("Imports one ore more deposits. Does not monitor for new deposits to arrive, but instead terminates after importing the batch.")
     val singleDeposit: ScallopOption[Boolean] = opt(name = "single", descr = "Single deposit instead of a deposits inbox")
+    val draft: ScallopOption[Boolean] = opt(name = "draft", descr = "Do not publish the resulting datasets, but keep them on DRAFT status")
     val depositsInboxOrSingleDeposit: ScallopOption[Path] = trailArg(name = "inbox-or-single-deposit",
       descr = "Directory containing as sub-directories the deposit dirs to be imported or a single deposit")
     validatePathExists(depositsInboxOrSingleDeposit)

@@ -24,7 +24,7 @@ import scalaj.http.HttpResponse
 
 import scala.util.{ Failure, Try }
 
-class Dataset(id: String, isPersistentId: Boolean, configuration: DataverseInstanceConfig)(implicit resultOutput: PrintStream) extends HttpSupport with DebugEnhancedLogging {
+class Dataset(id: String, isPersistentId: Boolean, configuration: DataverseInstanceConfig) extends HttpSupport with DebugEnhancedLogging {
   protected val connectionTimeout: Int = configuration.connectionTimeout
   protected val readTimeout: Int = configuration.readTimeout
   protected val baseUrl: URI = configuration.baseUrl
