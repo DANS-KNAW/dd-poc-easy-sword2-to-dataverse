@@ -47,14 +47,12 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
     trace(())
-    optJsonMetadata.map {
-      json =>
-        Http(uri.toASCIIString).postMulti(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
-          .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
-          .headers(headers)
-          .asBytes
-    }
-    Http(uri.toASCIIString).postMulti(MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", new FileInputStream(file.pathAsString), file.size, lenWritten => {}))
+    val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", new FileInputStream(file.pathAsString), file.size, lenWritten => {}) +:
+      optJsonMetadata.map {
+        json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
+      }.getOrElse(Nil)
+
+    Http(uri.toASCIIString).postMulti(parts: _*)
       .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
       .headers(headers)
       .asBytes
