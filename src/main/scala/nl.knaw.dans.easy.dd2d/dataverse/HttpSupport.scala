@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.dataverse
 
-import java.io.PrintStream
+import java.io.FileInputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
@@ -47,12 +47,14 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
     trace(())
-    val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", data = file.byteArray) +:
-      optJsonMetadata.map {
-        json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
-      }.getOrElse(Nil)
-
-    Http(uri.toASCIIString).postMulti(parts: _*)
+    optJsonMetadata.map {
+      json =>
+        Http(uri.toASCIIString).postMulti(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
+          .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
+          .headers(headers)
+          .asBytes
+    }
+    Http(uri.toASCIIString).postMulti(MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", new FileInputStream(file.pathAsString), file.size, lenWritten => {}))
       .timeout(connTimeoutMs = connectionTimeout, readTimeoutMs = readTimeout)
       .headers(headers)
       .asBytes
@@ -63,7 +65,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
-      _ = debug(s"response: ${response.statusLine}, ${new String(response.body, StandardCharsets.UTF_8)}")
+      _ = debug(s"response: ${ response.statusLine }, ${ new String(response.body, StandardCharsets.UTF_8) }")
       body <- handleResponse(response, expectedStatus)
       output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
