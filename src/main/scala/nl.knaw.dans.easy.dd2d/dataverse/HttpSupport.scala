@@ -65,7 +65,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
       _ = debug(s"response: ${ response.statusLine }, ${ new String(response.body, StandardCharsets.UTF_8) }")
       body <- handleResponse(response, expectedStatus)
-      output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
+      _ <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
     } yield response
   }
@@ -79,7 +79,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       _ = debug(s"Request URL = $uri")
       response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, 200)
-      output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
+      _ <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
     } yield response
   }
