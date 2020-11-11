@@ -46,7 +46,11 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
           q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
         }
         catch {
-          case e: Exception => logger.error(e.getMessage)
+          case e: CorruptDepositException => logger.error(e.getMessage, e)
+          case e: Exception => {
+            logger.error(e.getMessage, e)
+            throw(e)
+          }
         }
       }
     }
