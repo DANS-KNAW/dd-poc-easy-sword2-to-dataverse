@@ -35,7 +35,7 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
   lazy val temporalSpatialFields = new ListBuffer[Field]
   lazy val contentTypeAndFileFormatFields = new ListBuffer[Field]
 
-  def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
+  def toDataverseDataset(ddm: Node, depositDirName: String): Try[DataverseDataset] = Try {
     // Please keep ordered by order in Dataverse UI as much as possible
 
     // TODO: if a single value is expected, the first encountered will be used; is this OK? Add checks on multiplicity before processing?
@@ -58,10 +58,11 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     // TODO: contributor unstructured
 
     // Basic information
+    addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_METADATA_CV, ddm, Language toBasicInformationLanguageOfMetadata, depositDirName)
+    //addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filter(Relation isRelatedIdentifier), Relation toRelatedIdentifierValueObject)
+    // addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID_URL, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filterNot(Relation isRelatedIdentifier), Relation toRelatedUrlValueObject)
     addPrimitiveFieldMultipleValues(basicInformationFields, LANGUAGE_OF_FILES, ddm \ "dcmiMetadata" \ "language")
-    addCompoundFieldMultipleValues(basicInformationFields, LANGUAGE_OF_FILES_CV, (ddm \\ "language").filter(Language isISOLanguage), Language toBasicInformationBlockLanguage)
-    addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filter(Relation isRelatedIdentifier), Relation toRelatedIdentifierValueObject)
-    addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID_URL, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filterNot(Relation isRelatedIdentifier), Relation toRelatedUrlValueObject)
+    //addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_FILES_CV, (ddm \\ "language").filter(Language isISOLanguage), Language toBasicInformationBlockLanguageOfFiles)
     addCompoundFieldMultipleValues(basicInformationFields, DATE, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filter(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFormattedDateValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, DATE_FREE_FORMAT, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filterNot(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFreeDateValue)
     addCompoundFieldMultipleValues(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv)
@@ -72,8 +73,8 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \\ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
 
     // Temporal and spatial coverage
-    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
-    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+    //    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
+    //    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
 
     //content type and file format
     addCompoundFieldMultipleValues(contentTypeAndFileFormatFields, CONTENT_TYPE_CV, ddm \\ "type", Type toContentTypeAndFileFormatBlockType)
@@ -119,6 +120,20 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
   private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
+    if (valueObjects.nonEmpty) {
+      metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
+    }
+  }
+
+  private def addCompoundFieldWithControlledVocabulary(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: (Node, String) => Option[JsonObject], depositDirName: String): Unit = {
+    val valueObjects = new ListBuffer[JsonObject]()
+    sourceNodes.foreach({
+      e =>
+        nodeTransformer(e, depositDirName) match {
+          case Some(jsonObject: JsonObject) => valueObjects += jsonObject
+          case None => valueObjects
+        }
+    })
     if (valueObjects.nonEmpty) {
       metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
     }

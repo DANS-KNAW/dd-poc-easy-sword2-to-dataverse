@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, MetadataBlock, createPrimitiveFieldSingleValue }
 import org.json4s.DefaultFormats
 
 import scala.util.Success
@@ -23,7 +23,7 @@ import scala.util.Success
 class DdmToDataverseMapperSpec extends TestSupportFixture {
 
   implicit val format: DefaultFormats.type = DefaultFormats
-  private val mapper = new DdmToDataverseMapper
+  private val mapper = new DdmToDataverseMapper()
 
   "toDataverseDataset" should "map profile/title to citation/title" in {
     val ddm =
@@ -35,7 +35,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, "")
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
@@ -57,7 +57,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, "")
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
@@ -105,7 +105,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
           </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, "")
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>

@@ -16,10 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object Language extends BlockBasicInformation {
+object Language extends BlockBasicInformation with DebugEnhancedLogging {
   private val shortIsoToDataverse = Map(
     "eng" -> "English",
     "nld" -> "Dutch",
@@ -31,13 +32,34 @@ object Language extends BlockBasicInformation {
     // TODO: extend, and probably load from resource file
   )
 
-  def toBasicInformationBlockLanguage(node: Node): JsonObject = {
+  def toBasicInformationBlockLanguageOfFiles(node: Node): Option[JsonObject] = {
     val isoLanguage = getISOLanguage(node)
-    val m = FieldMap()
-    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VALUE, isoLanguage)
-    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
-    m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL)
-    m.toJsonObject
+    isoLanguage match {
+      case "" =>
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VALUE, isoLanguage)
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + node.text)
+        Some(m.toJsonObject)
+    }
+  }
+
+  def toBasicInformationLanguageOfMetadata(node: Node, depositDirName: String): Option[JsonObject] = {
+    val isoLanguageAttribute = getISOLanguaAttribute(node)
+    val isoLanguage = shortIsoToDataverse.getOrElse(isoLanguageAttribute, "")
+    isoLanguage match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata' for the deposit '$depositDirName'" )
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VALUE, isoLanguage) fork
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + isoLanguageAttribute)
+        Some(m.toJsonObject)
+    }
   }
 
   def isISOLanguage(node: Node): Boolean = {
@@ -45,7 +67,11 @@ object Language extends BlockBasicInformation {
   }
 
   def getISOLanguage(node: Node): String = {
-    shortIsoToDataverse.getOrElse(node.text, "Other")
+    shortIsoToDataverse.getOrElse(node.text, "")
+  }
+
+  def getISOLanguaAttribute(ddm: Node): String = {
+    (ddm \\ "title").headOption.flatMap(_.attribute(XML_LANGUAGE_PROVISIONAL_URI, "lang")).getOrElse("").toString
   }
 
   def toCitationBlockLanguage(node: Node): Option[String] = {
