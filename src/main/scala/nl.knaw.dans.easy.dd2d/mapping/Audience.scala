@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.{ Node, XML }
 
@@ -23,7 +24,7 @@ import scala.xml.{ Node, XML }
  * ddm:audience element with a NARCIS classification code in it.
  * Used for Subject field in the Citation metadata block
  */
-object Audience extends BlockBasicInformation {
+object Audience extends BlockBasicInformation with DebugEnhancedLogging {
   val narcisToSubject = Map(
     "D11" -> "Mathematical Sciences",
     "D12" -> "Physics",
@@ -46,13 +47,19 @@ object Audience extends BlockBasicInformation {
    * @param node the audience element
    * @return A JsonObject with Subject CV fields
    */
-  def toBasicInformationBlockSubjectCv(node: Node): JsonObject = {
+  def toBasicInformationBlockSubjectCv(node: Node, depositDirName: String): Option[JsonObject] = {
     val termAndUrl = getTermAndUrl(node)
-    val m = FieldMap()
-    m.addPrimitiveField(SUBJECT_CV_VALUE, termAndUrl.term)
-    m.addPrimitiveField(SUBJECT_CV_VOCABULARY, SUBJECT_NARCIS_CLASSIFICATION)
-    m.addPrimitiveField(SUBJECT_CV_VOCABULARY_URI, termAndUrl.url)
-    m.toJsonObject
+    termAndUrl.term match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Subject' for the deposit '$depositDirName'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(SUBJECT_CV_VALUE, termAndUrl.term)
+        m.addPrimitiveField(SUBJECT_CV_VOCABULARY, SUBJECT_NARCIS_CLASSIFICATION)
+        m.addPrimitiveField(SUBJECT_CV_VOCABULARY_URI, termAndUrl.url)
+        Some(m.toJsonObject)
+    }
   }
 
   /**
@@ -64,7 +71,7 @@ object Audience extends BlockBasicInformation {
   private def getTermAndUrl(node: Node): TermAndUrl = {
     val narcisClassification = XML.loadFile("src/main/resources/narcis_classification.xml")
     val element = narcisClassification.child.filter(_.attributes.exists(_.value.text contains node.text))
-    val term = element.headOption.flatMap(_.child.find(_.label == "prefLabel")).map(_.text).getOrElse("Other")
+    val term = element.headOption.flatMap(_.child.find(_.label == "prefLabel")).map(_.text).getOrElse("")
     val url = element.headOption.flatMap(_.attributes.value.headOption).getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString
     TermAndUrl(term, url)
   }

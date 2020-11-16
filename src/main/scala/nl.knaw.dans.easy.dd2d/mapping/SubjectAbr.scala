@@ -16,10 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object SubjectAbr extends BlockArchaeologySpecific {
+object SubjectAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
 
   val ariadneSubjectToDataversename: Map[String, TermAndUrl] = Map(
     "DEPO" -> TermAndUrl("Depot", ABR_BASE_URL + "b97ef902-059a-4c14-b925-273c74bace30"),
@@ -118,12 +119,19 @@ object SubjectAbr extends BlockArchaeologySpecific {
     "VKW" -> TermAndUrl("Versterking - Waterburcht", ABR_BASE_URL + "61bf7838-56b1-4270-9648-4bb8d2e393d0")
   )
 
-  def toSubjectAbrObject(node: Node): JsonObject = {
-    val m = FieldMap()
-    m.addPrimitiveField(ABR_SUBJECT_VALUE, ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse("Other"))
-    m.addPrimitiveField(ABR_SUBJECT_VOCABULARY, "ABR-complex")
-    m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
-    m.toJsonObject
+  def toSubjectAbrObject(node: Node, depositDirName: String): Option[JsonObject] = {
+    val abrSubject = ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse("")
+    abrSubject match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Subject (ABR Complex)' for the deposit '$depositDirName'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(ABR_SUBJECT_VALUE, abrSubject)
+        m.addPrimitiveField(ABR_SUBJECT_VOCABULARY, "ABR-complex")
+        m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
+        Some(m.toJsonObject)
+    }
   }
 
   def isNotEmpty(node: Node): Boolean = {

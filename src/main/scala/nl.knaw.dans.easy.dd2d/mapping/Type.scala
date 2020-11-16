@@ -16,10 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object Type extends BlockContentTypeAndFileFormat {
+object Type extends BlockContentTypeAndFileFormat with DebugEnhancedLogging {
   //todo what values are allowed in ingest?
   val dcmiTypes = Map(
     "Collection" -> "Collection",
@@ -36,20 +37,22 @@ object Type extends BlockContentTypeAndFileFormat {
     "Text" -> "Text"
   )
 
-  def toContentTypeAndFileFormatBlockType(node: Node): JsonObject = {
+  def toContentTypeAndFileFormatBlockType(node: Node, depositDirName: String): Option[JsonObject] = {
     val contentType = getContentType(node)
-    val m = FieldMap()
-    m.addPrimitiveField(CONTENT_TYPE_CV_VALUE, contentType)
-    m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY, DCMI_TYPE)
-    if (contentType.equals("Other"))
-      m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY_URL, DCMI_TYPE_BASE_URL)
-    else
-      m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY_URL, DCMI_TYPE_BASE_URL + contentType)
-
-    m.toJsonObject
+    contentType match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Content Type' for the deposit '$depositDirName'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(CONTENT_TYPE_CV_VALUE, contentType)
+        m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY, DCMI_TYPE)
+        m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY_URL, DCMI_TYPE_BASE_URL + contentType)
+        Some(m.toJsonObject)
+    }
   }
 
   def getContentType(node: Node): String = {
-    dcmiTypes.getOrElse(node.text, "Other")
+    dcmiTypes.getOrElse(node.text, "")
   }
 }

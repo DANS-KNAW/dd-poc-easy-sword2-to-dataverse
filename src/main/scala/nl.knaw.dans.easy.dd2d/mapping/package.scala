@@ -26,7 +26,7 @@ package object mapping {
    * Returns whether the node has an xsi:type attribute with the specified type. Note that namespace-prefix of the *value* is ignored.
    *
    * @param node    the node to examine
-   * @param xsiType the xsiType to look fore
+   * @param xsiType the xsiType to look for
    * @return true or false
    */
   def hasXsiType(node: Node, xsiType: String): Boolean = {

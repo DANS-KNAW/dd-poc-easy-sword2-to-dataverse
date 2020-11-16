@@ -16,10 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object Format extends BlockContentTypeAndFileFormat {
+object Format extends BlockContentTypeAndFileFormat with DebugEnhancedLogging {
 
   val imtFormats = Map(
     "application/postscript" -> "application/postscript",
@@ -37,19 +38,22 @@ object Format extends BlockContentTypeAndFileFormat {
     "video/mpeg1" -> "video/mpeg1"
   )
 
-  def toContentTypeAndFileFormatBlockFormat(node: Node): JsonObject = {
+  def toContentTypeAndFileFormatBlockFormat(node: Node, depositDirName: String): Option[JsonObject] = {
     val contentFormat = getContentFormat(node)
-    val m = FieldMap()
-    m.addPrimitiveField(FORMAT_CV_VALUE, contentFormat)
-    m.addPrimitiveField(FORMAT_CV_VOCABULARY, DCMI_FORMAT)
-    if (contentFormat.equals("Other"))
-      m.addPrimitiveField(FORMAT_CV_VOCABUALRY_URL, DCMI_FORMAT_BASE_URL)
-    else
-      m.addPrimitiveField(FORMAT_CV_VOCABUALRY_URL, DCMI_FORMAT_BASE_URL + contentFormat)
-    m.toJsonObject
+    contentFormat match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Format (Media Type)' for the deposit '$depositDirName'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(FORMAT_CV_VALUE, contentFormat)
+        m.addPrimitiveField(FORMAT_CV_VOCABULARY, DCMI_FORMAT)
+        m.addPrimitiveField(FORMAT_CV_VOCABUALRY_URL, DCMI_FORMAT_BASE_URL + contentFormat)
+        Some(m.toJsonObject)
+    }
   }
 
   def getContentFormat(node: Node): String = {
-    imtFormats.getOrElse(node.text, "Other")
+    imtFormats.getOrElse(node.text, "")
   }
 }

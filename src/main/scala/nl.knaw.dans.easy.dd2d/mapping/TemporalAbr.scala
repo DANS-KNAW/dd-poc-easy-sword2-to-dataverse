@@ -16,10 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object TemporalAbr extends BlockArchaeologySpecific {
+object TemporalAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
 
   val ariadneTemporalToDataversename: Map[String, TermAndUrl] = Map(
     "PALEO" -> TermAndUrl("Paleolithicum: tot 8800 vC", ABR_BASE_URL + "8d762bf7-bda3-4c07-b77f-5df51301ad3f"),
@@ -78,12 +79,19 @@ object TemporalAbr extends BlockArchaeologySpecific {
     "XXX" -> TermAndUrl("Onbekend", ABR_BASE_URL + "3db8e14e-9ee5-4b5d-a5df-b706901468a2")
   )
 
-  def toTemporalAbr(node: Node): JsonObject = {
-    val m = FieldMap()
-    m.addPrimitiveField(ABR_PERIOD_VALUE, ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("Other"))
-    m.addPrimitiveField(ABR_PERIOD_VOCABULARY, "ABR-periode")
-    m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
-    m.toJsonObject
+  def toTemporalAbr(node: Node, depositDirName: String): Option[JsonObject] = {
+    val abrTemporal = ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("")
+    abrTemporal match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Temporal (ABR Period)' for the deposit '$depositDirName'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(ABR_PERIOD_VALUE, ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("Other"))
+        m.addPrimitiveField(ABR_PERIOD_VOCABULARY, "ABR-periode")
+        m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
+        Some(m.toJsonObject)
+    }
   }
 
   def isNotEmpty(node: Node): Boolean = {

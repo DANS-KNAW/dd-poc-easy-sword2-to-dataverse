@@ -21,7 +21,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scala.xml.Node
 
 object Language extends BlockBasicInformation with DebugEnhancedLogging {
-  private val shortIsoToDataverse = Map(
+  private val iso639_2ToDataverse = Map(
     "eng" -> "English",
     "nld" -> "Dutch",
     "dut" -> "Dutch",
@@ -32,10 +32,19 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
     // TODO: extend, and probably load from resource file
   )
 
-  def toBasicInformationBlockLanguageOfFiles(node: Node): Option[JsonObject] = {
+  private val iso639_1ToIso639_2 = Map(
+    "en" -> "eng",
+    "nl" -> "dut",
+    "fr" -> "fre",
+    "de" -> "ger"
+    // TODO: extend, and probably load from resource file
+  )
+
+  def toBasicInformationBlockLanguageOfFiles(node: Node, depositDirName: String): Option[JsonObject] = {
     val isoLanguage = getISOLanguage(node)
     isoLanguage match {
       case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Language of Files' for the deposit '$depositDirName'")
         None
       case _ =>
         val m = FieldMap()
@@ -47,17 +56,20 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
   }
 
   def toBasicInformationLanguageOfMetadata(node: Node, depositDirName: String): Option[JsonObject] = {
-    val isoLanguageAttribute = getISOLanguaAttribute(node)
-    val isoLanguage = shortIsoToDataverse.getOrElse(isoLanguageAttribute, "")
+    //ISO 639-1: two letter country codes
+    val xmlLangAttribute = getXmlLangAttribute(node)
+    //ISO 639-2: three letter country codes. Only these are resolvable when used in term url.
+    val iso639_2LangAttribute = iso639_1ToIso639_2.getOrElse(xmlLangAttribute, "")
+    val isoLanguage = iso639_2ToDataverse.getOrElse(iso639_2LangAttribute, "")
     isoLanguage match {
       case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata' for the deposit '$depositDirName'" )
+        logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata' for the deposit '$depositDirName'")
         None
       case _ =>
         val m = FieldMap()
-        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VALUE, isoLanguage) fork
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VALUE, isoLanguage)
         m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
-        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + isoLanguageAttribute)
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + iso639_2LangAttribute)
         Some(m.toJsonObject)
     }
   }
@@ -67,15 +79,15 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
   }
 
   def getISOLanguage(node: Node): String = {
-    shortIsoToDataverse.getOrElse(node.text, "")
+    iso639_2ToDataverse.getOrElse(node.text, "")
   }
 
-  def getISOLanguaAttribute(ddm: Node): String = {
-    (ddm \\ "title").headOption.flatMap(_.attribute(XML_LANGUAGE_PROVISIONAL_URI, "lang")).getOrElse("").toString
+  def getXmlLangAttribute(ddm: Node): String = {
+    (ddm \\ "title").headOption.filter(_.attributes.nonEmpty).map(_.attributes).filter(_.key.contains("lang")).map(_.value).getOrElse("").toString
   }
 
   def toCitationBlockLanguage(node: Node): Option[String] = {
-    if (hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
+    if (hasXsiType(node, "ISO639-2")) iso639_2ToDataverse.get(node.text)
     else Option.empty[String] // TODO: try to map to Dataverse vocabulary?
   }
 }

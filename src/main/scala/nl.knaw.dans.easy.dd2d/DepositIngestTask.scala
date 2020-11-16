@@ -61,7 +61,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
           """.stripMargin)
       }
       ddm <- deposit.tryDdm
-      dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
+      dataverseDataset <- ddmMapper.toDataverseDataset(ddm, deposit.dir.name)
       json = Serialization.writePretty(dataverseDataset)
       _ = if (logger.underlying.isDebugEnabled) {
         debug(json)
