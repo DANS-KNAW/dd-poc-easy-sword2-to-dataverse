@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.{ File, FileMonitor }
+import nl.knaw.dans.easy.dd2d.queue.SortUtils.sortDeposits
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.TaskQueue
@@ -39,7 +40,7 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
    * @param q the TaskQueue to put the DepositIngestTasks on
    */
   def enqueue(q: TaskQueue): Unit = {
-    dirs.foreach {
+    sortDeposits(dirs).foreach {
       d => {
         debug(s"Adding $d")
         q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))

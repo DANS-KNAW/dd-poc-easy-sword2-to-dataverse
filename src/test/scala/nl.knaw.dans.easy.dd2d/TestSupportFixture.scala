@@ -22,5 +22,6 @@ trait TestSupportFixture extends FlatSpec with Matchers with Inside with CustomM
 
   lazy val testDirValid: File = File("src/test/resources/examples")
   lazy val testDirNonValid: File = File("src/test/resources/no-deposit")
+  lazy val testDirUnorderedDeposits = File("src/test/resources/unordered-stub-deposits")
 }
 
