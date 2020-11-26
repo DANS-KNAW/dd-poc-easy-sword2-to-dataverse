@@ -15,10 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ Field, JsonObject, FieldMap, PrimitiveFieldSingleValue, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
 import org.apache.commons.lang.StringUtils
 
-import scala.collection.mutable
 import scala.xml.Node
 
 object DcxDaiAuthor extends Contributor with BlockCitation {
@@ -79,7 +78,7 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
       m.addPrimitiveField(CONTRIBUTOR_NAME, name)
     }
     else if (author.organization.isDefined) {
-      m.addPrimitiveField(CONTRIBUTOR_NAME, name)
+      m.addPrimitiveField(CONTRIBUTOR_NAME, author.organization.get)
     }
     if(author.role.isDefined) {
       m.addCvField(CONTRIBUTOR_TYPE, author.role.map(contributoreRoleToContributorType.getOrElse(_, "Other")).getOrElse("Other"))

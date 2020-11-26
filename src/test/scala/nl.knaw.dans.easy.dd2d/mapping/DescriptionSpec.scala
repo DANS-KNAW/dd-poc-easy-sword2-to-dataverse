@@ -19,15 +19,13 @@ import nl.knaw.dans.easy.dd2d.TestSupportFixture
 import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
-class FileElementSpec extends TestSupportFixture {
+class DescriptionSpec extends TestSupportFixture with BlockCitation {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
-  "toFileValueObject" should "strip data/ prefix from path to get directoryLabel" in {
-    val filesXml =
-      <file filepath="data/this/is/the/directoryLabel/filename.txt">
-      </file>
-    val result = Serialization.writePretty(FileElement.toFileValueObject(filesXml, defaultRestrict = true))
-    findString(result, "directoryLabel") shouldBe "this/is/the/directoryLabel"
-    findString(result, "restrict") shouldBe "true"
+  "toDescriptionValueObject" should "create Json object for the description value" in {
+    val description = <dcterms:description>The poise of the head strikes me at once...</dcterms:description>
+    val result = Serialization.writePretty(Description.toDescriptionValueObject(description))
+    findObject(result, s"$DESCRIPTION_VALUE") shouldBe Map("typeName" -> "dsDescriptionValue", "multiple" -> false, "typeClass" -> "primitive", "value" -> "The poise of the head strikes me at once...")
   }
+
 }

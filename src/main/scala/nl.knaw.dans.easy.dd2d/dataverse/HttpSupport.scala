@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.dataverse
 
-import java.io.PrintStream
+import java.io.FileInputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
@@ -47,7 +47,7 @@ trait HttpSupport extends DebugEnhancedLogging {
 
   protected def httpPostMulti(uri: URI, file: File, optJsonMetadata: Option[String] = None, headers: Map[String, String] = Map()): Try[HttpResponse[Array[Byte]]] = Try {
     trace(())
-    val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", data = file.byteArray) +:
+    val parts = MultiPart(name = "file", filename = file.name, mime = "application/octet-stream", new FileInputStream(file.pathAsString), file.size, lenWritten => {}) +:
       optJsonMetadata.map {
         json => List(MultiPart(data = json.getBytes(StandardCharsets.UTF_8), name = "jsonData", filename = "jsonData", mime = "application/json"))
       }.getOrElse(Nil)
@@ -63,9 +63,9 @@ trait HttpSupport extends DebugEnhancedLogging {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
       response <- httpPostMulti(uri, file, optJsonMetadata, Map("X-Dataverse-key" -> apiToken))
-      _ = debug(s"response: ${response.statusLine}, ${new String(response.body, StandardCharsets.UTF_8)}")
+      _ = debug(s"response: ${ response.statusLine }, ${ new String(response.body, StandardCharsets.UTF_8) }")
       body <- handleResponse(response, expectedStatus)
-      output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
+      _ <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
     } yield response
   }
@@ -79,7 +79,7 @@ trait HttpSupport extends DebugEnhancedLogging {
       _ = debug(s"Request URL = $uri")
       response <- http("GET", uri, body = null, Map("X-Dataverse-key" -> apiToken))
       body <- handleResponse(response, 200)
-      output <- if (formatResponseAsJson) prettyPrintJson(new String(body))
+      _ <- if (formatResponseAsJson) prettyPrintJson(new String(body))
                 else Try(new String(body))
     } yield response
   }

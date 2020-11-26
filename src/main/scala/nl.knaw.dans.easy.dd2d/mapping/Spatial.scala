@@ -30,7 +30,7 @@ trait Spatial {
   val LATLON_SCHEME = "latitude/longitude (m)"
 
 
-  case class Point(x: Int, y: Int)
+  case class Point(x: String, y: String)
 
   protected def isRd(env: Node): Boolean = {
     // Not specifying a namespace in the attribut lookup because srsName is not recognized by the parser to be in the GML namespace,
@@ -39,8 +39,11 @@ trait Spatial {
   }
 
   protected def getPoint(p: Node): Point = {
-    val cs = p.text.split("""\s+""")
-    Point(cs(0).toInt, cs(1).toInt)
+    val cs = p.text.trim.split("""\s+""")
+    // make sure that you have valid numbers here
+    cs(0).toDouble
+    cs(1).toDouble
+    Point(cs(0), cs(1))
   }
 }
 

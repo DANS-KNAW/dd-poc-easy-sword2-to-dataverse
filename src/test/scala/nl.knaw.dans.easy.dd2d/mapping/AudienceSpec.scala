@@ -15,20 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.TestSupportFixture
+import nl.knaw.dans.easy.dd2d.mapping.Audience.toCitationBlockSubject
 
-import scala.xml.Node
+class AudienceSpec extends TestSupportFixture {
 
-object SpatialPoint extends Spatial with BlockTemporalAndSpatial {
-  def toEasyTsmSpatialPointValueObject(point: Node): JsonObject = {
-    val isRD = isRd(point)// TODO: improve error handling
-    val p = getPoint(point)
-    val m = FieldMap()
-
-    m.addCvField(SPATIAL_POINT_SCHEME, if (isRD) RD_SCHEME
-                                     else LATLON_SCHEME)
-    m.addPrimitiveField(SPATIAL_POINT_X, p.x)
-    m.addPrimitiveField(SPATIAL_POINT_Y, p.y)
-    m.toJsonObject
+  "toCitationBlockSubject" should "map the audience code to correct subject" in {
+    val audience = <ddm:audience>D16</ddm:audience>
+    toCitationBlockSubject(audience) shouldBe Some("Computer and Information Science")
   }
+
+  it should "map unknown audience codes to 'Other'" in {
+    val audience = <ddm:audience>UNKNOWN</ddm:audience>
+    toCitationBlockSubject(audience) shouldBe Some("Other")
+  }
+
 }

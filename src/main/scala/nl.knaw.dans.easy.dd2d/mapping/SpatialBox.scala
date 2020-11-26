@@ -34,10 +34,10 @@ object SpatialBox extends Spatial with BlockTemporalAndSpatial {
     val m = FieldMap()
     m.addCvField(SPATIAL_BOX_SCHEME, if (isRD) RD_SCHEME
                                      else LATLON_SCHEME)
-    m.addPrimitiveField(SPATIAL_BOX_NORTH, upperCorner.y.toString)
-    m.addPrimitiveField(SPATIAL_BOX_EAST, lowerCorner.x.toString)
-    m.addPrimitiveField(SPATIAL_BOX_SOUTH, lowerCorner.y.toString)
-    m.addPrimitiveField(SPATIAL_BOX_WEST, upperCorner.x.toString)
+    m.addPrimitiveField(SPATIAL_BOX_NORTH, upperCorner.y)
+    m.addPrimitiveField(SPATIAL_BOX_EAST, lowerCorner.x)
+    m.addPrimitiveField(SPATIAL_BOX_SOUTH, lowerCorner.y)
+    m.addPrimitiveField(SPATIAL_BOX_WEST, upperCorner.x)
     m.toJsonObject
   }
 }

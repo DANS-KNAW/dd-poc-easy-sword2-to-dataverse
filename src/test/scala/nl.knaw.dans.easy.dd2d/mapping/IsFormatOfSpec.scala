@@ -19,15 +19,13 @@ import nl.knaw.dans.easy.dd2d.TestSupportFixture
 import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
-class FileElementSpec extends TestSupportFixture {
+class IsFormatOfSpec extends TestSupportFixture with BlockCitation {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
-  "toFileValueObject" should "strip data/ prefix from path to get directoryLabel" in {
-    val filesXml =
-      <file filepath="data/this/is/the/directoryLabel/filename.txt">
-      </file>
-    val result = Serialization.writePretty(FileElement.toFileValueObject(filesXml, defaultRestrict = true))
-    findString(result, "directoryLabel") shouldBe "this/is/the/directoryLabel"
-    findString(result, "restrict") shouldBe "true"
+  "toOtherIdValueObject" should "create Json object for the other id value" in {
+    val description = <dcterms:isFormatOf>https://test.example/1</dcterms:isFormatOf>
+    val result = Serialization.writePretty(IsFormatOf.toOtherIdValueObject(description))
+    findObject(result, s"$OTHER_ID_VALUE") shouldBe Map("typeName" -> "otherIdValue", "multiple" -> false, "typeClass" -> "primitive", "value" -> "https://test.example/1")
   }
+
 }
