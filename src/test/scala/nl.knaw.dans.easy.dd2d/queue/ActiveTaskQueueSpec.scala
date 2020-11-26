@@ -15,13 +15,16 @@
  */
 package nl.knaw.dans.easy.dd2d.queue
 
+import nl.knaw.dans.easy.dd2d.Deposit
+import nl.knaw.dans.lib.taskqueue.ActiveTaskQueue
 import org.scalatest.{ FlatSpec, Matchers, OneInstancePerTest }
 
 class ActiveTaskQueueSpec extends FlatSpec with Matchers with OneInstancePerTest {
 
   // TODO: how to make this test robust?
+  //TODO: should this be moved to dans-scala-lib?
   "start" should "cause previously queued items to be processed (within a reasonable time)" in {
-    val q = new ActiveTaskQueue()
+    val q = new ActiveTaskQueue[Deposit]()
     val triggeredTasks = List(
       TriggerTask(),
       TriggerTask(),

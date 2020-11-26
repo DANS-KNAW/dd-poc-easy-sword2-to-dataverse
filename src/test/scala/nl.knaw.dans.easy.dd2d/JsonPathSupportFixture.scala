@@ -18,12 +18,12 @@ package nl.knaw.dans.easy.dd2d
 import com.jayway.jsonpath.JsonPath
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 trait JsonPathSupportFixture {
 
   /**
    * Reads the JSON code in `json` and extracts the string found using the JSON Path expression in `path`
+   *
    * @param json the JSON code
    * @param path the JSON path
    * @return a string
@@ -35,6 +35,7 @@ trait JsonPathSupportFixture {
 
   /**
    * Reads the JSON code in `json` and extracts the object found using the JSON Path expression in `path`
+   *
    * @param json
    * @param path
    * @return
@@ -43,5 +44,4 @@ trait JsonPathSupportFixture {
     val ctx = JsonPath.parse(json)
     ctx.read(path).asInstanceOf[java.util.HashMap[String, Any]].asScala.toMap
   }
-
 }

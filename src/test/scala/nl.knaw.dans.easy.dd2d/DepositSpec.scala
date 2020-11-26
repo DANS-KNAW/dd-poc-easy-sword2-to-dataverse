@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import scala.util.Success
-
 class DepositSpec extends TestSupportFixture {
 
   "checkDeposit" should "succeed if directory is deposit" in {

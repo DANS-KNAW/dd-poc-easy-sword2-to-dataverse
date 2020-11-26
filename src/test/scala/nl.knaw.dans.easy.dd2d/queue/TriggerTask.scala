@@ -15,15 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d.queue
 
+import nl.knaw.dans.easy.dd2d.Deposit
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import nl.knaw.dans.lib.taskqueue.Task
 
 import scala.util.Try
 
-case class TriggerTask() extends Task with DebugEnhancedLogging {
+case class TriggerTask() extends Task[Deposit] with DebugEnhancedLogging {
   var triggered = false
 
   override def run(): Try[Unit] = Try {
     trace(())
     triggered = true
   }
+
+  override def getTarget: Deposit = ???
 }

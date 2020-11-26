@@ -20,9 +20,8 @@ import java.io.PrintStream
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
-import nl.knaw.dans.easy.dd2d.queue.{ ActiveTaskQueue, PassiveTaskQueue }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.{ DefaultFormats, Formats }
+import nl.knaw.dans.lib.taskqueue.InboxWatcher
 
 import scala.util.Try
 
