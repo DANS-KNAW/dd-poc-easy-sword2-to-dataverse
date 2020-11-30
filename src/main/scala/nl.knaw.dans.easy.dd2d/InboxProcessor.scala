@@ -26,7 +26,7 @@ class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
     trace(())
     val ingestTasks = new PassiveTaskQueue[Deposit]()
     logger.info("Enqueuing deposits found in inbox...")
-    inbox.enqueue(ingestTasks, Some(DepositSorter))
+    inbox.enqueue(ingestTasks, Some(new DepositSorter))
     logger.info("Processing queue...")
     ingestTasks.process()
     logger.info("Done processing.")

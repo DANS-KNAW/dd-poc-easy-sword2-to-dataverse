@@ -23,7 +23,7 @@ import java.util.Properties
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.{ Task, TaskSorter }
 
-object DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
+class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
 
   private case class DepositsSortInfo(name: String, timeStamp: LocalDateTime, isVersionOf: Option[String], depositTask: DepositIngestTask)
   private type DepositIngestTaskList = List[DepositIngestTask]
@@ -33,9 +33,8 @@ object DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
   private val IS_VERSION_OF = "Is-Version-Of"
   private val CREATED = "Created"
 
-
   /**
-   * sorts the deposit directories by dataset and per dataset by version
+   * sorts the (DepositIngest)Tasks by dataset and per dataset by version
    *
    * @param tasks list of DepositIngestTasks
    * @return the sorted list of deposit directories
