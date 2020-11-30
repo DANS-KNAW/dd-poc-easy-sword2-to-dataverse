@@ -15,17 +15,79 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+
 import scala.xml.Node
 
-object Language {
-  private val shortIsoToDataverse = Map(
+object Language extends BlockBasicInformation with DebugEnhancedLogging {
+  private val iso639_2ToDataverse = Map(
     "eng" -> "English",
-    "nld" -> "Dutch"
+    "nld" -> "Dutch",
+    "dut" -> "Dutch",
+    "fre" -> "French",
+    "fra" -> "French",
+    "ger" -> "German",
+    "deu" -> "German"
     // TODO: extend, and probably load from resource file
   )
 
+  private val iso639_1ToIso639_2 = Map(
+    "en" -> "eng",
+    "nl" -> "dut",
+    "fr" -> "fre",
+    "de" -> "ger"
+    // TODO: extend, and probably load from resource file
+  )
+
+  def toBasicInformationBlockLanguageOfFiles(node: Node): Option[JsonObject] = {
+    val isoLanguage = getISOLanguage(node)
+    isoLanguage match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Language of Files': '$isoLanguage'. Ignoring.")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VALUE, isoLanguage)
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
+        m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + node.text)
+        Some(m.toJsonObject)
+    }
+  }
+
+  def toBasicInformationLanguageOfMetadata(node: Node): Option[JsonObject] = {
+    //ISO 639-1: two letter country codes
+    val xmlLangAttribute = getXmlLangAttribute(node)
+    //ISO 639-2: three letter country codes. Only these are resolvable when used in term url.
+    val iso639_2LangAttribute = iso639_1ToIso639_2.getOrElse(xmlLangAttribute, "")
+    val isoLanguage = iso639_2ToDataverse.getOrElse(iso639_2LangAttribute, "")
+    isoLanguage match {
+      case "" =>
+        logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata'")
+        None
+      case _ =>
+        val m = FieldMap()
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VALUE, isoLanguage)
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
+        m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + iso639_2LangAttribute)
+        Some(m.toJsonObject)
+    }
+  }
+
+  def isISOLanguage(node: Node): Boolean = {
+    hasXsiType(node, "ISO639-2")
+  }
+
+  def getISOLanguage(node: Node): String = {
+    iso639_2ToDataverse.getOrElse(node.text, "")
+  }
+
+  def getXmlLangAttribute(ddm: Node): String = {
+    (ddm \\ "title").headOption.filter(_.attributes.nonEmpty).map(_.attributes).filter(_.key.contains("lang")).map(_.value).getOrElse("").toString
+  }
+
   def toCitationBlockLanguage(node: Node): Option[String] = {
-    if(hasXsiType(node, "ISO639-2")) shortIsoToDataverse.get(node.text)
+    if (hasXsiType(node, "ISO639-2")) iso639_2ToDataverse.get(node.text)
     else Option.empty[String] // TODO: try to map to Dataverse vocabulary?
   }
 }

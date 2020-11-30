@@ -42,7 +42,7 @@ import scala.util.{ Success, Try }
 case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
   trace(deposit, dataverse)
 
-  private val ddmMapper = new DdmToDataverseMapper()
+  private val mapper = new DepositToDataverseMapper()
   private val bagDirPath = File(deposit.bagDir.path)
   private val filesXmlMapper = new FilesXmlToDataverseMapper(bagDirPath)
 
@@ -61,7 +61,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
           """.stripMargin)
       }
       ddm <- deposit.tryDdm
-      dataverseDataset <- ddmMapper.toDataverseDataset(ddm)
+      dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
       json = Serialization.writePretty(dataverseDataset)
       _ = if (logger.underlying.isDebugEnabled) {
         debug(json)

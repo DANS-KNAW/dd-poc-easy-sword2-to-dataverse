@@ -18,7 +18,7 @@ package nl.knaw.dans.easy.dd2d
 import better.files.File
 import org.scalatest.{ FlatSpec, Inside, Matchers, OneInstancePerTest }
 
-trait TestSupportFixture extends FlatSpec with Matchers with Inside with CustomMatchers with OneInstancePerTest {
+trait TestSupportFixture extends FlatSpec with Matchers with Inside with CustomMatchers with OneInstancePerTest with JsonPathSupportFixture {
 
   lazy val testDirValid: File = File("src/test/resources/examples")
   lazy val testDirNonValid: File = File("src/test/resources/no-deposit")

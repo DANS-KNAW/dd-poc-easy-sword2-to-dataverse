@@ -15,23 +15,22 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
-
 import scala.xml.Node
 
 package object mapping {
   val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
 
+  case class TermAndUrl(term: String, url: String)
+
   /**
    * Returns whether the node has an xsi:type attribute with the specified type. Note that namespace-prefix of the *value* is ignored.
    *
-   * @param node the node to examine
-   * @param xsiType the xsiType to look fore
+   * @param node    the node to examine
+   * @param xsiType the xsiType to look for
    * @return true or false
    */
   def hasXsiType(node: Node, xsiType: String): Boolean = {
     // TODO: check attribute value's namespace
     node.attribute(XML_SCHEMA_INSTANCE_URI, "type").map(_.text).map(t => t.endsWith(s":$xsiType") || t == xsiType).exists(identity)
   }
-
 }

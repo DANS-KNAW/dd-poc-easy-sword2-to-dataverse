@@ -30,7 +30,7 @@ trait JsonPathSupportFixture {
    */
   protected def findString(json: String, path: String): String = {
     val ctx = JsonPath.parse(json)
-    ctx.read(path).asInstanceOf[String]
+    ctx.read("$." + path).asInstanceOf[String]
   }
 
   /**
@@ -42,6 +42,6 @@ trait JsonPathSupportFixture {
    */
   protected def findObject(json: String, path: String): Map[String, Any] = {
     val ctx = JsonPath.parse(json)
-    ctx.read(path).asInstanceOf[java.util.HashMap[String, Any]].asScala.toMap
+    ctx.read("$." + path).asInstanceOf[java.util.HashMap[String, Any]].asScala.toMap
   }
 }

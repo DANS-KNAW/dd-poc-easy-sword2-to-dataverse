@@ -28,13 +28,15 @@ import scala.xml.{ Node, NodeSeq }
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial {
+class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat  with BlockDataVaultMetadata {
   lazy val citationFields = new ListBuffer[Field]
   lazy val basicInformationFields = new ListBuffer[Field]
   lazy val archaeologySpecificFields = new ListBuffer[Field]
   lazy val temporalSpatialFields = new ListBuffer[Field]
+  lazy val dataVaultFields = new ListBuffer[Field]
+  lazy val contentTypeAndFileFormatFields = new ListBuffer[Field]
 
-  def toDataverseDataset(ddm: Node): Try[DataverseDataset] = Try {
+  def toDataverseDataset(ddm: Node, vaultMetadata: VaultMetadata): Try[DataverseDataset] = Try {
     // Please keep ordered by order in Dataverse UI as much as possible
 
     // TODO: if a single value is expected, the first encountered will be used; is this OK? Add checks on multiplicity before processing?
@@ -57,18 +59,35 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     // TODO: contributor unstructured
 
     // Basic information
-    addPrimitiveFieldMultipleValues(basicInformationFields, LANGUAGE_OF_FILES, ddm \ "dcmiMetadata" \ "language")
+    addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_METADATA_CV, ddm, Language toBasicInformationLanguageOfMetadata)
     addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filter(Relation isRelatedIdentifier), Relation toRelatedIdentifierValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID_URL, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filterNot(Relation isRelatedIdentifier), Relation toRelatedUrlValueObject)
+    addPrimitiveFieldMultipleValues(basicInformationFields, LANGUAGE_OF_FILES, ddm \ "dcmiMetadata" \ "language")
+    addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_FILES_CV, (ddm \\ "language").filter(Language isISOLanguage), Language toBasicInformationBlockLanguageOfFiles)
     addCompoundFieldMultipleValues(basicInformationFields, DATE, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filter(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFormattedDateValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, DATE_FREE_FORMAT, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filterNot(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFreeDateValue)
+    addCompoundFieldWithControlledVocabulary(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv)
 
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_SUBJECT, (ddm \\ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toSubjectAbrObject)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \\ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+
+    //content type and file format
+    addCompoundFieldWithControlledVocabulary(contentTypeAndFileFormatFields, CONTENT_TYPE_CV, ddm \\ "type", Type toContentTypeAndFileFormatBlockType)
+    addCompoundFieldWithControlledVocabulary(contentTypeAndFileFormatFields, FORMAT_CV, ddm \\ "format", Format toContentTypeAndFileFormatBlockFormat)
+
+    // Data vault
+    addVaultValue(dataVaultFields, DATAVERSE_PID, vaultMetadata.dataversePid)
+    addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)
+    addVaultValue(dataVaultFields, NBN, vaultMetadata.dataverseNbn)
+    addVaultValue(dataVaultFields, DANS_OTHER_ID, vaultMetadata.dataverseOtherId)
+    addVaultValue(dataVaultFields, DANS_OTHER_ID_VERSION, vaultMetadata.dataverseOtherIdVersion)
+    addVaultValue(dataVaultFields, SWORD_TOKEN, vaultMetadata.dataverseSwordToken)
 
     assembleDataverseDataset()
   }
@@ -79,6 +98,8 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     addMetadataBlock(versionMap, "basicInformation", "Basic Information", basicInformationFields)
     addMetadataBlock(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
     addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
+    addMetadataBlock(versionMap, "dansContentTypeAndFileFormat", "Content Type and File Format", contentTypeAndFileFormatFields)
+    addMetadataBlock(versionMap, "dataVault", "Data Vault Metadata", dataVaultFields)
     val datasetVersion = DatasetVersion(versionMap.toMap)
     DataverseDataset(datasetVersion)
   }
@@ -111,6 +132,26 @@ class DdmToDataverseMapper() extends BlockCitation with BlockBasicInformation wi
     sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
     if (valueObjects.nonEmpty) {
       metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
+    }
+  }
+
+  private def addCompoundFieldWithControlledVocabulary(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[JsonObject]): Unit = {
+    val valueObjects = new ListBuffer[JsonObject]()
+    sourceNodes.foreach({
+      e =>
+        nodeTransformer(e) match {
+          case Some(jsonObject: JsonObject) => valueObjects += jsonObject
+          case None => valueObjects
+        }
+    })
+    if (valueObjects.nonEmpty) {
+      metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
+    }
+  }
+
+  private def addVaultValue(metadataBlockFields: ListBuffer[Field], name: String, value: String): Unit = {
+    if (value.nonEmpty) {
+      metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
     }
   }
 

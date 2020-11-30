@@ -1,11 +1,14 @@
-Fixes EASY-
+Fixes DD-
 
+# Description of changes
+
+
+# How to test
+
+
+# Related PRs 
+(Add links)
 * 
-* 
-* 
 
-
-
-repo                       | PR                | note
--------------------------- | ----------------- | ----
-easy-                      | [PR#](PRlink)     | ..
+# Notify
+@DANS-KNAW/dataversedans

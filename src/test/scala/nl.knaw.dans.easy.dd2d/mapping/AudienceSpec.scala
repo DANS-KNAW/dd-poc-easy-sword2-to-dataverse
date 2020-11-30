@@ -15,13 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-trait BlockDataVaultMetadata {
-  val DATAVERSE_PID = "dansDataversePid"
-  val DATAVERSE_PID_VERSION = "dansDataversePidVersion"
-  val BAG_ID = "dansBagId"
-  val NBN = "dansNbn"
-  val DANS_OTHER_ID = "dansOtherId"
-  val DANS_OTHER_ID_VERSION = "dansOtherIdVersion"
-  val SWORD_TOKEN = "dansSwordToken"
+import nl.knaw.dans.easy.dd2d.TestSupportFixture
+import nl.knaw.dans.easy.dd2d.mapping.Audience.toCitationBlockSubject
+
+class AudienceSpec extends TestSupportFixture {
+
+  "toCitationBlockSubject" should "map the audience code to correct subject" in {
+    val audience = <ddm:audience>D16</ddm:audience>
+    toCitationBlockSubject(audience) shouldBe Some("Computer and Information Science")
+  }
+
+  it should "map unknown audience codes to 'Other'" in {
+    val audience = <ddm:audience>UNKNOWN</ddm:audience>
+    toCitationBlockSubject(audience) shouldBe Some("Other")
+  }
 
 }

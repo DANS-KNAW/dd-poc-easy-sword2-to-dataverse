@@ -16,14 +16,17 @@
 package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createPrimitiveFieldSingleValue }
+import nl.knaw.dans.easy.dd2d.mapping.{ BlockBasicInformation, BlockCitation, BlockTemporalAndSpatial }
 import org.json4s.DefaultFormats
+import org.json4s.native.Serialization
 
 import scala.util.Success
 
-class DdmToDataverseMapperSpec extends TestSupportFixture {
+class DepositToDataverseMapperSpec extends TestSupportFixture {
 
   implicit val format: DefaultFormats.type = DefaultFormats
-  private val mapper = new DdmToDataverseMapper
+  private val mapper = new DepositToDataverseMapper
+  private val vaultMetadata = Deposit(testDirValid / "valid-easy-submitted").vaultMetadata
 
   "toDataverseDataset" should "map profile/title to citation/title" in {
     val ddm =
@@ -35,7 +38,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
@@ -57,7 +60,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
@@ -105,7 +108,7 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
           </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm)
+    val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
@@ -120,6 +123,20 @@ class DdmToDataverseMapperSpec extends TestSupportFixture {
             "authorName" -> createPrimitiveFieldSingleValue("authorName", "Professor T Zonnebloem"),
             "authorAffiliation" -> createPrimitiveFieldSingleValue("authorAffiliation", "Uitvindersgilde")
           ))
+    }
+  }
+
+  it should "map deposit.properties correctly to vault data" in {
+    val result = mapper.toDataverseDataset(<ddm:DDM/>, vaultMetadata)
+    result shouldBe a[Success[_]]
+    inside(result) {
+      case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
+        metadataBlocks.get("dataVault") shouldBe Some(
+          MetadataBlock("Data Vault Metadata",
+            List(createPrimitiveFieldSingleValue("dansDataversePid", "doi:10.17026/dans-ztg-q3s4"),
+              createPrimitiveFieldSingleValue("dansNbn", "urn:nbn:nl:ui:13-ar2-u8v"),
+              createPrimitiveFieldSingleValue("dansSwordToken", "sword:123e4567-e89b-12d3-a456-556642440000")))
+        )
     }
   }
 }

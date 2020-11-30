@@ -22,7 +22,6 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.{ Failure, Success, Try }
 import scala.xml.{ Node, Utility, XML }
-import nl.knaw.dans.lib.error._
 import org.apache.commons.configuration.PropertiesConfiguration
 
 /**
@@ -70,6 +69,46 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
 
   def doi: String = {
     depositProperties.getString("identifier.doi", "")
+  }
+
+  def vaultMetadata: VaultMetadata = {
+    VaultMetadata(dataversePid, dataverseBagId, dataverseNbn, dataverseOtherId, dataverseOtherIdVersion, dataverseSwordToken)
+  }
+
+  private def dataversePid: String = {
+    dataverseIdProtocol + ":" + dataverseIdAuthority + "/" + dataverseId
+  }
+
+  private def dataverseIdProtocol: String = {
+    depositProperties.getString("dataverse.id-protocol", "")
+  }
+
+  private def dataverseIdAuthority: String = {
+    depositProperties.getString("dataverse.id-authority", "")
+  }
+
+  private def dataverseId: String = {
+    depositProperties.getString("dataverse.id-identifier", "")
+  }
+
+  private def dataverseBagId: String = {
+    depositProperties.getString("dataverse.bag-id", "")
+  }
+
+  private def dataverseNbn: String = {
+    depositProperties.getString("dataverse.nbn", "")
+  }
+
+  private def dataverseOtherId: String = {
+    depositProperties.getString("dataverse.other-id", "")
+  }
+
+  private def dataverseOtherIdVersion: String = {
+    depositProperties.getString("dataverse.other-id-version", "")
+  }
+
+  private def dataverseSwordToken: String = {
+    depositProperties.getString("dataverse.sword-token", "")
   }
 
   private def checkCondition(check: File => Boolean, msg: String): Unit = {

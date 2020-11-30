@@ -19,12 +19,12 @@ package object dd2d {
 
   type DepositName = String
 
+  case class VaultMetadata(dataversePid: String, dataverseBagId: String, dataverseNbn: String, dataverseOtherId: String, dataverseOtherIdVersion: String, dataverseSwordToken: String)
+
   case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
 
   case class FailedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Failed ${ deposit.dir }: $msg", cause)
-
-
 
 }
