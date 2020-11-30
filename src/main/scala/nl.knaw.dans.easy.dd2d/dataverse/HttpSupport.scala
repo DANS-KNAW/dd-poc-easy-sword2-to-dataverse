@@ -88,7 +88,7 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
+      response <- getResponse("POST", uri, body, Map("Content-Type" -> "application/json", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
     } yield response
   }
@@ -97,9 +97,21 @@ trait HttpSupport extends DebugEnhancedLogging {
     for {
       uri <- uri(s"api/v${ apiVersion }/${ Option(subPath).getOrElse("") }")
       _ = debug(s"Request URL = $uri")
-      response <- http("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
+      response <- getResponse("POST", uri, body, Map("Content-Type" -> "text/plain", "X-Dataverse-key" -> apiToken))
       _ <- handleResponse(response, expectedStatus: _*)
     } yield response
+  }
+
+  private def getResponse(method: String, uri: URI, body: String, headers: Map[String, String]): Try[HttpResponse[Array[Byte]]] = {
+    var response = http(method, uri, body, headers)
+    var count = 1
+    // If the response code is 403 (Forbidden) and the cause is a locked resource, we repeat the request a few times, waiting one second in between the calls
+    while (count < 6 && response.isSuccess && response.get.code == 403 && new String(response.get.body, StandardCharsets.UTF_8).contains("locked")) {
+      Thread.sleep(1000)
+      response = http(method, uri, body, headers)
+      count += 1
+    }
+    response
   }
 
   protected def put(subPath: String = null)(body: String = null): Try[HttpResponse[Array[Byte]]] = {
