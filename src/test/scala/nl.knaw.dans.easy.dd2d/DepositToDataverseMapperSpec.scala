@@ -15,10 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ CompoundField, DatasetVersion, DataverseDataset, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createPrimitiveFieldSingleValue }
-import nl.knaw.dans.easy.dd2d.mapping.{ BlockBasicInformation, BlockCitation, BlockTemporalAndSpatial }
+import nl.knaw.dans.easy.dd2d.dataverse.json._
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, Dataset, MetadataBlock }
 import org.json4s.DefaultFormats
-import org.json4s.native.Serialization
 
 import scala.util.Success
 
@@ -41,8 +40,8 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
     val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
-      case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
-        metadataBlocks.get("citation") shouldBe Some(
+      case Success(Dataset(dsv)) =>
+        dsv.metadataBlocks.get("citation") shouldBe Some(
           MetadataBlock("Citation Metadata", List(createPrimitiveFieldSingleValue("title", "A title")))
         )
     }
@@ -63,16 +62,13 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
     val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
-      case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
-        metadataBlocks("citation").fields should contain(
+      case Success(Dataset(dsv)) =>
+        dsv.metadataBlocks("citation").fields should contain(
           CompoundField("dsDescription",
-            multiple = true,
-            "compound",
-            (List(
+            List(
               Map("dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", "Descr 1")),
               Map("dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", "Descr 2"))
-            )
-              )))
+            )))
     }
   }
 
@@ -111,8 +107,8 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
     val result = mapper.toDataverseDataset(ddm, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
-      case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
-        val valueObjectsOfCompoundFields = metadataBlocks("citation").fields.filter(_.isInstanceOf[CompoundField]).map(_.asInstanceOf[CompoundField]).flatMap(_.value)
+      case Success(Dataset(dsv)) =>
+        val valueObjectsOfCompoundFields = dsv.metadataBlocks("citation").fields.filter(_.isInstanceOf[CompoundField]).map(_.asInstanceOf[CompoundField]).flatMap(_.value)
         valueObjectsOfCompoundFields should contain(
           Map(
             "authorName" -> createPrimitiveFieldSingleValue("authorName", "Dr A van Helsing"),
@@ -130,8 +126,8 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
     val result = mapper.toDataverseDataset(<ddm:DDM/>, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
-      case Success(DataverseDataset(DatasetVersion(metadataBlocks))) =>
-        metadataBlocks.get("dataVault") shouldBe Some(
+      case Success(Dataset(dsv)) =>
+        dsv.metadataBlocks.get("dataVault") shouldBe Some(
           MetadataBlock("Data Vault Metadata",
             List(createPrimitiveFieldSingleValue("dansDataversePid", "doi:10.17026/dans-ztg-q3s4"),
               createPrimitiveFieldSingleValue("dansNbn", "urn:nbn:nl:ui:13-ar2-u8v"),

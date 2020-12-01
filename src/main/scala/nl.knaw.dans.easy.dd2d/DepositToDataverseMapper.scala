@@ -15,8 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ DatasetVersion, DataverseDataset, Field, JsonObject, MetadataBlock, PrimitiveFieldMultipleValues, PrimitiveFieldSingleValue, createCompoundFieldMultipleValues }
+import nl.knaw.dans.easy.dd2d.dataverse.json._
 import nl.knaw.dans.easy.dd2d.mapping._
+import nl.knaw.dans.lib.dataverse.model.dataset.{ ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -28,15 +29,15 @@ import scala.xml.{ Node, NodeSeq }
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat  with BlockDataVaultMetadata {
-  lazy val citationFields = new ListBuffer[Field]
-  lazy val basicInformationFields = new ListBuffer[Field]
-  lazy val archaeologySpecificFields = new ListBuffer[Field]
-  lazy val temporalSpatialFields = new ListBuffer[Field]
-  lazy val dataVaultFields = new ListBuffer[Field]
-  lazy val contentTypeAndFileFormatFields = new ListBuffer[Field]
+class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat with BlockDataVaultMetadata {
+  lazy val citationFields = new ListBuffer[MetadataField]
+  lazy val basicInformationFields = new ListBuffer[MetadataField]
+  lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
+  lazy val temporalSpatialFields = new ListBuffer[MetadataField]
+  lazy val dataVaultFields = new ListBuffer[MetadataField]
+  lazy val contentTypeAndFileFormatFields = new ListBuffer[MetadataField]
 
-  def toDataverseDataset(ddm: Node, vaultMetadata: VaultMetadata): Try[DataverseDataset] = Try {
+  def toDataverseDataset(ddm: Node, vaultMetadata: VaultMetadata): Try[Dataset] = Try {
     // Please keep ordered by order in Dataverse UI as much as possible
 
     // TODO: if a single value is expected, the first encountered will be used; is this OK? Add checks on multiplicity before processing?
@@ -92,7 +93,7 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     assembleDataverseDataset()
   }
 
-  private def assembleDataverseDataset(): DataverseDataset = {
+  private def assembleDataverseDataset(): Dataset = {
     val versionMap = mutable.Map[String, MetadataBlock]()
     addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
     addMetadataBlock(versionMap, "basicInformation", "Basic Information", basicInformationFields)
@@ -100,34 +101,34 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
     addMetadataBlock(versionMap, "dansContentTypeAndFileFormat", "Content Type and File Format", contentTypeAndFileFormatFields)
     addMetadataBlock(versionMap, "dataVault", "Data Vault Metadata", dataVaultFields)
-    val datasetVersion = DatasetVersion(versionMap.toMap)
-    DataverseDataset(datasetVersion)
+    val datasetVersion = DatasetVersion(metadataBlocks = versionMap.toMap)
+    Dataset(datasetVersion)
   }
 
-  private def addPrimitiveFieldSingleValue(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+  private def addPrimitiveFieldSingleValue(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     sourceNodes
       .map(nodeTransformer)
       .filter(_.isDefined)
       .map(_.get)
       .take(1)
-      .foreach(v => metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", v))
+      .foreach(v => metadataBlockFields += PrimitiveSingleValueField(name, v))
   }
 
-  private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+  private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
     if (values.nonEmpty) {
-      metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
+      metadataBlockFields += PrimitiveMultipleValueField(name, values)
     }
   }
 
-  private def addCvFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String]): Unit = {
+  private def addCvFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String]): Unit = {
     val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
     if (values.nonEmpty) {
-      metadataBlockFields += PrimitiveFieldMultipleValues(name, multiple = true, "controlledVocabulary", values)
+      metadataBlockFields += ControlledMultipleValueField(name, values)
     }
   }
 
-  private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
+  private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
     if (valueObjects.nonEmpty) {
@@ -135,7 +136,7 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     }
   }
 
-  private def addCompoundFieldWithControlledVocabulary(metadataBlockFields: ListBuffer[Field], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[JsonObject]): Unit = {
+  private def addCompoundFieldWithControlledVocabulary(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[JsonObject]): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach({
       e =>
@@ -149,13 +150,13 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     }
   }
 
-  private def addVaultValue(metadataBlockFields: ListBuffer[Field], name: String, value: String): Unit = {
+  private def addVaultValue(metadataBlockFields: ListBuffer[MetadataField], name: String, value: String): Unit = {
     if (value.nonEmpty) {
-      metadataBlockFields += PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
+      metadataBlockFields += PrimitiveSingleValueField(name, value)
     }
   }
 
-  private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[Field]): Unit = {
+  private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[MetadataField]): Unit = {
     if (fields.nonEmpty) {
       versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.toList))
     }

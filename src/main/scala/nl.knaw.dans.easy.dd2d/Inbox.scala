@@ -17,8 +17,9 @@ package nl.knaw.dans.easy.dd2d
 
 import better.files.{ File, FileMonitor }
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.TaskQueue
+import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.dataverse.model.dataset.MetadataFieldSerializer
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.{ DefaultFormats, Formats }
 
@@ -26,11 +27,11 @@ import org.json4s.{ DefaultFormats, Formats }
  * The inbox directory containing deposit directories. It can enqueue DepositIngestTasks in
  * on a TaskQueue in several ways.
  *
- * @param dir the file system directory
+ * @param dir       the file system directory
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
 class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) extends DebugEnhancedLogging {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
+  private implicit val jsonFormats: Formats = DefaultFormats + MetadataFieldSerializer
   private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
 
   /**

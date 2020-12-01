@@ -17,11 +17,8 @@ package nl.knaw.dans.easy.dd2d
 
 import java.util.concurrent.Executors
 
-import better.files.{ File, FileMonitor }
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.queue.ActiveTaskQueue
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import org.json4s.{ DefaultFormats, Formats }
 
 import scala.concurrent.ExecutionContext
 
@@ -30,7 +27,7 @@ import scala.concurrent.ExecutionContext
  * it schedules an DepositIngestTask on an ActiveTaskQueue. This task ingests the deposit to the
  * the Dataverse instance represented by `dataverse`.
  *
- * @param inbox     the inbox directory to monitor
+ * @param inbox the inbox directory to monitor
  */
 class InboxWatcher(inbox: Inbox) extends DebugEnhancedLogging {
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())

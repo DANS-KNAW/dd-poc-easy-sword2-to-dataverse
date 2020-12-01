@@ -15,19 +15,16 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.nio.charset.StandardCharsets
-
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstance
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
+import nl.knaw.dans.lib.dataverse.model.dataset.{ Dataset, DatasetCreationResult, DatasetVersion, UpdateType }
+import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
-import org.json4s.native.JsonMethods._
-import org.json4s.native.Serialization
-import scalaj.http.HttpResponse
+import org.json4s.native.{ JsonMethods, Serialization }
 
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
@@ -51,28 +48,29 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     logger.info(s"Ingesting $deposit into Dataverse")
 
     for {
-      validationResult <- dansBagValidator.validateBag(bagDirPath)
-      _ <- Try {
-        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
-          s"""
-             |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
-             |Violations:
-             |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-          """.stripMargin)
-      }
+      //      validationResult <- dansBagValidator.validateBag(bagDirPath)
+      //      _ <- Try {
+      //        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
+      //          s"""
+      //             |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
+      //             |Violations:
+      //             |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
+      //          """.stripMargin)
+      //      }
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
       json = Serialization.writePretty(dataverseDataset)
       _ = if (logger.underlying.isDebugEnabled) {
         debug(json)
       }
-      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(json, isDdi = false, "doi:" + deposit.doi, keepOnDraft = true)
-                  else dataverse.dataverse("root").createDataset(json)
-      datasetId <- readIdFromResponse(response)
-      _ <- uploadFilesToDataset(datasetId)
+      datasetVersion <- extractDatasetVersion(json)
+      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(Dataset(datasetVersion), publish)
+                  else dataverse.dataverse("root").createDataset(Dataset(datasetVersion))
+      persistentId <- getPersistentId(response)
+      _ <- uploadFilesToDataset(persistentId)
       _ <- if (publish) {
         debug("Publishing dataset")
-        publishDataset(datasetId)
+        publishDataset(persistentId)
       }
            else {
              debug("Keeping dataset on DRAFT")
@@ -82,8 +80,12 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     // TODO: delete draft if something went wrong
   }
 
-  private def formatViolation(v: (String, String)): String = v match {
-    case (nr, msg) => s" - [$nr] $msg"
+  private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = Try {
+    response.data.get.persistentId.toString
+  }
+
+  private def extractDatasetVersion(json: String): Try[DatasetVersion] = Try {
+    (JsonMethods.parse(json) \ "datasetVersion").extract[DatasetVersion]
   }
 
   private def uploadFilesToDataset(datasetId: String): Try[Unit] = {
@@ -91,20 +93,13 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     for {
       filesXml <- deposit.tryFilesXml
       ddm <- deposit.tryDdm
-      defaultRestrict <- Try { (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict) }
+      defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
       files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- files.map(f => dataverse.dataset(datasetId, isPersistentId = true).addFile(f.file, Option.empty[File], Some(Serialization.writePretty(f.metadata)))).collectResults
+      _ <- files.map(f => dataverse.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
     } yield ()
   }
 
-  private def readIdFromResponse(response: HttpResponse[Array[Byte]]): Try[String] = Try {
-    trace(())
-    val responseBodyAsString = new String(response.body, StandardCharsets.UTF_8)
-    (parse(responseBodyAsString) \\ "persistentId")
-      .extract[String]
-  }
-
   private def publishDataset(datasetId: String): Try[Unit] = {
-    dataverse.dataset(datasetId, isPersistentId = true).publish("major").map(_ => ())
+    dataverse.dataset(datasetId).publish(UpdateType.major).map(_ => ())
   }
 }

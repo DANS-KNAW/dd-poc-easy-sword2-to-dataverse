@@ -19,10 +19,10 @@ import better.files.File
 import gov.loc.repository.bagit.domain.Bag
 import gov.loc.repository.bagit.reader.BagReader
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-
-import scala.util.{ Failure, Success, Try }
-import scala.xml.{ Node, Utility, XML }
 import org.apache.commons.configuration.PropertiesConfiguration
+
+import scala.util.{ Failure, Try }
+import scala.xml.{ Node, Utility, XML }
 
 /**
  * Represents a deposit directory and provides access to the files and metadata in it.

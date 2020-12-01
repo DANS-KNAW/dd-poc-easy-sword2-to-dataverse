@@ -17,13 +17,13 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import java.nio.file.Paths
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ DataverseFile, FieldMap, JsonObject }
+import nl.knaw.dans.lib.dataverse.model.dataset.DataverseFile
 
 import scala.xml.Node
 
 object FileElement {
-  private val accessibilityToRestrict = Map (
-    "KNOWN"-> "true",
+  private val accessibilityToRestrict = Map(
+    "KNOWN" -> "true",
     "NONE" -> "true",
     "RESTRICTED_REQUEST" -> "true",
     "ANONYMOUS" -> "false"
@@ -41,8 +41,8 @@ object FileElement {
       directoryLabel = dirPath,
       description = descr,
       restrict = restr,
-// TODO: what do we use categories for, if anything?
-//      categories = cats
+      // TODO: what do we use categories for, if anything?
+      //      categories = cats
     )
   }
 }

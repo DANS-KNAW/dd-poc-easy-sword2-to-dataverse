@@ -15,21 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d.dataverse
 
-import better.files.File
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, ControlledSingleValueField, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 import org.json4s.{ DefaultFormats, Formats }
 
 import scala.collection.mutable
 
 package object json {
   type MetadataBlockName = String
-  type JsonObject = Map[String, Field]
+  type JsonObject = Map[String, MetadataField]
 
   implicit val jsonFormats: Formats = DefaultFormats
 
-  abstract class Field
-
   case class FieldMap() {
-    private val fields = mutable.Map[String, Field]()
+    private val fields = mutable.Map[String, MetadataField]()
 
     def addPrimitiveField(name: String, value: String): Unit = {
       fields.put(name, createPrimitiveFieldSingleValue(name, value))
@@ -39,60 +37,34 @@ package object json {
       fields.put(name, createCvFieldSingleValue(name, value))
     }
 
-    def addCompoundField(name: String, value: Map[String, Field]): Unit = {
+    def addCompoundField(name: String, value: Map[String, MetadataField]): Unit = {
       fields.put(name, createCompoundFieldSingleValue(name, value))
     }
 
     def toJsonObject: JsonObject = fields.toMap
   }
 
-  case class MetadataBlock(displayName: String, fields: List[Field])
-  case class DatasetVersion(metadataBlocks: Map[MetadataBlockName, MetadataBlock])
-  case class DataverseDataset(datasetVersion: DatasetVersion)
-
-  case class PrimitiveFieldSingleValue(typeName: String,
-                                       multiple: Boolean,
-                                       typeClass: String,
-                                       value: String
-                                      ) extends Field
-
-  case class PrimitiveFieldMultipleValues(typeName: String,
-                                          multiple: Boolean,
-                                          typeClass: String,
-                                          value: List[String]
-                                         ) extends Field
-
-  case class CompoundField(typeName: String,
-                           multiple: Boolean,
-                           typeClass: String = "compound",
-                           value: List[Map[String, Field]]) extends Field
-
-  case class DataverseFile(description: Option[String] = None,
-                           directoryLabel: Option[String] = None,
-                           restrict: Option[String] = Some("true"),
-                           categories: List[String] = List.empty[String])
-
-  def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
-    PrimitiveFieldSingleValue(name, multiple = false, "primitive", value)
+  def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveSingleValueField = {
+    PrimitiveSingleValueField(name, value)
   }
 
-  def createPrimitiveFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
-    PrimitiveFieldMultipleValues(name, multiple = true, "primitive", values)
+  def createPrimitiveFieldMultipleValues(name: String, values: List[String]): PrimitiveMultipleValueField = {
+    PrimitiveMultipleValueField(name, values)
   }
 
-  def createCvFieldSingleValue(name: String, value: String): PrimitiveFieldSingleValue = {
-    PrimitiveFieldSingleValue(name, multiple = false, "controlledVocabulary", value)
+  def createCvFieldSingleValue(name: String, value: String): ControlledSingleValueField = {
+    ControlledSingleValueField("controlledVocabulary", name, multiple = false, value)
   }
 
-  def createCvFieldMultipleValues(name: String, values: List[String]): PrimitiveFieldMultipleValues = {
-    PrimitiveFieldMultipleValues(name, multiple = true, "controlledVocabulary", values)
+  def createCvFieldMultipleValues(name: String, values: List[String]): ControlledMultipleValueField = {
+    ControlledMultipleValueField(name, values)
   }
 
-  def createCompoundFieldSingleValue(name: String, value: Map[String, Field]): CompoundField = {
-    CompoundField(name, multiple = false, value = List(value))
+  def createCompoundFieldSingleValue(name: String, value: Map[String, MetadataField]): CompoundField = {
+    CompoundField(name, value)
   }
 
-  def createCompoundFieldMultipleValues(name: String, values: List[Map[String, Field]]): CompoundField = {
-    CompoundField(name, multiple = true, typeClass = "compound", values)
+  def createCompoundFieldMultipleValues(name: String, values: List[Map[String, MetadataField]]): CompoundField = {
+    CompoundField(name, values)
   }
 }
