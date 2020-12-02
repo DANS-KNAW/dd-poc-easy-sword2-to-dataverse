@@ -36,9 +36,16 @@ class DepositIngestTaskSortSpec extends TestSupportFixture with MockFactory {
     result should have size depositDirs.size - DATASETVERSIONS_WITHOUT_FIRST_VERSION
   }
 
-  it should "be a correctly ordered list" in {
+  it should "contain ordered versions of a Dataset" in {
     val result = depositSorter.sort(taskList)
-    result.map(_.getTarget.dir.name) should be(List("deposit3_first", "deposit3_a", "deposit3_b", "deposit1_first", "deposit1_a", "deposit1_b", "deposit2_first", "deposit2_a"))
+    result.map(_.getTarget.dir.name) should contain inOrder("deposit1_first", "deposit1_a", "deposit1_b")
+    result.map(_.getTarget.dir.name) should contain inOrder("deposit2_first", "deposit2_a")
+    result.map(_.getTarget.dir.name) should contain inOrder("deposit3_first", "deposit3_a", "deposit3_b")
+  }
+
+  it should "not contain wrongly ordered versions of a Dataset" in {
+    val result = depositSorter.sort(taskList)
+    result.map(_.getTarget.dir.name) shouldNot contain inOrder("deposit1_b", "deposit1_a", "deposit1_first")
   }
 
   private def createDepositIngestTask(directory: File): DepositIngestTask = {

@@ -26,8 +26,10 @@ import nl.knaw.dans.lib.taskqueue.{ Task, TaskSorter }
 class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
 
   private case class DepositsSortInfo(name: String, timeStamp: LocalDateTime, isVersionOf: Option[String], depositTask: DepositIngestTask)
-  private type DepositIngestTaskList = List[DepositIngestTask]
-  private type SortInfoList = List[DepositsSortInfo]
+  /**
+   * VersionMap used for sorting.
+   * key: name of first version of Dataset, value: List containing all versions of that dataset.
+   */
   private type VersionMap = Map[String, List[DepositsSortInfo]]
   private val BAG_INFO_FILE = "bag-info.txt"
   private val IS_VERSION_OF = "Is-Version-Of"
@@ -41,16 +43,10 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
    */
   override def sort(tasks: List[Task[Deposit]]): List[Task[Deposit]] = {
     val sortInfoList = tasks.map(d => getDepositSortInfo(d.asInstanceOf[DepositIngestTask]))
-    val groupedDeposits = groupVersions(sortInfoList)
-    sortVersions(groupedDeposits)
+    val depositSequences = getDepositSequences(sortInfoList)
+    sortByVersion(depositSequences)
   }
 
-  /**
-   * creates a DepositsSortInfo object that contains necessary sorting information
-   *
-   * @param depositIngestTask
-   * @return DepositsSortInfo
-   */
   private def getDepositSortInfo(depositIngestTask: DepositIngestTask): DepositsSortInfo = {
     val bagInfoFile = depositIngestTask.deposit.dir.list(_.isRegularFile, 2).filter(_.name == BAG_INFO_FILE).toList.head
     val properties = new Properties()
@@ -63,7 +59,7 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
     DepositsSortInfo(depositIngestTask.deposit.dir.name, timeStamp, isVersionOf, depositIngestTask)
   }
 
-  private def groupVersions(depositsSortInfoList: SortInfoList): VersionMap = {
+  private def getDepositSequences(depositsSortInfoList: List[DepositsSortInfo]): VersionMap = {
     val firstVersions = depositsSortInfoList
       .filter(_.isVersionOf.isEmpty)
       .map(v => v.name -> List(v)).toMap
@@ -80,15 +76,15 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
       .toMap
   }
 
-  private def sortVersions(groupedDeposits: VersionMap): DepositIngestTaskList = {
-    groupedDeposits.mapValues(k => sortByTimestamp(k))
+  private def sortByVersion(groupedDeposits: VersionMap): List[DepositIngestTask] = {
+    groupedDeposits.mapValues(sortByTimestamp)
       .flatMap(_._2)
       .map(_.depositTask)
       .toList
   }
 
   private def removeDatasetsWithoutFirstVersion(firstVersions: VersionMap, laterVersions: VersionMap): VersionMap = {
-    val datasetsWithoutFirstVersions = for (k <- laterVersions if !firstVersions.keySet.contains(k._1)) yield k
+    val datasetsWithoutFirstVersions = laterVersions.filter(k => firstVersions.contains(k._1))
     datasetsWithoutFirstVersions.foreach(v => logger.error(s"No first version was found for dataset ${ v._1 }. The dataset was not imported into Dataverse"))
     val correctVersions = for (k <- laterVersions if firstVersions.keySet.contains(k._1)) yield k
     correctVersions
@@ -98,9 +94,9 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
     LocalDateTime.parse(timestampString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
   }
 
-  private def sortByTimestamp(sortInfoList: SortInfoList): SortInfoList = {
+  private def sortByTimestamp(sortInfoList: List[DepositsSortInfo]): List[DepositsSortInfo] = {
+    implicit def ordered: Ordering[LocalDateTime] = (x: LocalDateTime, y: LocalDateTime) => x compareTo y
+
     sortInfoList.sortBy(_.timeStamp)
   }
-
-  implicit def ordered: Ordering[LocalDateTime] = (x: LocalDateTime, y: LocalDateTime) => x compareTo y
 }

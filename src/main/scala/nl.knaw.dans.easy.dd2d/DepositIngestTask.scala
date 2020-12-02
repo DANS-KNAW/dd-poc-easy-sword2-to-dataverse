@@ -108,7 +108,5 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     dataverse.dataset(datasetId, isPersistentId = true).publish("major").map(_ => ())
   }
 
-  override def getTarget: Deposit = {
-    deposit
-  }
+  override def getTarget: Deposit = deposit
 }
