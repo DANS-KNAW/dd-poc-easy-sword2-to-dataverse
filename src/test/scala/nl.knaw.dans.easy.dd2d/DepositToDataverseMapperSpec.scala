@@ -15,8 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.mapping._
-import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, Dataset, MetadataBlock }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, Dataset, MetadataBlock, PrimitiveSingleValueField }
 import org.json4s.DefaultFormats
 
 import scala.util.Success
@@ -42,7 +41,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
     inside(result) {
       case Success(Dataset(dsv)) =>
         dsv.metadataBlocks.get("citation") shouldBe Some(
-          MetadataBlock("Citation Metadata", List(createPrimitiveFieldSingleValue("title", "A title")))
+          MetadataBlock("Citation Metadata", List(PrimitiveSingleValueField("title", "A title")))
         )
     }
   }
@@ -66,8 +65,8 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         dsv.metadataBlocks("citation").fields should contain(
           CompoundField("dsDescription",
             List(
-              Map("dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", "Descr 1")),
-              Map("dsDescriptionValue" -> createPrimitiveFieldSingleValue("dsDescriptionValue", "Descr 2"))
+              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "Descr 1")),
+              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "Descr 2"))
             )))
     }
   }
@@ -111,13 +110,13 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         val valueObjectsOfCompoundFields = dsv.metadataBlocks("citation").fields.filter(_.isInstanceOf[CompoundField]).map(_.asInstanceOf[CompoundField]).flatMap(_.value)
         valueObjectsOfCompoundFields should contain(
           Map(
-            "authorName" -> createPrimitiveFieldSingleValue("authorName", "Dr A van Helsing"),
-            "authorAffiliation" -> createPrimitiveFieldSingleValue("authorAffiliation", "Anti-Vampire League")
+            "authorName" -> PrimitiveSingleValueField("authorName", "Dr A van Helsing"),
+            "authorAffiliation" -> PrimitiveSingleValueField("authorAffiliation", "Anti-Vampire League")
           ))
         valueObjectsOfCompoundFields should contain(
           Map(
-            "authorName" -> createPrimitiveFieldSingleValue("authorName", "Professor T Zonnebloem"),
-            "authorAffiliation" -> createPrimitiveFieldSingleValue("authorAffiliation", "Uitvindersgilde")
+            "authorName" -> PrimitiveSingleValueField("authorName", "Professor T Zonnebloem"),
+            "authorAffiliation" -> PrimitiveSingleValueField("authorAffiliation", "Uitvindersgilde")
           ))
     }
   }
@@ -129,9 +128,9 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
       case Success(Dataset(dsv)) =>
         dsv.metadataBlocks.get("dataVault") shouldBe Some(
           MetadataBlock("Data Vault Metadata",
-            List(createPrimitiveFieldSingleValue("dansDataversePid", "doi:10.17026/dans-ztg-q3s4"),
-              createPrimitiveFieldSingleValue("dansNbn", "urn:nbn:nl:ui:13-ar2-u8v"),
-              createPrimitiveFieldSingleValue("dansSwordToken", "sword:123e4567-e89b-12d3-a456-556642440000")))
+            List(PrimitiveSingleValueField("dansDataversePid", "doi:10.17026/dans-ztg-q3s4"),
+              PrimitiveSingleValueField("dansNbn", "urn:nbn:nl:ui:13-ar2-u8v"),
+              PrimitiveSingleValueField("dansSwordToken", "sword:123e4567-e89b-12d3-a456-556642440000")))
         )
     }
   }

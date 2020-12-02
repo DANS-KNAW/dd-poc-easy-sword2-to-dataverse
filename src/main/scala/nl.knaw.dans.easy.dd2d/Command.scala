@@ -33,7 +33,7 @@ object Command extends App with DebugEnhancedLogging {
 
   val app = new DansDeposit2ToDataverseApp(configuration)
   val result = for {
-   // _ <- app.checkPreconditions()
+    _ <- app.checkPreconditions()
     msg <- commandLine.subcommand match {
       case Some(cmd @ commandLine.importCommand) =>
         Try {

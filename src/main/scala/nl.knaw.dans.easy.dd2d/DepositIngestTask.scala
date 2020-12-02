@@ -47,15 +47,15 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     logger.info(s"Ingesting $deposit into Dataverse")
 
     for {
-//      validationResult <- dansBagValidator.validateBag(bagDirPath)
-//      _ <- Try {
-//        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
-//          s"""
-//             |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
-//             |Violations:
-//             |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-//                """.stripMargin)
-//      }
+      validationResult <- dansBagValidator.validateBag(bagDirPath)
+      _ <- Try {
+        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
+          s"""
+             |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
+             |Violations:
+             |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
+                      """.stripMargin)
+      }
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
       response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(dataverseDataset, publish)

@@ -16,7 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.mapping._
-import nl.knaw.dans.lib.dataverse.model.dataset.{ ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -131,7 +131,7 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
     if (valueObjects.nonEmpty) {
-      metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
+      metadataBlockFields += CompoundField(name, valueObjects.toList)
     }
   }
 
@@ -145,7 +145,7 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
         }
     })
     if (valueObjects.nonEmpty) {
-      metadataBlockFields += createCompoundFieldMultipleValues(name, valueObjects.toList)
+      metadataBlockFields += CompoundField(name, valueObjects.toList)
     }
   }
 
