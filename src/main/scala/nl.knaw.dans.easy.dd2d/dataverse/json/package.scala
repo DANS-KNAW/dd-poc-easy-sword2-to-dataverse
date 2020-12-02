@@ -53,7 +53,7 @@ package object json {
   }
 
   def createCvFieldSingleValue(name: String, value: String): ControlledSingleValueField = {
-    ControlledSingleValueField("controlledVocabulary", name, multiple = false, value)
+    ControlledSingleValueField(name, value)
   }
 
   def createCvFieldMultipleValues(name: String, values: List[String]): ControlledMultipleValueField = {
