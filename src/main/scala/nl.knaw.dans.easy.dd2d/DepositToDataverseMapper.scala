@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.dataverse.json._
 import nl.knaw.dans.easy.dd2d.mapping._
 import nl.knaw.dans.lib.dataverse.model.dataset.{ ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 

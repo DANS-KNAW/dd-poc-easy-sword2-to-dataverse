@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ JsonObject, FieldMap, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
 import org.joda.time.DateTime
 import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 

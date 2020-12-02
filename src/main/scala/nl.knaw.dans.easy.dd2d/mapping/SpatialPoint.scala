@@ -15,18 +15,16 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject, createCvFieldSingleValue, createPrimitiveFieldSingleValue }
-
 import scala.xml.Node
 
 object SpatialPoint extends Spatial with BlockTemporalAndSpatial {
   def toEasyTsmSpatialPointValueObject(point: Node): JsonObject = {
-    val isRD = isRd(point)// TODO: improve error handling
+    val isRD = isRd(point) // TODO: improve error handling
     val p = getPoint(point)
     val m = FieldMap()
 
     m.addCvField(SPATIAL_POINT_SCHEME, if (isRD) RD_SCHEME
-                                     else LATLON_SCHEME)
+                                       else LATLON_SCHEME)
     m.addPrimitiveField(SPATIAL_POINT_X, p.x)
     m.addPrimitiveField(SPATIAL_POINT_Y, p.y)
     m.toJsonObject

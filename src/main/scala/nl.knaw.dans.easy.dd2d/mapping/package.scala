@@ -15,11 +15,15 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, ControlledSingleValueField, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
+
+import scala.collection.mutable
 import scala.xml.Node
 
 package object mapping {
   val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
 
+  type JsonObject = Map[String, MetadataField]
   case class TermAndUrl(term: String, url: String)
 
   /**
@@ -32,5 +36,47 @@ package object mapping {
   def hasXsiType(node: Node, xsiType: String): Boolean = {
     // TODO: check attribute value's namespace
     node.attribute(XML_SCHEMA_INSTANCE_URI, "type").map(_.text).map(t => t.endsWith(s":$xsiType") || t == xsiType).exists(identity)
+  }
+
+  case class FieldMap() {
+    private val fields = mutable.Map[String, MetadataField]()
+
+    def addPrimitiveField(name: String, value: String): Unit = {
+      fields.put(name, createPrimitiveFieldSingleValue(name, value))
+    }
+
+    def addCvField(name: String, value: String): Unit = {
+      fields.put(name, createCvFieldSingleValue(name, value))
+    }
+
+    def addCompoundField(name: String, value: Map[String, MetadataField]): Unit = {
+      fields.put(name, createCompoundFieldSingleValue(name, value))
+    }
+
+    def toJsonObject: JsonObject = fields.toMap
+  }
+
+  def createPrimitiveFieldSingleValue(name: String, value: String): PrimitiveSingleValueField = {
+    PrimitiveSingleValueField(name, value)
+  }
+
+  def createPrimitiveFieldMultipleValues(name: String, values: List[String]): PrimitiveMultipleValueField = {
+    PrimitiveMultipleValueField(name, values)
+  }
+
+  def createCvFieldSingleValue(name: String, value: String): ControlledSingleValueField = {
+    ControlledSingleValueField("controlledVocabulary", name, multiple = false, value)
+  }
+
+  def createCvFieldMultipleValues(name: String, values: List[String]): ControlledMultipleValueField = {
+    ControlledMultipleValueField(name, values)
+  }
+
+  def createCompoundFieldSingleValue(name: String, value: Map[String, MetadataField]): CompoundField = {
+    CompoundField(name, value)
+  }
+
+  def createCompoundFieldMultipleValues(name: String, values: List[Map[String, MetadataField]]): CompoundField = {
+    CompoundField(name, values)
   }
 }

@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
 import org.apache.commons.lang.StringUtils
 
 import scala.xml.Node
@@ -32,7 +31,6 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
                             orcid: Option[String],
                             role: Option[String],
                             organization: Option[String])
-
 
   private def parseAuthor(authorElement: Node) = Author(
     titles = (authorElement \ "titles").map(_.text).headOption,
@@ -60,9 +58,9 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
     else if (author.isni.isDefined) {
       addIdentifier(m, "ISNI", author.isni.get)
     }
-         else if (author.dai.isDefined) {
-           addIdentifier(m, "DAI", author.dai.get)
-         }
+    else if (author.dai.isDefined) {
+      addIdentifier(m, "DAI", author.dai.get)
+    }
 
     if (author.organization.isDefined) {
       m.addPrimitiveField(AUTHOR_AFFILIATION, author.organization.get)
@@ -80,7 +78,7 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
     else if (author.organization.isDefined) {
       m.addPrimitiveField(CONTRIBUTOR_NAME, author.organization.get)
     }
-    if(author.role.isDefined) {
+    if (author.role.isDefined) {
       m.addCvField(CONTRIBUTOR_TYPE, author.role.map(contributoreRoleToContributorType.getOrElse(_, "Other")).getOrElse("Other"))
     }
     m.toJsonObject
