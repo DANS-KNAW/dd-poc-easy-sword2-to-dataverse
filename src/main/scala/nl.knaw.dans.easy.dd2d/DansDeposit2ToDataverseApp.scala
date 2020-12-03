@@ -21,6 +21,7 @@ import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import nl.knaw.dans.lib.taskqueue.InboxWatcher
 
 import scala.util.Try
 

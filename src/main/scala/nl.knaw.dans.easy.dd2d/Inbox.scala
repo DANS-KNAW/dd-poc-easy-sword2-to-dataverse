@@ -18,7 +18,6 @@ package nl.knaw.dans.easy.dd2d
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataFieldSerializer
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.AbstractInbox
 import org.json4s.{ DefaultFormats, Formats }
