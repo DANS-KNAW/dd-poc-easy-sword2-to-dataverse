@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
-
 import scala.xml.Node
 
 object Description extends BlockCitation {

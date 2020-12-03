@@ -15,11 +15,15 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledSingleValueField, MetadataField, PrimitiveSingleValueField }
+
+import scala.collection.mutable
 import scala.xml.Node
 
 package object mapping {
   val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
 
+  type JsonObject = Map[String, MetadataField]
   case class TermAndUrl(term: String, url: String)
 
   /**
@@ -32,5 +36,23 @@ package object mapping {
   def hasXsiType(node: Node, xsiType: String): Boolean = {
     // TODO: check attribute value's namespace
     node.attribute(XML_SCHEMA_INSTANCE_URI, "type").map(_.text).map(t => t.endsWith(s":$xsiType") || t == xsiType).exists(identity)
+  }
+
+  case class FieldMap() {
+    private val fields = mutable.Map[String, MetadataField]()
+
+    def addPrimitiveField(name: String, value: String): Unit = {
+      fields.put(name, PrimitiveSingleValueField(name, value))
+    }
+
+    def addCvField(name: String, value: String): Unit = {
+      fields.put(name, ControlledSingleValueField(name, value))
+    }
+
+    def addCompoundField(name: String, value: Map[String, MetadataField]): Unit = {
+      fields.put(name, CompoundField(name, value))
+    }
+
+    def toJsonObject: JsonObject = fields.toMap
   }
 }

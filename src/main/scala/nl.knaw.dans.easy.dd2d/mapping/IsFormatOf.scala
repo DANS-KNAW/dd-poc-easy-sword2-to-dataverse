@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject, createPrimitiveFieldSingleValue }
-
 import scala.xml.Node
 
 object IsFormatOf extends BlockCitation {

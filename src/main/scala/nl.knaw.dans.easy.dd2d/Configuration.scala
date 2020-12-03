@@ -19,7 +19,7 @@ import java.net.URI
 
 import better.files.File
 import better.files.File.root
-import nl.knaw.dans.easy.dd2d.dataverse.DataverseInstanceConfig
+import nl.knaw.dans.lib.dataverse.DataverseInstanceConfig
 import org.apache.commons.configuration.PropertiesConfiguration
 
 case class Configuration(version: String,

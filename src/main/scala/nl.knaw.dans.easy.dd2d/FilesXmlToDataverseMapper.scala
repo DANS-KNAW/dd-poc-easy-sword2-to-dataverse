@@ -16,8 +16,8 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
-import nl.knaw.dans.easy.dd2d.dataverse.json.DataverseFile
 import nl.knaw.dans.easy.dd2d.mapping.FileElement
+import nl.knaw.dans.lib.dataverse.model.dataset.DataverseFile
 
 import scala.util.Try
 import scala.xml.Node

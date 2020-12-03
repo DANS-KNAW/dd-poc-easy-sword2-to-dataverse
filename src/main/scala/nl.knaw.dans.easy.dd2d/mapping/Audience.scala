@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import nl.knaw.dans.easy.dd2d.dataverse.json.{ FieldMap, JsonObject }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.{ Node, XML }
