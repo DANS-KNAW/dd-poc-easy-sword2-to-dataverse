@@ -33,13 +33,11 @@ class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseI
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
   override def createTask(f: File): Option[DepositIngestTask] = {
-    f match {
-      case f if isDeposit(f) => Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish))
-      case _ => None
-    }
-  }
 
-  def isDeposit(dir: File): Boolean = {
-    dir.children.exists(_.name == "deposit.properties")
+    try Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish)) catch {
+      case e: InvalidDepositException =>
+        logger.warn(e.getMessage)
+        None
+    }
   }
 }

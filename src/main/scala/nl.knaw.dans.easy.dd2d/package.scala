@@ -27,4 +27,7 @@ package object dd2d {
   case class FailedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Failed ${ deposit.dir }: $msg", cause)
 
+  case class InvalidDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
+    extends Exception(s"Not a deposit: $msg", cause)
+
 }

@@ -26,11 +26,8 @@ import nl.knaw.dans.lib.taskqueue.{ Task, TaskSorter }
 class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
 
   private case class DepositsSortInfo(name: String, timeStamp: LocalDateTime, isVersionOf: Option[String], depositTask: DepositIngestTask)
-  /**
-   * VersionMap used for sorting.
-   * key: name of first version of Dataset, value: List containing all versions of that dataset.
-   */
-  private type VersionMap = Map[String, List[DepositsSortInfo]]
+
+  private type baseIdToAllVersions = Map[String, List[DepositsSortInfo]]
   private val BAG_INFO_FILE = "bag-info.txt"
   private val IS_VERSION_OF = "Is-Version-Of"
   private val CREATED = "Created"
@@ -59,7 +56,7 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
     DepositsSortInfo(depositIngestTask.deposit.dir.name, timeStamp, isVersionOf, depositIngestTask)
   }
 
-  private def getDepositSequences(depositsSortInfoList: List[DepositsSortInfo]): VersionMap = {
+  private def getDepositSequences(depositsSortInfoList: List[DepositsSortInfo]): baseIdToAllVersions = {
     val firstVersions = depositsSortInfoList
       .filter(_.isVersionOf.isEmpty)
       .map(v => v.name -> List(v)).toMap
@@ -76,14 +73,14 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
       .toMap
   }
 
-  private def sortByVersion(groupedDeposits: VersionMap): List[DepositIngestTask] = {
+  private def sortByVersion(groupedDeposits: baseIdToAllVersions): List[DepositIngestTask] = {
     groupedDeposits.mapValues(sortByTimestamp)
       .flatMap(_._2)
       .map(_.depositTask)
       .toList
   }
 
-  private def removeDatasetsWithoutFirstVersion(firstVersions: VersionMap, laterVersions: VersionMap): VersionMap = {
+  private def removeDatasetsWithoutFirstVersion(firstVersions: baseIdToAllVersions, laterVersions: baseIdToAllVersions): baseIdToAllVersions = {
     val datasetsWithoutFirstVersions = laterVersions.filter(k => firstVersions.contains(k._1))
     datasetsWithoutFirstVersions.foreach(v => logger.error(s"No first version was found for dataset ${ v._1 }. The dataset was not imported into Dataverse"))
     val correctVersions = for (k <- laterVersions if firstVersions.keySet.contains(k._1)) yield k

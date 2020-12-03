@@ -23,17 +23,17 @@ class DepositSpec extends TestSupportFixture {
 
   it should "fail if it is not a directory but a file" in {
     val file = testDirNonValid / "no-dir.txt"
-    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file is not a directory")
+    the[InvalidDepositException] thrownBy Deposit(file) should have message (s"Not a deposit: $file is not a directory")
   }
 
   it should "fail if it has no sub-directoires" in {
     val file = testDirNonValid / "no-subdir"
-    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file has more or fewer than one subdirectory")
+    the[InvalidDepositException] thrownBy Deposit(file) should have message (s"Not a deposit: $file has more or fewer than one subdirectory")
   }
 
   it should "fail if it has no deposit.properties" in {
     val file = testDirNonValid / "no-deposit-properties"
-    the[RuntimeException] thrownBy Deposit(file) should have message (s"Not a deposit: $file does not contain a deposit.properties file")
+    the[InvalidDepositException] thrownBy Deposit(file) should have message (s"Not a deposit: $file does not contain a deposit.properties file")
   }
 
   it should "return the DOI value in deposit.properties" in {
