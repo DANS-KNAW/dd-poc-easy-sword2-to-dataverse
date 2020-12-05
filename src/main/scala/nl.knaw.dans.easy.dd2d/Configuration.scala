@@ -51,7 +51,8 @@ object Configuration {
         readTimeout = properties.getInt("dataverse.read-timeout-ms"),
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
-        apiVersion = properties.getString("dataverse.api-version")
+        apiVersion = properties.getString("dataverse.api-version"),
+        unblockKey = Option(properties.getString("dataverse.admin-api-unblock-key"))
       ),
       autoPublish = properties.getString("deposits.auto-publish").toBoolean
     )

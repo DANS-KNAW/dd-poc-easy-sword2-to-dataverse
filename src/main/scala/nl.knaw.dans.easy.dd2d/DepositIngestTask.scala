@@ -32,11 +32,11 @@ import scala.util.{ Success, Try }
  * Checks one deposit and then ingests it into Dataverse.
  *
  * @param deposit     the deposit to ingest
- * @param dataverse   the Dataverse instance to ingest in
+ * @param instance   the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
-case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
-  trace(deposit, dataverse)
+case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, instance: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
+  trace(deposit, instance)
 
   private val mapper = new DepositToDataverseMapper()
   private val bagDirPath = File(deposit.bagDir.path)
@@ -58,10 +58,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       }
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
-      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(dataverseDataset, publish)
-                  else dataverse.dataverse("root").createDataset(dataverseDataset)
-      persistentId <- getPersistentId(response)
-      _ <- uploadFilesToDataset(persistentId)
+      isUpdate <- deposit.isUpdate
+      worker = if(isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
+               else new DatasetCreator(deposit, dataverseDataset, instance)
+      persistentId <- worker.performTask()
       _ <- if (publish) {
         debug("Publishing dataset")
         publishDataset(persistentId)
@@ -89,12 +89,12 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       ddm <- deposit.tryDdm
       defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
       files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- files.map(f => dataverse.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
+      _ <- files.map(f => instance.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
     } yield ()
   }
 
   private def publishDataset(datasetId: String): Try[Unit] = {
-    dataverse.dataset(datasetId).publish(UpdateType.major).map(_ => ())
+    instance.dataset(datasetId).publish(UpdateType.major).map(_ => ())
   }
 
   override def getTarget: Deposit = deposit

@@ -71,11 +71,18 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
     depositProperties.getString("identifier.doi", "")
   }
 
+  def isUpdate: Try[Boolean] = {
+    for {
+      bag <- tryBag
+      hasIsVersionOf = !bag.getMetadata.get("Is-Version-Of").isEmpty
+    } yield hasIsVersionOf
+  }
+
   def vaultMetadata: VaultMetadata = {
     VaultMetadata(dataversePid, dataverseBagId, dataverseNbn, dataverseOtherId, dataverseOtherIdVersion, dataverseSwordToken)
   }
 
-  private def dataversePid: String = {
+  def dataversePid: String = {
     dataverseIdProtocol + ":" + dataverseIdAuthority + "/" + dataverseId
   }
 

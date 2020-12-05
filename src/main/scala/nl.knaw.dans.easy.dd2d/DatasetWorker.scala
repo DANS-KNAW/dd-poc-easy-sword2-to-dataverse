@@ -15,20 +15,18 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
-
 import scala.util.Try
 
-class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
+/**
+ * Object that performs a task on a dataset, such as creating or updating it.
+ */
+trait DatasetWorker {
+  type PersistendId = String
 
-  def process(): Try[Unit] = Try {
-    trace(())
-    val ingestTasks = new PassiveTaskQueue[Deposit]()
-    logger.info("Enqueuing deposits found in inbox...")
-    inbox.enqueue(ingestTasks, Some(new DepositSorter)).get // TODO: better error handling
-    logger.info("Processing queue...")
-    ingestTasks.process()
-    logger.info("Done processing.")
-  }
+  /**
+   * Performs the task.
+   *
+   * @return the persistentId of the dataset created or modified
+   */
+  def performTask(): Try[PersistendId]
 }
