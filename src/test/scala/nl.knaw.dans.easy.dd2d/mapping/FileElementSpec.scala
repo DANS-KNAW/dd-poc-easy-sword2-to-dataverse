@@ -28,6 +28,6 @@ class FileElementSpec extends TestSupportFixture {
       </file>
     val result = Serialization.writePretty(FileElement.toFileValueObject(filesXml, defaultRestrict = true))
     findString(result, "directoryLabel") shouldBe "this/is/the/directoryLabel"
-    findString(result, "restrict") shouldBe "true"
+    findBoolean(result, "restrict") shouldBe true
   }
 }

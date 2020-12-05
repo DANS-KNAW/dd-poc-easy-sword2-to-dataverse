@@ -33,6 +33,12 @@ trait JsonPathSupportFixture {
     ctx.read("$." + path).asInstanceOf[String]
   }
 
+
+  protected def findBoolean(json: String, path: String): Boolean = {
+    val ctx = JsonPath.parse(json)
+    ctx.read("$." + path).asInstanceOf[Boolean]
+  }
+
   /**
    * Reads the JSON code in `json` and extracts the object found using the JSON Path expression in `path`
    *

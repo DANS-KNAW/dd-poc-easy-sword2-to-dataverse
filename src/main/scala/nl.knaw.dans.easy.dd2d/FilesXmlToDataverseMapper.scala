@@ -17,12 +17,12 @@ package nl.knaw.dans.easy.dd2d
 
 import better.files.File
 import nl.knaw.dans.easy.dd2d.mapping.FileElement
-import nl.knaw.dans.lib.dataverse.model.dataset.DataverseFile
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 
 import scala.util.Try
 import scala.xml.Node
 
-case class FileInfo(file: File, metadata: DataverseFile)
+case class FileInfo(file: File, metadata: FileMeta)
 
 class FilesXmlToDataverseMapper(bagDir: File) {
   def toDataverseFiles(node: Node, defaultRestrict: Boolean): Try[List[FileInfo]] = Try {
