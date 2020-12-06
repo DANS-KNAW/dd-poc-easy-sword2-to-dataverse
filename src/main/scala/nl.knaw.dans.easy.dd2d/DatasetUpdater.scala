@@ -22,7 +22,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scala.util.Try
 
 class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance: DataverseInstance) extends DatasetWorker with DebugEnhancedLogging {
-  trace(deposit, metadataBlocks, instance)
+  trace(deposit)
 
   override def performTask(): Try[PersistendId] = {
     for {

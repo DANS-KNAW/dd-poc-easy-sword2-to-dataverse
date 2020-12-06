@@ -53,7 +53,7 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
       case null => None
       case uuid: String => Some(uuid)
     }
-    DepositsSortInfo(depositIngestTask.deposit.dir.name, timeStamp, isVersionOf, depositIngestTask)
+    DepositsSortInfo(s"urn:uuid:${depositIngestTask.deposit.dir.name}", timeStamp, isVersionOf, depositIngestTask)
   }
 
   private def getDepositSequences(depositsSortInfoList: List[DepositsSortInfo]): baseIdToAllVersions = {

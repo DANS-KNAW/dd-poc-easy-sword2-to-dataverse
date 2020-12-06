@@ -29,7 +29,7 @@ import scala.util.Try
  * @param deposit
  */
 class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetWorker with DebugEnhancedLogging {
-  trace(deposit, dataverseDataset, instance)
+  trace(deposit)
   private val filesXmlMapper = new FilesXmlToDataverseMapper(File(deposit.bagDir.path))
 
   override def performTask(): Try[PersistendId] = {

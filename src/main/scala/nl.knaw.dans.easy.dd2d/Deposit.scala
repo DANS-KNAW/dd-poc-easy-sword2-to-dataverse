@@ -74,8 +74,8 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   def isUpdate: Try[Boolean] = {
     for {
       bag <- tryBag
-      hasIsVersionOf = !bag.getMetadata.get("Is-Version-Of").isEmpty
-    } yield hasIsVersionOf
+      isVersionOf = bag.getMetadata.get("Is-Version-Of")
+    } yield isVersionOf != null && isVersionOf.size() > 0
   }
 
   def vaultMetadata: VaultMetadata = {

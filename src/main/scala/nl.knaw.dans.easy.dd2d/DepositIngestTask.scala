@@ -32,7 +32,7 @@ import scala.util.{ Success, Try }
  * Checks one deposit and then ingests it into Dataverse.
  *
  * @param deposit     the deposit to ingest
- * @param instance   the Dataverse instance to ingest in
+ * @param instance    the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
 case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, instance: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
@@ -59,7 +59,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
       isUpdate <- deposit.isUpdate
-      worker = if(isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
+      worker = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
                else new DatasetCreator(deposit, dataverseDataset, instance)
       persistentId <- worker.performTask()
       _ <- if (publish) {
