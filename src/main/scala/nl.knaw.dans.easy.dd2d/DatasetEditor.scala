@@ -18,9 +18,9 @@ package nl.knaw.dans.easy.dd2d
 import scala.util.Try
 
 /**
- * Object that performs a task on a dataset, such as creating or updating it.
+ * Object that edits a dataset, a new draft.
  */
-trait DatasetWorker {
+trait DatasetEditor {
   type PersistendId = String
 
   /**
@@ -28,5 +28,5 @@ trait DatasetWorker {
    *
    * @return the persistentId of the dataset created or modified
    */
-  def performTask(): Try[PersistendId]
+  def performEdit(): Try[PersistendId]
 }

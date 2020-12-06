@@ -21,12 +21,13 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance: DataverseInstance) extends DatasetWorker with DebugEnhancedLogging {
+class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance: DataverseInstance) extends DatasetEditor with DebugEnhancedLogging {
   trace(deposit)
 
-  override def performTask(): Try[PersistendId] = {
+  override def performEdit(): Try[PersistendId] = {
     for {
-      persistentId <- Try { deposit.dataversePid } // TODO: generate error if pid of one of components is not found
+      // TODO: awaitUnlock
+      persistentId <- Try { deposit.dataversePid } // TODO: generate error if pid or one of components is not found
       // TODO: owner user data, for now use dataverseAdmin
       response <- instance.admin().getSingleUser("dataverseAdmin")
       user <- response.data
@@ -34,6 +35,7 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
       _ <- instance
         .dataset(persistentId)
         .updateMetadata(metadataBlocks + ("citation" -> addFieldToMetadataBlock(datasetContact, metadataBlocks("citation"))))
+      // TODO: update files
     } yield persistentId
   }
 
@@ -41,10 +43,10 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
     CompoundField(
       typeName = "datasetContact",
       value =
-        toFieldMap(
+        List(toFieldMap(
           PrimitiveSingleValueField("datasetContactName", name),
           PrimitiveSingleValueField("datasetContactEmail", email)
-        )
+        ))
     )
   }
 

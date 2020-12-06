@@ -20,7 +20,7 @@ import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
 class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
+  private implicit val jsonFormats: Formats = DefaultFormats
 
   "toContributorValueObject" should "create correct contributor details in Json object" in {
     val organization =
@@ -41,5 +41,4 @@ class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
     val result = Serialization.writePretty(DcxDaiOrganization.toContributorValueObject(organization))
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Other"
   }
-
 }

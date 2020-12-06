@@ -40,7 +40,6 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
 
   private val mapper = new DepositToDataverseMapper()
   private val bagDirPath = File(deposit.bagDir.path)
-  private val filesXmlMapper = new FilesXmlToDataverseMapper(bagDirPath)
 
   override def run(): Try[Unit] = {
     trace(())
@@ -59,9 +58,9 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
       isUpdate <- deposit.isUpdate
-      worker = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
+      editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
                else new DatasetCreator(deposit, dataverseDataset, instance)
-      persistentId <- worker.performTask()
+      persistentId <- editor.performEdit()
       _ <- if (publish) {
         debug("Publishing dataset")
         publishDataset(persistentId)
@@ -70,32 +69,24 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
              debug("Keeping dataset on DRAFT")
              Success(())
            }
+      // TODO: check that dataset is indeed now published
     } yield ()
     // TODO: delete draft if something went wrong
-  }
-
-  private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = {
-    response.data.map(_.persistentId)
   }
 
   private def formatViolation(v: (String, String)): String = v match {
     case (nr, msg) => s" - [$nr] $msg"
   }
 
-  private def uploadFilesToDataset(datasetId: String): Try[Unit] = {
-    trace(datasetId)
-    for {
-      filesXml <- deposit.tryFilesXml
-      ddm <- deposit.tryDdm
-      defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
-      files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- files.map(f => instance.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
-    } yield ()
-  }
-
   private def publishDataset(datasetId: String): Try[Unit] = {
     instance.dataset(datasetId).publish(UpdateType.major).map(_ => ())
   }
 
-  override def getTarget: Deposit = deposit
+  override def getTarget: Deposit = {
+    deposit
+  }
+
+  override def toString: DepositName = {
+    s"DepositIngestTask for ${deposit}"
+  }
 }

@@ -28,13 +28,14 @@ import scala.util.Try
  *
  * @param deposit
  */
-class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetWorker with DebugEnhancedLogging {
+class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor with DebugEnhancedLogging {
   trace(deposit)
   private val filesXmlMapper = new FilesXmlToDataverseMapper(File(deposit.bagDir.path))
 
-  override def performTask(): Try[PersistendId] = {
+  override def performEdit(): Try[PersistendId] = {
     for {
-      response <- if (deposit.doi.nonEmpty) instance.dataverse("root").importDataset(dataverseDataset, autoPublish = false)
+      // autoPublish is false, because it seems there is a bug with it in Dataverse (most of the time?)
+      response <- if (deposit.doi.nonEmpty) instance.dataverse("root").importDataset(dataverseDataset, Some(s"doi:${ deposit.doi }"), autoPublish = false)
                   else instance.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
       _ <- uploadFilesToDataset(persistentId)

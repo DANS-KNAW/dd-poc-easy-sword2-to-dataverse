@@ -42,7 +42,7 @@ object Format extends BlockContentTypeAndFileFormat with DebugEnhancedLogging {
     val contentFormat = getContentFormat(node)
     contentFormat match {
       case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Format (Media Type)': '$contentFormat")
+        logger.error(s"Invalid controlled vocabulary term for 'Format (Media Type)': '$contentFormat'")
         None
       case _ =>
         val m = FieldMap()
