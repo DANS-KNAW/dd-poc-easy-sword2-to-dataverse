@@ -74,6 +74,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     // TODO: delete draft if something went wrong
   }
 
+  private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = {
+    response.data.map(_.persistentId)
+  }
+
   private def formatViolation(v: (String, String)): String = v match {
     case (nr, msg) => s" - [$nr] $msg"
   }

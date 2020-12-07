@@ -23,10 +23,10 @@ import scala.xml.Node
 
 object FileElement {
   private val accessibilityToRestrict = Map(
-    "KNOWN" -> "true",
-    "NONE" -> "true",
-    "RESTRICTED_REQUEST" -> "true",
-    "ANONYMOUS" -> "false"
+    "KNOWN" -> true,
+    "NONE" -> true,
+    "RESTRICTED_REQUEST" -> true,
+    "ANONYMOUS" -> false
   )
 
   def toFileValueObject(node: Node, defaultRestrict: Boolean): FileMeta = {
@@ -35,7 +35,7 @@ object FileElement {
     val dirPath = Option(Paths.get(pathAttr.substring("data/".length)).getParent).map(_.toString)
     val descr = (node \ "description").headOption.map(_.text)
     val cats = (node \ "subject").map(_.text).toList
-    val restr = (node \ "accessibleToRights").headOption.map(_.text).flatMap(accessibilityToRestrict.get).map(_.toBoolean).orElse(Some(defaultRestrict))
+    val restr = (node \ "accessibleToRights").headOption.map(_.text).flatMap(accessibilityToRestrict.get).orElse(Some(defaultRestrict))
 
     FileMeta(
       directoryLabel = dirPath,
