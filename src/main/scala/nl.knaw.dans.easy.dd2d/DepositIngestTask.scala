@@ -19,14 +19,16 @@ import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
+import nl.knaw.dans.lib.dataverse.model.Lock
 import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetCreationResult, UpdateType }
 import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
-import nl.knaw.dans.lib.error._
+import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 
+import java.lang.Thread.sleep
 import scala.language.postfixOps
-import scala.util.{ Success, Try }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -89,11 +91,59 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       ddm <- deposit.tryDdm
       defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
       files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- files.map(f => dataverse.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
+      _ <- addFiles(dataverse.dataset(datasetId), files)
     } yield ()
   }
 
+  private def addFiles(dataset: Dataset, files: List[FileInfo]): Try[List[DataverseResponse[DataverseFile]]] = {
+    var locked = false
+    files
+      .map(file => {
+        val result = addFile(dataset, file, locked)
+        result match {
+          case Failure(_: LockException) => locked = true
+          case _ =>
+        }
+        result
+      })
+      .collectResults
+  }
+
   private def publishDataset(datasetId: String): Try[Unit] = {
-    dataverse.dataset(datasetId).publish(UpdateType.major).map(_ => ())
+    val locks = awaitUnlock(dataverse.dataset(datasetId))
+    if (locks.get.isEmpty) dataverse.dataset(datasetId).publish(UpdateType.major).map(_ => ())
+    else Failure(LockException(deposit, s"Dataset ${ dataverse.dataset(datasetId) } is locked by ${ locks.get.map(_.lockType).mkString(", ") }, ${ locks.get.map(_.message).mkString(", ") }"))
+  }
+
+  private def addFile(dataset: Dataset, fileInfo: FileInfo, locked: Boolean): Try[DataverseResponse[DataverseFile]] = {
+    if (!locked) {
+      for {
+        locks <- awaitUnlock(dataset)
+        result <- if (locks.isEmpty) dataset.addFile(fileInfo.file, fileInfo.metadata)
+                  else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked by ${ locks.map(_.lockType).mkString(", ") }, ${ locks.map(_.message).mkString(", ") }"))
+      } yield result
+    }
+    else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked"))
+  }
+
+  private def awaitUnlock(dataset: Dataset): Try[List[Lock]] = {
+    val times = 0
+    val interval = 500
+    var retried = 0
+    var locks = getLocks(dataset)
+    logger.info(s"in awaitUnlock")
+    while (locks.isSuccess && locks.get.nonEmpty && retried < times) {
+      sleep(interval)
+      locks = getLocks(dataset)
+      retried += 1
+    }
+    locks
+  }
+
+  private def getLocks(dataset: Dataset): Try[List[Lock]] = {
+    for {
+      response <- dataset.getLocks
+      locks <- response.data
+    } yield locks
   }
 }

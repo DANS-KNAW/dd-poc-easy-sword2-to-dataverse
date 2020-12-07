@@ -26,7 +26,9 @@ case class Configuration(version: String,
                          inboxDir: File,
                          validatorServiceUrl: URI,
                          dataverse: DataverseInstanceConfig,
-                         autoPublish: Boolean
+                         autoPublish: Boolean,
+//                         lockedRetryTimes: Int,
+//                         lockedRetryInterval: Int,
                         )
 
 object Configuration {
@@ -52,6 +54,8 @@ object Configuration {
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
         apiVersion = properties.getString("dataverse.api-version")
+        //      lockedRetryTimes = properties.getString("dataverse.locked-dataset.number-of-retries").toInt,
+        //      lockedRetryInterval = properties.getString("dataverse.locked-dataset.milliseconds-between-retries").toInt
       ),
       autoPublish = properties.getString("deposits.auto-publish").toBoolean
     )
