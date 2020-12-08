@@ -51,7 +51,9 @@ object Configuration {
         readTimeout = properties.getInt("dataverse.read-timeout-ms"),
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
-        apiVersion = properties.getString("dataverse.api-version")
+        apiVersion = properties.getString("dataverse.api-version"),
+        lockedRetryTimes = properties.getInt("dataverse.locked-dataset.number-of-retries"),
+        lockedRetryInterval = properties.getInt("dataverse.locked-dataset.milliseconds-between-retries")
       ),
       autoPublish = properties.getString("deposits.auto-publish").toBoolean
     )
