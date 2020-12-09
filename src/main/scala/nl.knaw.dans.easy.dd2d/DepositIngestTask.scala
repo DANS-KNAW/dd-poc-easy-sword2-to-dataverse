@@ -19,14 +19,12 @@ import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
-import nl.knaw.dans.lib.dataverse.model.Lock
 import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetCreationResult, FileList, UpdateType }
 import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
 
-import java.lang.Thread.sleep
 import scala.language.postfixOps
 import scala.util.{ Failure, Success, Try }
 
@@ -63,10 +61,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(dataverseDataset, autoPublish = false)
                   else dataverse.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
-      _ <- uploadFilesToDataset(persistentId)
+      _ <- uploadFilesToDataset(dataverse.dataset(persistentId))
       _ <- if (publish) {
         debug("Publishing dataset")
-        publishDataset(persistentId)
+        publishDataset(dataverse.dataset(persistentId))
       }
            else {
              debug("Keeping dataset on DRAFT")
@@ -84,14 +82,14 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     case (nr, msg) => s" - [$nr] $msg"
   }
 
-  private def uploadFilesToDataset(datasetId: String): Try[Unit] = {
-    trace(datasetId)
+  private def uploadFilesToDataset(dataset: DatasetApi): Try[Unit] = {
+    trace(dataset)
     for {
       filesXml <- deposit.tryFilesXml
       ddm <- deposit.tryDdm
       defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
       files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- addFiles(dataverse.dataset(datasetId), files)
+      _ <- addFiles(dataset, files)
     } yield ()
   }
 
@@ -109,16 +107,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       .collectResults
   }
 
-  private def publishDataset(datasetId: String): Try[Unit] = {
-    val locks = awaitUnlock(dataverse.dataset(datasetId))
-    if (locks.get.isEmpty) dataverse.dataset(datasetId).publish(UpdateType.major).map(_ => ())
-    else Failure(LockException(deposit, s"Dataset ${ dataverse.dataset(datasetId) } is locked by ${ locks.get.map(_.lockType).mkString(", ") }, ${ locks.get.map(_.message).mkString(", ") }"))
-  }
-
   private def addFile(dataset: DatasetApi, fileInfo: FileInfo, locked: Boolean): Try[DataverseResponse[FileList]] = {
     if (!locked) {
       for {
-        locks <- awaitUnlock(dataset)
+        locks <- dataset.awaitUnlock
         result <- if (locks.isEmpty) dataset.addFile(fileInfo.file, fileInfo.metadata)
                   else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked by ${ locks.map(_.lockType).mkString(", ") }, ${ locks.map(_.message).mkString(", ") }"))
       } yield result
@@ -126,25 +118,10 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked"))
   }
 
-  private def awaitUnlock(dataset: DatasetApi): Try[List[Lock]] = {
-    val times = 0
-    val interval = 500
-    var retried = 0
-    var locks = getLocks(dataset)
-    logger.info(s"in awaitUnlock")
-    while (locks.isSuccess && locks.get.nonEmpty && retried < times) {
-      logger.info(s"retry. locks: ${ locks.get.map(_.lockType).mkString(", ") }")
-      sleep(interval)
-      locks = getLocks(dataset)
-      retried += 1
-    }
-    locks
-  }
-
-  private def getLocks(dataset: DatasetApi): Try[List[Lock]] = {
-    for {
-      response <- dataset.getLocks
-      locks <- response.data
-    } yield locks
+  private def publishDataset(dataset: DatasetApi): Try[Unit] = {
+    dataset.awaitUnlock.map(locks =>
+      if (locks.isEmpty) dataset.publish(UpdateType.major).map(_ => ())
+      else throw LockException(deposit, s"Dataset $dataset is locked by ${ locks.map(_.lockType).mkString(", ") }, ${ locks.map(_.message).mkString(", ") }")
+    )
   }
 }
