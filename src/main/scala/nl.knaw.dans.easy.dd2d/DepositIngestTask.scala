@@ -20,8 +20,8 @@ import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.easy.dd2d.queue.Task
 import nl.knaw.dans.lib.dataverse.model.Lock
-import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetCreationResult, UpdateType }
-import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetCreationResult, FileList, UpdateType }
+import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.json4s.Formats
@@ -60,7 +60,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       }
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
-      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(dataverseDataset, publish)
+      response <- if (deposit.doi.nonEmpty) dataverse.dataverse("root").importDataset(dataverseDataset, autoPublish = false)
                   else dataverse.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
       _ <- uploadFilesToDataset(persistentId)
@@ -95,7 +95,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     } yield ()
   }
 
-  private def addFiles(dataset: Dataset, files: List[FileInfo]): Try[List[DataverseResponse[DataverseFile]]] = {
+  private def addFiles(dataset: DatasetApi, files: List[FileInfo]): Try[List[DataverseResponse[FileList]]] = {
     var locked = false
     files
       .map(file => {
@@ -115,7 +115,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     else Failure(LockException(deposit, s"Dataset ${ dataverse.dataset(datasetId) } is locked by ${ locks.get.map(_.lockType).mkString(", ") }, ${ locks.get.map(_.message).mkString(", ") }"))
   }
 
-  private def addFile(dataset: Dataset, fileInfo: FileInfo, locked: Boolean): Try[DataverseResponse[DataverseFile]] = {
+  private def addFile(dataset: DatasetApi, fileInfo: FileInfo, locked: Boolean): Try[DataverseResponse[FileList]] = {
     if (!locked) {
       for {
         locks <- awaitUnlock(dataset)
@@ -126,13 +126,14 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked"))
   }
 
-  private def awaitUnlock(dataset: Dataset): Try[List[Lock]] = {
+  private def awaitUnlock(dataset: DatasetApi): Try[List[Lock]] = {
     val times = 0
     val interval = 500
     var retried = 0
     var locks = getLocks(dataset)
     logger.info(s"in awaitUnlock")
     while (locks.isSuccess && locks.get.nonEmpty && retried < times) {
+      logger.info(s"retry. locks: ${ locks.get.map(_.lockType).mkString(", ") }")
       sleep(interval)
       locks = getLocks(dataset)
       retried += 1
@@ -140,7 +141,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
     locks
   }
 
-  private def getLocks(dataset: Dataset): Try[List[Lock]] = {
+  private def getLocks(dataset: DatasetApi): Try[List[Lock]] = {
     for {
       response <- dataset.getLocks
       locks <- response.data

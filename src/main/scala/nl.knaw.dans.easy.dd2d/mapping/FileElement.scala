@@ -16,28 +16,27 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import java.nio.file.Paths
-
-import nl.knaw.dans.lib.dataverse.model.dataset.DataverseFile
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 
 import scala.xml.Node
 
 object FileElement {
   private val accessibilityToRestrict = Map(
-    "KNOWN" -> "true",
-    "NONE" -> "true",
-    "RESTRICTED_REQUEST" -> "true",
-    "ANONYMOUS" -> "false"
+    "KNOWN" -> true,
+    "NONE" -> true,
+    "RESTRICTED_REQUEST" -> true,
+    "ANONYMOUS" -> false
   )
 
-  def toFileValueObject(node: Node, defaultRestrict: Boolean): DataverseFile = {
+  def toFileValueObject(node: Node, defaultRestrict: Boolean): FileMeta = {
     val pathAttr = node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text
     if (!pathAttr.startsWith("data/")) throw new RuntimeException(s"file outside data folder: $pathAttr")
     val dirPath = Option(Paths.get(pathAttr.substring("data/".length)).getParent).map(_.toString)
     val descr = (node \ "description").headOption.map(_.text)
     val cats = (node \ "subject").map(_.text).toList
-    val restr = (node \ "accessibleToRights").headOption.map(_.text).flatMap(accessibilityToRestrict.get).orElse(Some(defaultRestrict.toString))
+    val restr = (node \ "accessibleToRights").headOption.map(_.text).flatMap(accessibilityToRestrict.get).orElse(Some(defaultRestrict))
 
-    DataverseFile(
+    FileMeta(
       directoryLabel = dirPath,
       description = descr,
       restrict = restr,
