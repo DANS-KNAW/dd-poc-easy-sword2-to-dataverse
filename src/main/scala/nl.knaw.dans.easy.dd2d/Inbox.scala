@@ -15,12 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import better.files.{ File, FileMonitor }
+import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.queue.TaskQueue
 import nl.knaw.dans.lib.dataverse.DataverseInstance
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataFieldSerializer
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import nl.knaw.dans.lib.taskqueue.AbstractInbox
 import org.json4s.{ DefaultFormats, Formats }
 
 /**
@@ -30,41 +29,15 @@ import org.json4s.{ DefaultFormats, Formats }
  * @param dir       the file system directory
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
-class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) extends DebugEnhancedLogging {
-  private implicit val jsonFormats: Formats = DefaultFormats + MetadataFieldSerializer
-  private val dirs = dir.list(_.isDirectory, maxDepth = 1).filterNot(_ == dir).toList
+class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
+  private implicit val jsonFormats: Formats = new DefaultFormats {}
 
-  /**
-   * Directly enqueue the deposit directories currently present as deposits on the queue
-   *
-   * @param q the TaskQueue to put the DepositIngestTasks on
-   */
-  def enqueue(q: TaskQueue): Unit = {
-    dirs.foreach {
-      d => {
-        debug(s"Adding $d")
-        q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
-      }
-    }
-  }
+  override def createTask(f: File): Option[DepositIngestTask] = {
 
-  /**
-   * Creates and returns a FileMonitor that enqueues new deposits as they appear in
-   * the inbox directory. Note that the caller is responsible for starting the FileMonitor
-   * in the ExecutionContext of its choice.
-   *
-   * @param q the TaskQueue to put the DepositIngestTasks on
-   * @return the FileMonitor
-   */
-  def createFileMonitor(q: TaskQueue): FileMonitor = {
-    new FileMonitor(dir, maxDepth = 1) {
-      override def onCreate(d: File, count: Int): Unit = {
-        trace(d, count)
-        if (d.isDirectory) {
-          logger.debug(s"Detected new subdirectory in inbox. Adding $d")
-          q.add(DepositIngestTask(Deposit(d), dansBagValidator, dataverse, publish = autoPublish))
-        }
-      }
+    try Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish)) catch {
+      case e: InvalidDepositException =>
+        logger.warn(e.getMessage)
+        None
     }
   }
 }

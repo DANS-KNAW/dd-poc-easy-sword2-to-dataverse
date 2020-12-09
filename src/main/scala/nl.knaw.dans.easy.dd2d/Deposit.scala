@@ -112,7 +112,7 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   }
 
   private def checkCondition(check: File => Boolean, msg: String): Unit = {
-    if (!check(dir)) throw new RuntimeException(s"Not a deposit: $msg")
+    if (!check(dir)) throw InvalidDepositException(this, msg)
   }
 
   override def toString: String = s"Deposit at $dir"

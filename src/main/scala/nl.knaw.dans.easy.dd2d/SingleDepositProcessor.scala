@@ -17,8 +17,8 @@ package nl.knaw.dans.easy.dd2d
 
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
 import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
 import org.json4s.{ DefaultFormats, Formats }
 
 import scala.util.Try
@@ -27,7 +27,7 @@ class SingleDepositProcessor(deposit: File, dansBagValidator: DansBagValidator, 
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
   def process(): Try[Unit] = Try {
-    val ingestTasks = new PassiveTaskQueue()
+    val ingestTasks = new PassiveTaskQueue[Deposit]()
     ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish))
     ingestTasks.process()
   }

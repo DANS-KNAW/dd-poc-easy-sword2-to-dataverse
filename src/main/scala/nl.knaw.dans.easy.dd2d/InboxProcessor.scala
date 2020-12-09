@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.queue.PassiveTaskQueue
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
 
 import scala.util.Try
 
@@ -24,9 +24,9 @@ class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
 
   def process(): Try[Unit] = Try {
     trace(())
-    val ingestTasks = new PassiveTaskQueue()
+    val ingestTasks = new PassiveTaskQueue[Deposit]()
     logger.info("Enqueuing deposits found in inbox...")
-    inbox.enqueue(ingestTasks)
+    inbox.enqueue(ingestTasks, Some(new DepositSorter))
     logger.info("Processing queue...")
     ingestTasks.process()
     logger.info("Done processing.")
