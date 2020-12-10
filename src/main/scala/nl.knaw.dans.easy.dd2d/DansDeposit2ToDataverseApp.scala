@@ -46,11 +46,11 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     new InboxProcessor(new Inbox(inbox, dansBagValidator, dataverse, autoPublish)).process()
   }
 
-  def start(): Try[Unit] = Try {
+  def start(): Try[Unit] = {
     inboxWatcher.start()
   }
 
-  def stop(): Try[Unit] = Try {
+  def stop(): Try[Unit] = {
     inboxWatcher.stop()
   }
 }
