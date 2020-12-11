@@ -89,40 +89,20 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       ddm <- deposit.tryDdm
       defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
       files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- addFiles(dataset, files)
+      _ <- files.map(file => addFile(dataset, file)).collectResults
     } yield ()
   }
 
-  private def addFiles(dataset: DatasetApi, files: List[FileInfo]): Try[List[DataverseResponse[FileList]]] = {
-    var locked = false
-    files
-      .map(file => {
-        val result = addFile(dataset, file, locked)
-        result match {
-          case Failure(_: LockException) => locked = true
-          case _ =>
-        }
-        result
-      })
-      .collectResults
-  }
-
-  private def addFile(dataset: DatasetApi, fileInfo: FileInfo, locked: Boolean): Try[DataverseResponse[FileList]] = {
-    if (!locked) {
-      for {
-        locks <- dataset.awaitUnlock
-        result <- if (locks.isEmpty) dataset.addFile(fileInfo.file, fileInfo.metadata)
-                  else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked by ${ locks.map(_.lockType).mkString(", ") }, ${ locks.map(_.message).mkString(", ") }"))
-      } yield result
-    }
-    else Failure(LockException(deposit, s"Dataset for file ${ fileInfo.file.path } is locked"))
+  private def addFile(dataset: DatasetApi, fileInfo: FileInfo): Try[DataverseResponse[FileList]] = {
+      val result = dataset.addFile(fileInfo.file, fileInfo.metadata)
+      dataset.awaitUnlock
+      result
   }
 
   private def publishDataset(dataset: DatasetApi): Try[Unit] = {
-    dataset.awaitUnlock.map(locks =>
-      if (locks.isEmpty) dataset.publish(UpdateType.major).map(_ => ())
-      else throw LockException(deposit, s"Dataset $dataset is locked by ${ locks.map(_.lockType).mkString(", ") }, ${ locks.map(_.message).mkString(", ") }")
-    )
+    val result = dataset.publish(UpdateType.major).map(_ => ())
+    dataset.awaitUnlock
+    result
   }
 
   override def getTarget: Deposit = deposit
