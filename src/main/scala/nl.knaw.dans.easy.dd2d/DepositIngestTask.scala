@@ -69,6 +69,7 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
              debug("Keeping dataset on DRAFT")
              Success(())
            }
+      _ <- instance.dataset(persistentId).awaitUnlock()
       // TODO: check that dataset is indeed now published
     } yield ()
     // TODO: delete draft if something went wrong

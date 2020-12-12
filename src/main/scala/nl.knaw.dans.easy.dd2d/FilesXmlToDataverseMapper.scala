@@ -25,9 +25,10 @@ import scala.xml.Node
 case class FileInfo(file: File, metadata: FileMeta)
 
 class FilesXmlToDataverseMapper(bagDir: File) {
-  def toDataverseFiles(node: Node, defaultRestrict: Boolean): Try[List[FileInfo]] = Try {
+  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[List[FileInfo]] = Try {
     (node \ "file").map(n => FileInfo(getFile(n), FileElement.toFileValueObject(n, defaultRestrict))).toList
   }
+
 
   private def getFile(node: Node): File = {
     val filePathAttr = node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text

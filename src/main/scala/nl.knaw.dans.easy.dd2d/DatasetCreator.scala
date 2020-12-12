@@ -28,9 +28,8 @@ import scala.util.Try
  *
  * @param deposit
  */
-class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor with DebugEnhancedLogging {
+class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor(deposit, instance) with DebugEnhancedLogging {
   trace(deposit)
-  private val filesXmlMapper = new FilesXmlToDataverseMapper(File(deposit.bagDir.path))
 
   override def performEdit(): Try[PersistendId] = {
     for {
@@ -38,23 +37,12 @@ class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: Data
       response <- if (deposit.doi.nonEmpty) instance.dataverse("root").importDataset(dataverseDataset, Some(s"doi:${ deposit.doi }"), autoPublish = false)
                   else instance.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
-      _ <- uploadFilesToDataset(persistentId)
+      fileInfos <- getFileInfos
+      _ <- uploadFilesToDataset(persistentId, fileInfos.values.toList)
     } yield persistentId
   }
 
   private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = {
     response.data.map(_.persistentId)
-  }
-
-  private def uploadFilesToDataset(datasetId: String): Try[Unit] = {
-    import scala.language.postfixOps
-    trace(datasetId)
-    for {
-      filesXml <- deposit.tryFilesXml
-      ddm <- deposit.tryDdm
-      defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
-      files <- filesXmlMapper.toDataverseFiles(filesXml, defaultRestrict)
-      _ <- files.map(f => instance.dataset(datasetId).addFile(f.file, f.metadata)).collectResults
-    } yield ()
   }
 }
