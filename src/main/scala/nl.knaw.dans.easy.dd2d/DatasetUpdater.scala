@@ -32,6 +32,8 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
 
   override def performEdit(): Try[PersistendId] = {
     for {
+      _ <- dataset.updateMetadata(metadataBlocks)
+
       pathToFileInfo <- deposit.getPathToFileInfo
       checksumToFileInfoInDeposit <- getFilesInDeposit(pathToFileInfo)
       checksumToFileMetaInLatestVersion <- getFilesInLatestVersion
