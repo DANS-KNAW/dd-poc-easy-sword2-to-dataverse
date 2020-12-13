@@ -23,12 +23,17 @@ import org.json4s.{ DefaultFormats, Formats }
 
 import scala.util.Try
 
-class SingleDepositProcessor(deposit: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) {
+class SingleDepositProcessor(deposit: File,
+                             dansBagValidator: DansBagValidator,
+                             dataverse: DataverseInstance,
+                             autoPublish: Boolean = true,
+                             publishAwaitUnlockMaxNumberOfRetries: Int,
+                             publishAwaitUnlockMillisecondsBetweenRetries: Int) {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
-    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish))
+    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries))
     ingestTasks.process()
   }
 }

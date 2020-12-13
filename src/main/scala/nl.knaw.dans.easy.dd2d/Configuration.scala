@@ -18,7 +18,7 @@ package nl.knaw.dans.easy.dd2d
 import java.net.URI
 
 import better.files.File
-import better.files.File.root
+import better.files.File.{ newTemporaryDirectory, root }
 import nl.knaw.dans.lib.dataverse.DataverseInstanceConfig
 import org.apache.commons.configuration.PropertiesConfiguration
 
@@ -26,7 +26,9 @@ case class Configuration(version: String,
                          inboxDir: File,
                          validatorServiceUrl: URI,
                          dataverse: DataverseInstanceConfig,
-                         autoPublish: Boolean
+                         autoPublish: Boolean,
+                         publishAwaitUnlockMaxNumberOfRetries: Int,
+                         publishAwaitUnlockMillisecondsBetweenRetries: Int
                         )
 
 object Configuration {
@@ -52,9 +54,13 @@ object Configuration {
         baseUrl = new URI(properties.getString("dataverse.base-url")),
         apiToken = properties.getString("dataverse.api-key"),
         apiVersion = properties.getString("dataverse.api-version"),
-        unblockKey = Option(properties.getString("dataverse.admin-api-unblock-key"))
+        unblockKey = Option(properties.getString("dataverse.admin-api-unblock-key")),
+        awaitUnlockMaxNumberOfRetries = Option(properties.getInt("dataverse.await-unlock-max-retries")).getOrElse(10),
+        awaitUnlockMillisecondsBetweenRetries = Option(properties.getInt("dataverse.await-unlock-wait-time-ms")).getOrElse(1000),
       ),
-      autoPublish = properties.getString("deposits.auto-publish").toBoolean
+      autoPublish = properties.getString("deposits.auto-publish").toBoolean,
+      publishAwaitUnlockMaxNumberOfRetries = properties.getInt("dataverse.publish.await-unlock-max-retries"),
+      publishAwaitUnlockMillisecondsBetweenRetries = properties.getInt("dataverse.publish.await-unlock-wait-time-ms")
     )
   }
 }

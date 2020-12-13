@@ -15,6 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.file.Paths
+
+import better.files.File
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta
+
 class DepositSpec extends TestSupportFixture {
 
   "checkDeposit" should "succeed if directory is deposit" in {
@@ -43,4 +48,18 @@ class DepositSpec extends TestSupportFixture {
   it should "return empty string when there is no identifier.doi defined in deposit.properties" in {
     Deposit(testDirValid / "valid-easy-submitted-no-doi").doi shouldBe ""
   }
+
+  "getPathToFileInfo" should "correctly map local path to FileInfo object" in {
+    val pathToFileInfo = Deposit(testDirValid / "valid-easy-submitted").getPathToFileInfo.get
+
+    pathToFileInfo(Paths.get("data/README.md")) shouldBe FileInfo(
+      file = testDirValid / "valid-easy-submitted" / "example-bag-medium" / "data" / "README.md",
+      metadata = FileMeta(
+        label = Option("README.md"),
+        directoryLabel = None,
+        restrict = Option(true)
+      )
+    )
+  }
+
 }

@@ -15,22 +15,19 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.nio.file.{ Path, Paths }
-
-import better.files.File
-import nl.knaw.dans.easy.dd2d.mapping.{ AccessRights, FileElement }
-import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta
+import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
-import scala.xml.Node
 
 /**
  * Object that edits a dataset, a new draft.
  */
 abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) extends DebugEnhancedLogging {
   type PersistendId = String
+  protected val dataset: DatasetApi = instance.dataset(deposit.dataversePid)
 
   /**
    * Performs the task.
@@ -39,37 +36,46 @@ abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) exte
    */
   def performEdit(): Try[PersistendId]
 
-  protected def getLocalPathToFileInfo: Try[Map[Path, FileInfo]] = {
-    import scala.language.postfixOps
-    for {
-      filesXml <- deposit.tryFilesXml
-      ddm <- deposit.tryDdm
-      defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
-      files <- toFileInfos(filesXml, defaultRestrict)
-    } yield files
-  }
-
-  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[Path, FileInfo]] = Try {
-    (node \ "file").map(n => (getFilePath(n), FileInfo(getFile(n), FileElement.toFileValueObject(n, defaultRestrict)))).toMap
-  }
-
-  private def getFilePath(node: Node): Path = {
-    Paths.get(node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text)
-  }
-
-  private def getFile(node: Node): File = {
-    deposit.bagDir / getFilePath(node).toString
-  }
-
-  protected def uploadFilesToDataset(persistentId: String, files: List[FileInfo]): Try[Unit] = {
+  protected def addFiles(persistentId: String, files: List[FileInfo]): Try[Unit] = {
+    trace(persistentId, files)
     import scala.language.postfixOps
     trace(persistentId)
     for {
       _ <- files
-        .map(f => instance.dataset(persistentId)
-          .addFile(f.file, Option(f.metadata))
-          .map(_ => instance.dataset(persistentId).awaitUnlock()))
+        .map(f => {
+          debug(s"Adding file, directoryLabel = ${f.metadata.directoryLabel}, label = ${f.metadata.label}")
+          instance.dataset(persistentId)
+            .addFile(f.file, Option(f.metadata))
+            .map(_ => instance.dataset(persistentId).awaitUnlock())
+        })
         .collectResults
     } yield ()
+  }
+
+  protected def deleteFiles(databaseIds: List[DatabaseId]): Try[Unit] = {
+    databaseIds.map(id => {
+      debug(s"Deleting file, databaseId = $id")
+      instance.sword().deleteFile(id).map(_ => dataset.awaitUnlock())
+    }).collectResults.map(_ => ())
+  }
+
+  /**
+   * Replace files indicated by the checksum pairs. The first member of each pair is the old SHA-1 hash and the second the new SHA-1. The old hash is used
+   * to look up the databaseId of the file to be replaced, the new one is used to look up the file + metadata to place over that old file.
+   *
+   * @param checksumPairsToReplace            the (old, new) SHA-1 pairs
+   * @param checksumToFileMetaInLatestVersion map from SHA-1 hash to FileMeta for each file in the latest dataset version
+   * @param checksumToFileInfoInDeposit       map from SHA-1 hash to FileInfo for each payload file in the deposited bag
+   * @return
+   */
+  protected def replaceFiles(checksumPairsToReplace: List[(Sha1Hash, Sha1Hash)], checksumToFileMetaInLatestVersion: Map[Sha1Hash, FileMeta], checksumToFileInfoInDeposit: Map[Sha1Hash, FileInfo]): Try[Unit] = {
+    checksumPairsToReplace.map {
+      case (oldChecksum, newChecksum) =>
+        val fileApi = instance.file(checksumToFileMetaInLatestVersion(oldChecksum).dataFile.get.id)
+        val newFileInfo = checksumToFileInfoInDeposit(newChecksum)
+        debug(s"Replacing file, directoryLabel = ${newFileInfo.metadata.directoryLabel}, label = ${newFileInfo.metadata.label}")
+        fileApi.replace(newFileInfo.file, newFileInfo.metadata)
+        dataset.awaitUnlock()
+    }.collectResults.map(_ => ())
   }
 }

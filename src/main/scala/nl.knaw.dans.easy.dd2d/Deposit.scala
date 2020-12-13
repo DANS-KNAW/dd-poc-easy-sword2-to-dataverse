@@ -15,9 +15,12 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.file.{ Path, Paths }
+
 import better.files.File
 import gov.loc.repository.bagit.domain.Bag
 import gov.loc.repository.bagit.reader.BagReader
+import nl.knaw.dans.easy.dd2d.mapping.{ AccessRights, FileElement }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.apache.commons.configuration.PropertiesConfiguration
 
@@ -77,6 +80,29 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
       isVersionOf = bag.getMetadata.get("Is-Version-Of")
     } yield isVersionOf != null && isVersionOf.size() > 0
   }
+
+  def getPathToFileInfo: Try[Map[Path, FileInfo]] = {
+    import scala.language.postfixOps
+    for {
+      filesXml <- tryFilesXml
+      ddm <- tryDdm
+      defaultRestrict = (ddm \ "profile" \ "accessRights").headOption.forall(AccessRights toDefaultRestrict)
+      files <- toFileInfos(filesXml, defaultRestrict)
+    } yield files
+  }
+
+  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[Path, FileInfo]] = Try {
+    (node \ "file").map(n => (getFilePath(n), FileInfo(getFile(n), FileElement.toFileMeta(n, defaultRestrict)))).toMap
+  }
+
+  private def getFilePath(node: Node): Path = {
+    Paths.get(node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text)
+  }
+
+  private def getFile(node: Node): File = {
+    bagDir / getFilePath(node).toString
+  }
+
 
   def vaultMetadata: VaultMetadata = {
     VaultMetadata(dataversePid, dataverseBagId, dataverseNbn, dataverseOtherId, dataverseOtherIdVersion, dataverseSwordToken)

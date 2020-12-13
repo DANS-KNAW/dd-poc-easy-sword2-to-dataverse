@@ -18,7 +18,7 @@ package nl.knaw.dans.easy.dd2d
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.easy.dd2d.mapping.AccessRights
-import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetCreationResult, UpdateType }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, DatasetCreationResult, PrimitiveSingleValueField, UpdateType, toFieldMap }
 import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -35,7 +35,12 @@ import scala.util.{ Success, Try }
  * @param instance    the Dataverse instance to ingest in
  * @param jsonFormats implicit necessary for pretty-printing JSON
  */
-case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidator, instance: DataverseInstance, publish: Boolean = true)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
+case class DepositIngestTask(deposit: Deposit,
+                             dansBagValidator: DansBagValidator,
+                             instance: DataverseInstance,
+                             publish: Boolean = true,
+                             publishAwaitUnlockMaxNumberOfRetries: Int,
+                             publishAwaitUnlockMillisecondsBetweenRetries: Int)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
   trace(deposit, instance)
 
   private val mapper = new DepositToDataverseMapper()
@@ -55,8 +60,12 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
              |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
                       """.stripMargin)
       }
+      // TODO: base contact on owner of deposit
+      response <- instance.admin().getSingleUser("dataverseAdmin")
+      user <- response.data
+      datasetContact <- createDatasetContact(user.displayName, user.email)
       ddm <- deposit.tryDdm
-      dataverseDataset <- mapper.toDataverseDataset(ddm, deposit.vaultMetadata)
+      dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContact, deposit.vaultMetadata)
       isUpdate <- deposit.isUpdate
       editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
                else new DatasetCreator(deposit, dataverseDataset, instance)
@@ -73,6 +82,17 @@ case class DepositIngestTask(deposit: Deposit, dansBagValidator: DansBagValidato
       // TODO: check that dataset is indeed now published
     } yield ()
     // TODO: delete draft if something went wrong
+  }
+
+  private def createDatasetContact(name: String, email: String): Try[CompoundField] = Try {
+    CompoundField(
+      typeName = "datasetContact",
+      value =
+        List(toFieldMap(
+          PrimitiveSingleValueField("datasetContactName", name),
+          PrimitiveSingleValueField("datasetContactEmail", email)
+        ))
+    )
   }
 
   private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = {

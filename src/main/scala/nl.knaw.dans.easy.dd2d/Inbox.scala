@@ -29,12 +29,16 @@ import org.json4s.{ DefaultFormats, Formats }
  * @param dir       the file system directory
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
-class Inbox(dir: File, dansBagValidator: DansBagValidator, dataverse: DataverseInstance, autoPublish: Boolean = true) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
+class Inbox(dir: File,
+            dansBagValidator: DansBagValidator,
+            dataverse: DataverseInstance, autoPublish: Boolean = true,
+            publishAwaitUnlockMaxNumberOfRetries: Int,
+            publishAwaitUnlockMillisecondsBetweenRetries: Int) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
   private implicit val jsonFormats: Formats = new DefaultFormats {}
 
   override def createTask(f: File): Option[DepositIngestTask] = {
 
-    try Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish)) catch {
+    try Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries)) catch {
       case e: InvalidDepositException =>
         logger.warn(e.getMessage)
         None

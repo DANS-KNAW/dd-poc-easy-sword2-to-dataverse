@@ -15,19 +15,12 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import better.files.File
-import nl.knaw.dans.easy.dd2d.mapping.AccessRights
 import nl.knaw.dans.lib.dataverse.model.dataset.{ Dataset, DatasetCreationResult }
 import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
-import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-/**
- *
- * @param deposit
- */
 class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor(deposit, instance) with DebugEnhancedLogging {
   trace(deposit)
 
@@ -37,8 +30,8 @@ class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: Data
       response <- if (deposit.doi.nonEmpty) instance.dataverse("root").importDataset(dataverseDataset, Some(s"doi:${ deposit.doi }"), autoPublish = false)
                   else instance.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
-      fileInfos <- getLocalPathToFileInfo
-      _ <- uploadFilesToDataset(persistentId, fileInfos.values.toList)
+      fileInfos <- deposit.getPathToFileInfo
+      _ <- addFiles(persistentId, fileInfos.values.toList)
     } yield persistentId
   }
 
