@@ -44,28 +44,55 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
       checksumToFileInfoInDeposit <- getFilesInDeposit(pathToFileInfo)
       checksumToFileMetaInLatestVersion <- getFilesInLatestVersion
 
-      checksumsFilesToDelete = checksumToFileMetaInLatestVersion.keySet diff checksumToFileInfoInDeposit.keySet
-      _ <- logFilesToDelete(checksumsFilesToDelete, checksumToFileMetaInLatestVersion)
+      // (old, new) checksum
+      checksumPairsToReplace <- getFilesToReplace(checksumToFileInfoInDeposit, checksumToFileMetaInLatestVersion)
+      _ <- logFilesToReplace(checksumPairsToReplace.map(_._1), checksumToFileInfoInDeposit)
+      _ <- replaceFiles(checksumPairsToReplace, checksumToFileMetaInLatestVersion, checksumToFileInfoInDeposit)
+
+      checksumsFilesToDelete = (checksumToFileMetaInLatestVersion.keySet diff checksumPairsToReplace.map(_._1).toSet) diff checksumToFileInfoInDeposit.keySet
+      _ <- logFilesToDelete(checksumsFilesToDelete.toList, checksumToFileMetaInLatestVersion)
       _ <- deleteFiles(checksumsFilesToDelete.map(checksumToFileMetaInLatestVersion).map(_.dataFile.get.id).toList)
 
-      checksumsFilesToAdd = checksumToFileInfoInDeposit.keySet diff checksumToFileMetaInLatestVersion.keySet
-      _ <- logFilesToAdd(checksumsFilesToAdd, checksumToFileInfoInDeposit)
+      checksumsFilesToAdd = (checksumToFileInfoInDeposit.keySet diff checksumPairsToReplace.map(_._2).toSet) diff checksumToFileMetaInLatestVersion.keySet
+      _ <- logFilesToAdd(checksumsFilesToAdd.toList, checksumToFileInfoInDeposit)
       _ <- uploadFilesToDataset(deposit.dataversePid, checksumsFilesToAdd.map(checksumToFileInfoInDeposit).toList)
 
-      // TODO: Replace files with same directoryLabel, label but different checksums
 
     } yield deposit.dataversePid
   }
 
+  private def replaceFiles(checksumPairsToReplace: List[(Sha1Hash, Sha1Hash)], checksumToFileMetaInLatestVersion: Map[Sha1Hash, FileMeta], checksumToFileInfoInDeposit: Map[Sha1Hash, FileInfo]): Try[Unit] = {
+    checksumPairsToReplace.map {
+      case (oldChecksum, newChecksum) =>
+        val fileApi = instance.file(checksumToFileMetaInLatestVersion(oldChecksum).dataFile.get.id)
+        val newFileInfo = checksumToFileInfoInDeposit(newChecksum)
+        fileApi.replace(newFileInfo.file, newFileInfo.metadata)
+        dataset.awaitUnlock()
+    }.collectResults.map(_ => ())
+  }
+
+  private def getFilesToReplace(checksumToFileInfoInDeposit: Map[Sha1Hash, FileInfo], checksumToFileMetaInLatestVersion: Map[Sha1Hash, FileMeta]): Try[List[(Sha1Hash, Sha1Hash)]] = {
+    for {
+      labelPairToChecksumDeposit <- Try { checksumToFileInfoInDeposit.map { case (c, fi) => ((fi.metadata.directoryLabel, fi.metadata.label) -> c) } }
+      labelPairToChecksumLatestVersion <- Try { checksumToFileMetaInLatestVersion.map { case (c, m) => ((m.directoryLabel, m.label) -> c) } }
+      intersection = labelPairToChecksumDeposit.keySet intersect labelPairToChecksumLatestVersion.keySet
+      checksumsDiffer = intersection.filter(p => labelPairToChecksumDeposit(p) != labelPairToChecksumLatestVersion(p))
+      toBeReplaced = checksumsDiffer.map(p => (labelPairToChecksumLatestVersion(p), labelPairToChecksumDeposit(p))).toList
+    } yield toBeReplaced
+  }
+
+  private def logFilesToReplace(checksums: List[Sha1Hash], checksumToFileInfo: Map[Sha1Hash, FileInfo]): Try[Unit] = Try {
+    if (logger.underlying.isDebugEnabled) debugFiles("Files to replace", checksums.map(checksumToFileInfo).map(_.metadata).toList)
+    else Success(())
+  }
 
 
-
-  private def logFilesToAdd(checksums: Set[Sha1Hash], checksumToFileInfo: Map[Sha1Hash, FileInfo] ): Try[Unit] = Try {
+  private def logFilesToAdd(checksums: List[Sha1Hash], checksumToFileInfo: Map[Sha1Hash, FileInfo]): Try[Unit] = Try {
     if (logger.underlying.isDebugEnabled) debugFiles("Files to add", checksums.map(checksumToFileInfo).map(_.metadata).toList)
     else Success(())
   }
 
-  private def logFilesToDelete(checksums: Set[Sha1Hash], checksumToFileMeta: Map[Sha1Hash, FileMeta] ): Try[Unit] = Try {
+  private def logFilesToDelete(checksums: List[Sha1Hash], checksumToFileMeta: Map[Sha1Hash, FileMeta]): Try[Unit] = Try {
     if (logger.underlying.isDebugEnabled) debugFiles("Files to delete", checksums.map(checksumToFileMeta).toList)
     else Success(())
   }
