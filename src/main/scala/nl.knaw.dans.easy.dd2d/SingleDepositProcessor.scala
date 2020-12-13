@@ -29,8 +29,6 @@ class SingleDepositProcessor(deposit: File,
                              autoPublish: Boolean = true,
                              publishAwaitUnlockMaxNumberOfRetries: Int,
                              publishAwaitUnlockMillisecondsBetweenRetries: Int) {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
-
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
     ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries))

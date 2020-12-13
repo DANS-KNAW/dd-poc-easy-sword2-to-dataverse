@@ -23,7 +23,7 @@ import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.Task
-import org.json4s.Formats
+import org.json4s.{ DefaultFormats, Formats }
 
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
@@ -33,14 +33,13 @@ import scala.util.{ Success, Try }
  *
  * @param deposit     the deposit to ingest
  * @param instance    the Dataverse instance to ingest in
- * @param jsonFormats implicit necessary for pretty-printing JSON
  */
 case class DepositIngestTask(deposit: Deposit,
                              dansBagValidator: DansBagValidator,
                              instance: DataverseInstance,
                              publish: Boolean = true,
                              publishAwaitUnlockMaxNumberOfRetries: Int,
-                             publishAwaitUnlockMillisecondsBetweenRetries: Int)(implicit jsonFormats: Formats) extends Task[Deposit] with DebugEnhancedLogging {
+                             publishAwaitUnlockMillisecondsBetweenRetries: Int) extends Task[Deposit] with DebugEnhancedLogging {
   trace(deposit, instance)
 
   private val mapper = new DepositToDataverseMapper()

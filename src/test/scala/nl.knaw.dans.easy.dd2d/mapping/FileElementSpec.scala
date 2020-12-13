@@ -21,8 +21,6 @@ import org.json4s.native.Serialization
 import org.json4s.{ DefaultFormats, Formats }
 
 class FileElementSpec extends TestSupportFixture {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
-
   "toFileMetadata" should "strip data/ prefix from path to get directoryLabel" in {
     val filesXml =
       <file filepath="data/this/is/the/directoryLabel/filename.txt">
