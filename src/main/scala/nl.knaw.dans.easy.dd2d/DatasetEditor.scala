@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import java.nio.file.{ Path, Paths }
+
 import better.files.File
 import nl.knaw.dans.easy.dd2d.mapping.{ AccessRights, FileElement }
 import nl.knaw.dans.lib.dataverse.DataverseInstance
@@ -37,7 +39,7 @@ abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) exte
    */
   def performEdit(): Try[PersistendId]
 
-  protected def getFileInfos: Try[Map[String, FileInfo]] = {
+  protected def getLocalPathToFileInfo: Try[Map[Path, FileInfo]] = {
     import scala.language.postfixOps
     for {
       filesXml <- deposit.tryFilesXml
@@ -47,16 +49,16 @@ abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) exte
     } yield files
   }
 
-  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[String, FileInfo]] = Try {
+  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[Path, FileInfo]] = Try {
     (node \ "file").map(n => (getFilePath(n), FileInfo(getFile(n), FileElement.toFileValueObject(n, defaultRestrict)))).toMap
   }
 
-  private def getFilePath(node: Node): String = {
-    node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text
+  private def getFilePath(node: Node): Path = {
+    Paths.get(node.attribute("filepath").flatMap(_.headOption).getOrElse { throw new RuntimeException("File node without a filepath attribute") }.text)
   }
 
   private def getFile(node: Node): File = {
-    deposit.bagDir / getFilePath(node)
+    deposit.bagDir / getFilePath(node).toString
   }
 
   protected def uploadFilesToDataset(persistentId: String, files: List[FileInfo]): Try[Unit] = {

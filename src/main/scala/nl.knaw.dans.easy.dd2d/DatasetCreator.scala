@@ -37,7 +37,7 @@ class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: Data
       response <- if (deposit.doi.nonEmpty) instance.dataverse("root").importDataset(dataverseDataset, Some(s"doi:${ deposit.doi }"), autoPublish = false)
                   else instance.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
-      fileInfos <- getFileInfos
+      fileInfos <- getLocalPathToFileInfo
       _ <- uploadFilesToDataset(persistentId, fileInfos.values.toList)
     } yield persistentId
   }

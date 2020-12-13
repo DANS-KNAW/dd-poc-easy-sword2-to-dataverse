@@ -15,11 +15,17 @@
  */
 package nl.knaw.dans.easy
 
-package object dd2d {
+import better.files.File
+import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 
+package object dd2d {
   type DepositName = String
+  type Sha1Hash = String
+  type DatabaseId = Int
 
   case class VaultMetadata(dataversePid: String, dataverseBagId: String, dataverseNbn: String, dataverseOtherId: String, dataverseOtherIdVersion: String, dataverseSwordToken: String)
+
+  case class FileInfo(file: File, metadata: FileMeta)
 
   case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
