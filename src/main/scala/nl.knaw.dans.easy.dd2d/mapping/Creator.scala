@@ -24,5 +24,4 @@ object Creator extends BlockCitation {
     m.addPrimitiveField(AUTHOR_NAME, node.text)
     m.toJsonObject
   }
-
 }

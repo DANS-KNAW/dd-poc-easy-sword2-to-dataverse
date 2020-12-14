@@ -16,14 +16,11 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
-import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
-import nl.knaw.dans.easy.dd2d.mapping.AccessRights
-import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, DatasetCreationResult, PrimitiveSingleValueField, UpdateType, toFieldMap }
-import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
-import nl.knaw.dans.lib.error._
+import nl.knaw.dans.easy.dd2d.dansbag.{ DansBagValidationResult, DansBagValidator }
+import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, PrimitiveSingleValueField, UpdateType, toFieldMap }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.Task
-import org.json4s.{ DefaultFormats, Formats }
 
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
@@ -31,8 +28,8 @@ import scala.util.{ Success, Try }
 /**
  * Checks one deposit and then ingests it into Dataverse.
  *
- * @param deposit     the deposit to ingest
- * @param instance    the Dataverse instance to ingest in
+ * @param deposit  the deposit to ingest
+ * @param instance the Dataverse instance to ingest in
  */
 case class DepositIngestTask(deposit: Deposit,
                              dansBagValidator: DansBagValidator,
@@ -51,14 +48,8 @@ case class DepositIngestTask(deposit: Deposit,
 
     for {
       validationResult <- dansBagValidator.validateBag(bagDirPath)
-      _ <- Try {
-        if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
-          s"""
-             |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
-             |Violations:
-             |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
-                      """.stripMargin)
-      }
+      _ <- rejectIfInvalid(validationResult)
+
       // TODO: base contact on owner of deposit
       response <- instance.admin().getSingleUser("dataverseAdmin")
       user <- response.data
@@ -70,18 +61,23 @@ case class DepositIngestTask(deposit: Deposit,
       editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
                else new DatasetCreator(deposit, dataverseDataset, instance)
       persistentId <- editor.performEdit()
-      _ <- if (publish) {
-        debug("Publishing dataset")
-        publishDataset(persistentId)
-      }
-           else {
-             debug("Keeping dataset on DRAFT")
-             Success(())
-           }
-      _ <- instance.dataset(persistentId).awaitUnlock()
-      // TODO: check that dataset is indeed now published
+      _ <- if (publish) publishDataset(persistentId)
+           else keepOnDraft()
     } yield ()
     // TODO: delete draft if something went wrong
+  }
+
+  private def rejectIfInvalid(validationResult: DansBagValidationResult): Try[Unit] = Try {
+    if (!validationResult.isCompliant) throw RejectedDepositException(deposit,
+      s"""
+         |Bag was not valid according to Profile Version ${ validationResult.profileVersion }.
+         |Violations:
+         |${ validationResult.ruleViolations.map(_.map(formatViolation).mkString("\n")).getOrElse("") }
+                      """.stripMargin)
+  }
+
+  private def formatViolation(v: (String, String)): String = v match {
+    case (nr, msg) => s" - [$nr] $msg"
   }
 
   private def createDatasetContact(name: String, email: String): Try[CompoundField] = Try {
@@ -95,16 +91,19 @@ case class DepositIngestTask(deposit: Deposit,
     )
   }
 
-  private def getPersistentId(response: DataverseResponse[DatasetCreationResult]): Try[String] = {
-    response.data.map(_.persistentId)
+  private def publishDataset(persistentId: String): Try[Unit] = {
+    debug("Publishing dataset")
+    for {
+      _ <- instance.dataset(persistentId).publish(UpdateType.major).map(_ => ())
+      _ <- instance.dataset(persistentId).awaitUnlock(
+        maxNumberOfRetries = publishAwaitUnlockMaxNumberOfRetries,
+        waitTimeInMilliseconds = publishAwaitUnlockMillisecondsBetweenRetries)
+    } yield ()
   }
 
-  private def formatViolation(v: (String, String)): String = v match {
-    case (nr, msg) => s" - [$nr] $msg"
-  }
-
-  private def publishDataset(datasetId: String): Try[Unit] = {
-    instance.dataset(datasetId).publish(UpdateType.major).map(_ => ())
+  private def keepOnDraft(): Try[Unit] = {
+    debug("Keeping dataset on DRAFT")
+    Success(())
   }
 
   override def getTarget: Deposit = {
@@ -112,6 +111,6 @@ case class DepositIngestTask(deposit: Deposit,
   }
 
   override def toString: DepositName = {
-    s"DepositIngestTask for ${deposit}"
+    s"DepositIngestTask for ${ deposit }"
   }
 }

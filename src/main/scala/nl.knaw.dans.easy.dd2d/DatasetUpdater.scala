@@ -40,28 +40,19 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
 
       // (old, new) checksum
       checksumPairsToReplace <- getFilesToReplace(checksumToFileInfoInDeposit, checksumToFileMetaInLatestVersion)
-      _ <- logFilesToReplace(checksumPairsToReplace.map(_._1), checksumToFileMetaInLatestVersion)
+      checksumReplacedFiles = checksumPairsToReplace.map(_._1)
+      checksumReplacementFiles = checksumPairsToReplace.map(_._2)
+      _ <- logFilesToReplace(checksumReplacedFiles, checksumToFileMetaInLatestVersion)
       _ <- replaceFiles(checksumPairsToReplace, checksumToFileMetaInLatestVersion, checksumToFileInfoInDeposit)
 
-      checksumsFilesToDelete = (checksumToFileMetaInLatestVersion.keySet diff checksumPairsToReplace.map(_._1).toSet) diff checksumToFileInfoInDeposit.keySet
+      checksumsFilesToDelete = (checksumToFileMetaInLatestVersion.keySet diff checksumReplacedFiles.toSet) diff checksumToFileInfoInDeposit.keySet
       _ <- logFilesToDelete(checksumsFilesToDelete.toList, checksumToFileMetaInLatestVersion)
       _ <- deleteFiles(checksumsFilesToDelete.map(checksumToFileMetaInLatestVersion).map(_.dataFile.get.id).toList)
 
-      checksumsFilesToAdd = (checksumToFileInfoInDeposit.keySet diff checksumPairsToReplace.map(_._2).toSet) diff checksumToFileMetaInLatestVersion.keySet
+      checksumsFilesToAdd = (checksumToFileInfoInDeposit.keySet diff checksumReplacementFiles.toSet) diff checksumToFileMetaInLatestVersion.keySet
       _ <- logFilesToAdd(checksumsFilesToAdd.toList, checksumToFileInfoInDeposit)
       _ <- addFiles(deposit.dataversePid, checksumsFilesToAdd.map(checksumToFileInfoInDeposit).toList)
     } yield deposit.dataversePid
-  }
-
-  private def createDatasetContact(name: String, email: String): Try[JsonObject] = Try {
-    toFieldMap(
-      PrimitiveSingleValueField("datasetContactName", name),
-      PrimitiveSingleValueField("datasetContactEmail", email)
-    )
-  }
-
-  private def addFieldToMetadataBlock(field: MetadataField, block: MetadataBlock): MetadataBlock = {
-    block.copy(fields = field :: block.fields)
   }
 
   /**

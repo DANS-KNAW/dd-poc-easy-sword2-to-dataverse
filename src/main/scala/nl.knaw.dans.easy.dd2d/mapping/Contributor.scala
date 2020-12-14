@@ -16,7 +16,7 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 trait Contributor {
-  val contributoreRoleToContributorType = Map (
+  val contributoreRoleToContributorType = Map(
     "DataCurator" -> "Data Curator",
     "DataManager" -> "Data Manager",
     "Editor" -> "Editor",
@@ -40,5 +40,4 @@ trait Contributor {
     "Distributor" -> "Other",
     "DataCollector" -> "Other",
     "ContactPerson" -> "Other")
-
 }

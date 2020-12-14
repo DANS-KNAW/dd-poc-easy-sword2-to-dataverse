@@ -27,5 +27,4 @@ object AccessRights {
   def toDefaultRestrict(node: Node): Boolean = {
     accessRightsToDefaultRestrict.getOrElse(node.text, true)
   }
-
 }

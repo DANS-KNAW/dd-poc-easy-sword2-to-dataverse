@@ -46,5 +46,4 @@ object DcxDaiOrganization extends Contributor with BlockCitation {
     }
     m.toJsonObject
   }
-
 }

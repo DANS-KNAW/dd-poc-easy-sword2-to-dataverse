@@ -16,7 +16,6 @@
 package nl.knaw.dans.easy.dd2d.dansbag
 
 import java.net.URI
-import java.nio.file.Path
 
 import better.files.File
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -45,7 +44,7 @@ class DansBagValidator(serviceUri: URI) extends DebugEnhancedLogging {
   def validateBag(bagDir: File): Try[DansBagValidationResult] = {
     trace(bagDir)
     Try {
-      val validationUri = serviceUri.resolve(s"validate?infoPackageType=SIP&uri=${bagDir.path.toUri}")
+      val validationUri = serviceUri.resolve(s"validate?infoPackageType=SIP&uri=${ bagDir.path.toUri }")
       logger.debug(s"Calling Dans Bag Validation Service with ${ validationUri.toASCIIString }")
       Http(s"${ validationUri.toASCIIString }")
         // TODO: Make timeouts configurable

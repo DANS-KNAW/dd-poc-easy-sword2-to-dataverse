@@ -23,5 +23,4 @@ trait BlockDataVaultMetadata {
   val DANS_OTHER_ID = "dansOtherId"
   val DANS_OTHER_ID_VERSION = "dansOtherIdVersion"
   val SWORD_TOKEN = "dansSwordToken"
-
 }

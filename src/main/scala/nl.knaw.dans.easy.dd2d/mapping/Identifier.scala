@@ -15,13 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-import scala.xml.Node
-
 object Identifier {
-// TODO: can ArchisZaakId be in an identifier element?
+  // TODO: can ArchisZaakId be in an identifier element?
 
-//  def toArchisZaakId(node: Node): Option[String] = {
-//    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
-//    else Option.empty
-//  }
+  //  def toArchisZaakId(node: Node): Option[String] = {
+  //    if (hasXsiType(node, "ARCHIS-ZAAK-IDENTIFICATIE")) Some(node.text)
+  //    else Option.empty
+  //  }
 }

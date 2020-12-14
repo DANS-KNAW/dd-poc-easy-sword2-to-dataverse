@@ -103,7 +103,6 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
     bagDir / getFilePath(node).toString
   }
 
-
   def vaultMetadata: VaultMetadata = {
     VaultMetadata(dataversePid, dataverseBagId, dataverseNbn, dataverseOtherId, dataverseOtherIdVersion, dataverseSwordToken)
   }

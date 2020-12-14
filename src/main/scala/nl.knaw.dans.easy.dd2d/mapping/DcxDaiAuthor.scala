@@ -58,9 +58,9 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
     else if (author.isni.isDefined) {
       addIdentifier(m, "ISNI", author.isni.get)
     }
-    else if (author.dai.isDefined) {
-      addIdentifier(m, "DAI", author.dai.get)
-    }
+         else if (author.dai.isDefined) {
+           addIdentifier(m, "DAI", author.dai.get)
+         }
 
     if (author.organization.isDefined) {
       m.addPrimitiveField(AUTHOR_AFFILIATION, author.organization.get)

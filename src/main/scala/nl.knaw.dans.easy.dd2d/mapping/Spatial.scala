@@ -29,7 +29,6 @@ trait Spatial {
   val RD_SCHEME = "RD(in m.)"
   val LATLON_SCHEME = "latitude/longitude (m)"
 
-
   case class Point(x: String, y: String)
 
   protected def isRd(env: Node): Boolean = {
