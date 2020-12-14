@@ -22,13 +22,15 @@ import scala.util.Try
 
 class InboxProcessor(inbox: Inbox) extends DebugEnhancedLogging {
 
-  def process(): Try[Unit] = Try {
+  def process(): Try[Unit] = {
     trace(())
-    val ingestTasks = new PassiveTaskQueue[Deposit]()
-    logger.info("Enqueuing deposits found in inbox...")
-    inbox.enqueue(ingestTasks, Some(new DepositSorter)).get // TODO: better error handling
-    logger.info("Processing queue...")
-    ingestTasks.process()
-    logger.info("Done processing.")
+    for {
+      ingestTasks <- Try { new PassiveTaskQueue[Deposit]() }
+      _ = logger.info("Enqueuing deposits found in inbox...")
+      _ <- inbox.enqueue(ingestTasks, Some(new DepositSorter))
+      _ = logger.info("Processing queue...")
+      _ <- ingestTasks.process()
+      _ = logger.info("Done processing.")
+    } yield ()
   }
 }
