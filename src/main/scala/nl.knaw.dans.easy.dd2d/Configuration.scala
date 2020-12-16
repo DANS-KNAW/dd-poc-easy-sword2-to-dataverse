@@ -49,7 +49,7 @@ object Configuration {
     }
 
     val narcisClassificationPath = Seq(
-      root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "narcis_classification.xml",
+      root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "install" / "narcis_classification.xml",
       home / "install" / "narcis_classification.xml")
       .find(_.exists)
       .getOrElse { throw new IllegalStateException("No Narcis Classification file found") }.canonicalPath

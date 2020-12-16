@@ -58,7 +58,6 @@ case class DepositIngestTask(deposit: Deposit,
       datasetContact <- createDatasetContact(user.displayName, user.email)
       ddm <- deposit.tryDdm
       dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContact, deposit.vaultMetadata)
-      _ = logger.info(s"dataverseDataset: $dataverseDataset")
       isUpdate <- deposit.isUpdate
       _ = debug(s"isUpdate? = $isUpdate")
       editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
