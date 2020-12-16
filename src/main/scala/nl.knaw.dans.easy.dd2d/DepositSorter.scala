@@ -53,7 +53,7 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
       case null => None
       case uuid: String => Some(uuid)
     }
-    DepositsSortInfo(s"urn:uuid:${depositIngestTask.deposit.dir.name}", timeStamp, isVersionOf, depositIngestTask)
+    DepositsSortInfo(s"urn:uuid:${ depositIngestTask.deposit.dir.name }", timeStamp, isVersionOf, depositIngestTask)
   }
 
   private def getDepositSequences(depositsSortInfoList: List[DepositsSortInfo]): baseIdToAllVersions = {
@@ -69,7 +69,12 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
     val laterVersionsUpdated = removeDatasetsWithoutFirstVersion(firstVersions, laterVersions)
 
     (firstVersions.keySet ++ laterVersionsUpdated.keySet)
-      .map(k => k -> (firstVersions(k) ++ laterVersionsUpdated(k)))
+      .map(k => {
+        if (laterVersionsUpdated.contains(k))
+          k -> (firstVersions(k) ++ laterVersionsUpdated(k))
+        else
+          k -> firstVersions(k)
+      })
       .toMap
   }
 
