@@ -30,7 +30,8 @@ class ReadmeSpec extends TestSupportFixture {
     dataverse = null,
     autoPublish = true,
     publishAwaitUnlockMaxNumberOfRetries = 3,
-    publishAwaitUnlockMillisecondsBetweenRetries = 500
+    publishAwaitUnlockMillisecondsBetweenRetries = 500,
+    narcisClassification = null
   )
   private val clo = new CommandLineOptions(Array[String](), configuration) {
     // avoids System.exit() in case of invalid arguments or "--help"

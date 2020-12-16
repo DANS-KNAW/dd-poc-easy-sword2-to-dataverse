@@ -1,0 +1,1618 @@
+<rdf:RDF>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <rdfs:label xml:lang="en">
+            Classification codes of the scientific portal Narcis (www.narcis.nl). The Narcis Classification is a framework of codes with which institutes and experts are classified and can be retrieved. The D code classifies on scientific disciplines. The classification also contains an E code. This code includes some interdisciplinary research fields. The Narcis Classification has been revised in the year 2015.
+        </rdfs:label>
+        <rdfs:label xml:lang="nl">
+            Classificatiecodes van de wetenschapsportal Narcis (www.narcis.nl). De Narcis Classificatie is een schema van codes waarmee experts en onderzoeksorganisaties kunnen worden ingedeeld en teruggevonden. De D-code rubriceert de wetenschappelijke disciplines. Daarnaast bevat de classificatie een E-code. Deze code omvat een aantal interdisciplinaire onderzoeksgebieden. De Narcis Classificatie is in 2015 herzien.
+        </rdfs:label>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D50000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D70000"/>
+        <skos:hasTopConcept rdf:resource="https://www.narcis.nl/classification/D40000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14200">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <skos:prefLabel xml:lang="en">Mechanical engineering</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Werktuigbouwkunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D20000">
+        <skos:prefLabel xml:lang="nl">
+            Levenswetenschappen, geneeskunde en gezondheidszorg
+        </skos:prefLabel>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Life sciences, medicine and health care</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22500">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Botany</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:prefLabel xml:lang="nl">Plantkunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14610">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Mijnbouw</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14600"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Mining engineering</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23213">
+        <skos:prefLabel xml:lang="en">Rheumatology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23210"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Reumatologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D70000">
+        <skos:prefLabel xml:lang="en">Economics and Business Administration</skos:prefLabel>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Economie en bedrijfskunde</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16800">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+        <skos:prefLabel xml:lang="nl">Simulatie, virtual reality</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Computer simulation, virtual reality</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D54000">
+        <skos:prefLabel xml:lang="en">Pedagogics</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D50000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Pedagogiek</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14520">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14500"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Organic chemical technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Organisch-chemische technologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:prefLabel xml:lang="en">Language and literature studies</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Taal- en literatuurwetenschappen</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D34000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">History</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Geschiedenis</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D52000">
+        <skos:prefLabel xml:lang="en">Educational theory</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Onderwijskunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D50000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15400">
+        <skos:prefLabel xml:lang="en">Petrology, mineralogy, sedimentology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Gesteenten, mineralen, sedimenten</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14430">
+        <skos:prefLabel xml:lang="nl">Offshore technologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14400"/>
+        <skos:prefLabel xml:lang="en">Offshore technology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15000">
+        <skos:prefLabel xml:lang="en">Earth sciences</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:prefLabel xml:lang="nl">Aardwetenschappen</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32500">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D32000"/>
+        <skos:prefLabel xml:lang="nl">
+            Geschiedenis en filosofie van de sociale wetenschappen
+        </skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">History and philosophy of the social sciences</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23362">
+        <skos:prefLabel xml:lang="en">Pediatrics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Kindergeneeskunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23360"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D65000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Urban and rural planning</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Planologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E12000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Technologie in de geneeskunde en gezondheidszorg</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Technology in medicine and health care</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16400">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Informatiesystemen, databases</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Information systems, databases</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D62000">
+        <skos:prefLabel xml:lang="en">Social geography</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Sociale geografie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15700">
+        <skos:prefLabel xml:lang="nl">Geodesie, fysische geografie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Geodesy, physical geography</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14330">
+        <skos:prefLabel xml:lang="nl">Elektrische energietechniek</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14300"/>
+        <skos:prefLabel xml:lang="en">Electrical energy technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32400">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">History and philosophy of the behavioural sciences</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D32000"/>
+        <skos:prefLabel xml:lang="nl">
+            Geschiedenis en filosofie van de gedragswetenschappen
+        </skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23224">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Gynaecologie en obstetrie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Gynaecology and obstetrics</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D67000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Vrijetijdswetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Leisure and recreation studies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14231">
+        <skos:prefLabel xml:lang="nl">Wegvoertuigen, railvoertuigen</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14200"/>
+        <skos:prefLabel xml:lang="en">Road vehicles, rail vehicles</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14230">
+        <skos:prefLabel xml:lang="nl">Voertuigtechniek en transporttechniek</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14230"/>
+        <skos:prefLabel xml:lang="en">Vehicle technology and transport technology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11300">
+        <skos:prefLabel xml:lang="nl">Functies, differentiaalvergelijkingen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Functions, differential equations</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12300">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Electromagnetism, optics, acoustics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Elektromagnetisme, optica, geluidsleer</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D26000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <skos:prefLabel xml:lang="en">Veterinary medicine</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Diergeneeskunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14320">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14300"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Microelectronics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Micro-elektronica</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D42100">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D42000"/>
+        <skos:prefLabel xml:lang="en">Political science</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Politicologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41100">
+        <skos:prefLabel xml:lang="en">History of law</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Rechtsgeschiedenis</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14233">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Luchtvaartuigen en ruimtevaartuigen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Aircraft and spacecraft</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14230"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41600">
+        <skos:prefLabel xml:lang="en">International law</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+        <skos:prefLabel xml:lang="nl">Internationaal recht</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14442">
+        <skos:prefLabel xml:lang="nl">Afvalwaterinzameling en afvalwaterzuivering</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14440"/>
+        <skos:prefLabel xml:lang="en">Wastewater treatment</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D42000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D40000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Political and administrative sciences</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Politieke wetenschappen en bestuurskunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D31000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">
+            Boekwetenschappen, bibliotheekwetenschappen en informatiewetenschappen
+        </skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">
+            Paleography, bibliology, bibliography, library science
+        </skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D34100">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Oudheid</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Antiquity</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D34000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D24300">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D24000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Nutrition</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Voeding</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Operationele research</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Operations research</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23340">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Biofarmaceutische wetenschappen, toxicologie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Pharmacology, toxicology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Levenswetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Life sciences</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14410">
+        <skos:prefLabel xml:lang="en">Building technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14400"/>
+        <skos:prefLabel xml:lang="nl">Bouwkundige constructies en objecten</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22100">
+        <skos:prefLabel xml:lang="en">Microbiology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:prefLabel xml:lang="nl">Microbiologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21100">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Bioinformatics, biomathematics</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Bioinformatica, biomathematica</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23225">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Pulmonary disorders</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Longziekten</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23231">
+        <skos:prefLabel xml:lang="nl">Neurologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Neurology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23230"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D25100">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D25000"/>
+        <skos:prefLabel xml:lang="en">Rehabilitation</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Revalidatie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15200">
+        <skos:prefLabel xml:lang="nl">Paleontologie, stratigrafie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Paleontology, stratigraphy</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22400">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:prefLabel xml:lang="en">Ecology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Ecologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18110">
+        <skos:prefLabel xml:lang="nl">Lucht</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Air</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18100"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12800">
+        <skos:prefLabel xml:lang="nl">Vastestoffysica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Solid-state physics</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36200">
+        <skos:prefLabel xml:lang="nl">Klassieke taal- en letterkunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Classic studies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D30000">
+        <skos:prefLabel xml:lang="en">Humanities</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Geesteswetenschappen</skos:prefLabel>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14240">
+        <skos:prefLabel xml:lang="nl">
+            Industriële productie, mechanische technologie, robotica
+        </skos:prefLabel>
+        <skos:prefLabel xml:lang="en">
+            Manufacturing technology, mechanical technology, robotics
+        </skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14200"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13200">
+        <skos:prefLabel xml:lang="nl">Macromoleculaire chemie, polymeerchemie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Macromolecular chemistry, polymer chemistry</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35100">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">History of arts and architecture</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D35000"/>
+        <skos:prefLabel xml:lang="nl">Kunstgeschiedenis en architectuurgeschiedenis</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14800">
+        <skos:prefLabel xml:lang="en">Energy</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Energie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12600">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Atomic physics and molecular physics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Atoomfysica en molecuulfysica</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11500">
+        <skos:prefLabel xml:lang="nl">Meetkunde, topologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Geometry, topology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E11000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Biotechnologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Biotechnology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32300">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">
+            Geschiedenis en filosofie van de geesteswetenschappen
+        </skos:prefLabel>
+        <skos:prefLabel xml:lang="en">History and philosophy of the humanities</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D32000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:prefLabel xml:lang="nl">Informatica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Computer science</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23120">
+        <skos:prefLabel xml:lang="nl">Kanker</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23100"/>
+        <skos:prefLabel xml:lang="en">Oncology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23361">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23360"/>
+        <skos:prefLabel xml:lang="en">Neonatology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Neonatologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23330">
+        <skos:prefLabel xml:lang="en">Radiology, radiotherapy</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Radiologie, radiotherapie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Medicine</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Geneeskunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14340">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Measurement and control engineering</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14300"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Meet- en regeltechniek</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E10000">
+        <skos:prefLabel xml:lang="en">Interdisciplinary sciences</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Interdisciplinaire wetenschappen</skos:prefLabel>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D38000">
+        <skos:prefLabel xml:lang="en">Area Studies</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Area Studies</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16500">
+        <skos:prefLabel xml:lang="nl">Gebruikersinterfaces, multimedia</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">User interfaces, multimedia</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18220">
+        <skos:prefLabel xml:lang="nl">Veeteelt</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Animal husbandry</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18200"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14232">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14230"/>
+        <skos:prefLabel xml:lang="nl">Vaartuigen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Vessels</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D50000">
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Behavioural and educational sciences</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Gedragswetenschappen en onderwijskunde</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Technische wetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Technology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D44000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D40000"/>
+        <skos:prefLabel xml:lang="en">Traffic and transport studies</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Verkeerswetenschappen en vervoerswetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+        <skos:prefLabel xml:lang="en">Computer graphics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Computer graphics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12700">
+        <skos:prefLabel xml:lang="nl">Gassen, vloeistofdynamica, plasmafysica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Gases, fluid dynamics, plasma physics</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18130">
+        <skos:prefLabel xml:lang="nl">Bodem</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Soil</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18100"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E14000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Migration, ethnic relations and multiculturalism</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Migratie, etnische relaties en multiculturaliteit</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22200">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:prefLabel xml:lang="nl">Biogeografie, taxonomie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Biogeography, taxonomy</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18120">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18100"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Oppervlaktewater en grondwater</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Surface water and groundwater</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14600">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Geotechnics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Geotechniek</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21400">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Genetics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Genetica</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D42200">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D42000"/>
+        <skos:prefLabel xml:lang="nl">Bestuurskunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Social and public administration</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D68000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Sociale zekerheidswetenschappen</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Social security studies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23210">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">
+            Dermatology, venereology, rheumatology, orthopaedics
+        </skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23200"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">
+            Huidziekten, geslachtsziekten, reumatologie, orthopedie
+        </skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35300">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D35000"/>
+        <skos:prefLabel xml:lang="en">Dramaturgy</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Theaterwetenschappen</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41400">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Staats- en bestuursrecht</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Constitutional and administrative law</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41300">
+        <skos:prefLabel xml:lang="en">Criminal (procedural) law and criminology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Straf(proces)recht en criminologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16200">
+        <skos:prefLabel xml:lang="nl">Software, algoritmen, besturingssystemen</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Software, algorithms, control systems</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E17000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Greenhouse gas mitigation</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:prefLabel xml:lang="en">Greenhouse gas mitigation</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Industrieel ontwerpen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Industrial design</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23233">
+        <skos:prefLabel xml:lang="en">Ophthalmology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Oogheelkunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23230"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D64000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:prefLabel xml:lang="en">Demography</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Demografie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21200">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:prefLabel xml:lang="en">Biophysics, clinical physics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Biofysica, klinische fysica</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14430">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14400"/>
+        <skos:prefLabel xml:lang="nl">Waterbouwkunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Hydraulic engineering</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13400">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Anorganische chemie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Inorganic chemistry</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D34200">
+        <skos:prefLabel xml:lang="en">Middle Ages</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D34000"/>
+        <skos:prefLabel xml:lang="nl">Middeleeuwen</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23360">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Age-related medical specialisms</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <skos:prefLabel xml:lang="nl">Leeftijdgebonden specialismen</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36500">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Baltische en Slavische taal- en letterkunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">
+            Baltic and Slavonic language and literature studies
+        </skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14310">
+        <skos:prefLabel xml:lang="nl">Telecommunicatietechniek</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Telecommunication engineering</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14300"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14210">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Technical mechanics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Technische mechanica</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14200"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18140">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18100"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Nature and landscape</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Natuur en landschap</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D40000">
+        <skos:prefLabel xml:lang="en">Law and Public Administration</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Recht en bestuur</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36300">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Germaanse taal- en letterkunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Germanic language and literature studies</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D61000">
+        <skos:prefLabel xml:lang="en">Sociology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Sociologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E18000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Biobased economy</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Biobased economy</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16100">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Computersystemen, architecturen, netwerken</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Computer systems, architectures, networks</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23130">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Allergieën</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23100"/>
+        <skos:prefLabel xml:lang="en">Allergology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11000">
+        <skos:prefLabel xml:lang="en">Mathematics</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Wiskunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14300">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <skos:prefLabel xml:lang="nl">Elektrotechniek</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Electrical engineering</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23100">
+        <skos:prefLabel xml:lang="nl">Pathologie, pathologische anatomie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Pathology, pathological anatomy</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23390">
+        <skos:prefLabel xml:lang="nl">Arbeidsgeneeskunde, bedrijfsgeneeskunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Occupational medicine</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18240">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Forestry</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Bosbouw</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18200"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23140">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23100"/>
+        <skos:prefLabel xml:lang="nl">Trauma's</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Traumatology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23227">
+        <skos:prefLabel xml:lang="en">Urology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Urologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13300">
+        <skos:prefLabel xml:lang="nl">Organische chemie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Organic chemistry</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23350">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <skos:prefLabel xml:lang="en">Psychiatry, clinical psychology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Psychiatrie, medische psychologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D70100">
+        <skos:prefLabel xml:lang="nl">Personeelwetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Personnel administration and management</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D70000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18250">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18200"/>
+        <skos:prefLabel xml:lang="nl">Agrarische technologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Agriculturural technology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23310">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Chirurgie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Surgery</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22300">
+        <skos:prefLabel xml:lang="en">Animal ethology, animal psychology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Diergedrag, dierpsychologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D24100">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Nursing sciences</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Verpleegkunde</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D24000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23200">
+        <skos:prefLabel xml:lang="en">Organs and organ systems</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Organen en orgaansystemen</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D25000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <skos:prefLabel xml:lang="nl">Bewegingswetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Kinesiology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <skos:prefLabel xml:lang="en">Biology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Biologie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D40000"/>
+        <skos:prefLabel xml:lang="en">Science of law</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Rechtswetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11100">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Logic, set theory and arithmetic</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Logica, verzamelingen- en getallenleer</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D10000">
+        <skos:prefLabel xml:lang="nl">Natuurwetenschappen en techniek</skos:prefLabel>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Science and technology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D30100">
+        <skos:prefLabel xml:lang="en">Digital humanities</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Digital humanities</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:prefLabel xml:lang="en">Physiology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Fysiologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14441">
+        <skos:prefLabel xml:lang="en">Drinking water supply</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14440"/>
+        <skos:prefLabel xml:lang="nl">Drinkwatervoorziening</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14620">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14600"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Ingenieursgeologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Engineering geology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E16000">
+        <skos:prefLabel xml:lang="nl">Nanotechnologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Nanotechnology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12400">
+        <skos:prefLabel xml:lang="nl">Fysica van elementaire deeltjes en kernfysica</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Elementary particle physics and nuclear physics</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35500">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D35000"/>
+        <skos:prefLabel xml:lang="nl">Architectuur en objecten</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Architecture and building construction</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23230">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">
+            Neurologie, keel- neus- en oorheelkunde, oogheelkunde
+        </skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Neurology, Otorhinolaryngology, Ophthalmology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23200"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D63000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Cultural anthropology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Culturele antropologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D24200">
+        <skos:prefLabel xml:lang="en">Health education, prevention</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D24000"/>
+        <skos:prefLabel xml:lang="nl">Preventieve gezondheidszorg, GVO</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D34300">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Modern and contemporary history</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Moderne en contemporaine geschiedenis</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D34000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32100">
+        <skos:prefLabel xml:lang="en">History and philosophy of science and technology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">
+            Geschiedenis en filosofie van natuurwetenschappen en techniek
+        </skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D32000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21300">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:prefLabel xml:lang="nl">Biochemie, moleculaire biologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Biochemistry, molecular biology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23211">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23210"/>
+        <skos:prefLabel xml:lang="en">Dermatology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Dermatologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15100">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Geochemie, geofysica</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+        <skos:prefLabel xml:lang="en">Geochemistry, geophysics</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23363">
+        <skos:prefLabel xml:lang="nl">Geriatrie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23360"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Geriatrics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14440">
+        <skos:prefLabel xml:lang="nl">Gezondheidstechniek</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Sanitary engineering</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14400"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21600">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Anatomie, morfologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Anatomy, morphology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D24000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D20000"/>
+        <skos:prefLabel xml:lang="en">Health sciences</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Gezondheidswetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D51000">
+        <skos:prefLabel xml:lang="nl">Psychologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Psychology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D50000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32000">
+        <skos:prefLabel xml:lang="nl">Wijsbegeerte</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Philosophy</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14900">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Technology assessment</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Technology assessment</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13500">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Physical chemistry</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+        <skos:prefLabel xml:lang="nl">Fysische chemie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35400">
+        <skos:prefLabel xml:lang="nl">Mediawetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D35000"/>
+        <skos:prefLabel xml:lang="en">Media sciences</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23380">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">
+            Eerstelijnsgeneeskunde (inclusief huisartsgeneeskunde)
+        </skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Primary care (including General practice)</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11200">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Algebra, group theory</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Algebra, groepentheorie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13100">
+        <skos:prefLabel xml:lang="nl">Analytische chemie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Analytical chemistry</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14100">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Materials technology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <skos:prefLabel xml:lang="nl">Materiaalkunde</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:prefLabel xml:lang="en">Agriculture and the physical environment</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Landbouw en beheer van het fysieke milieu</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18210">
+        <skos:prefLabel xml:lang="nl">Landbouw en tuinbouw</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18200"/>
+        <skos:prefLabel xml:lang="en">Agriculture and horticulture</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18100">
+        <skos:prefLabel xml:lang="en">
+            Exploitation and management of the physical environment
+        </skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Exploitatie en beheer van het fysieke milieu</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D66000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Communication sciences</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Communicatiewetenschap</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Theoretische chemie, kwantumchemie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Theoretical chemistry, quantum chemistry</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22600">
+        <skos:prefLabel xml:lang="en">Zoology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+        <skos:prefLabel xml:lang="nl">Dierkunde</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Chemistry</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Scheikunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14220">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14200"/>
+        <skos:prefLabel xml:lang="en">Engines, energy converters</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Machines, energie-omzetters</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41200">
+        <skos:prefLabel xml:lang="en">Private (procedural) law</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Burgerlijk (proces) recht</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12100">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Metrology, scientific instrumentation</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">
+            Meten, ontwikkeling van wetenschappelijke apparatuur
+        </skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11400">
+        <skos:prefLabel xml:lang="en">Fourier analysis, functional analysis</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Fourieranalyse, functionaalanalyse</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D53000">
+        <skos:prefLabel xml:lang="en">Gerontology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D50000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Gerontologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15600">
+        <skos:prefLabel xml:lang="en">Hydrospheric sciences</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Hydrosfeerwetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D42110">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Defensie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Defence</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D42100"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12200">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D12000"/>
+        <skos:prefLabel xml:lang="nl">Theoretische fysica, (kwantum)mechanica</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Theoretical physics, (quantum) mechanics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23214">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Orthopedie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Orthopaedics</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23210"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E13000">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Development studies</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Ontwikkelingsstudies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D12000">
+        <skos:prefLabel xml:lang="nl">Natuurkunde</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <skos:prefLabel xml:lang="en">Physics</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23370">
+        <skos:prefLabel xml:lang="en">Social medicine</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Sociale geneeskunde</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23222">
+        <skos:prefLabel xml:lang="en">Cardiovascular disorders</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Cardiovasculaire aandoeningen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14500">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Chemische technologie, procestechnologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Chemical technology, process technology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D41500">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Gemengde rechtsgebieden</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Interdisciplinary branches of law</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D41000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11800">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+        <skos:prefLabel xml:lang="nl">Numerieke analyse</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Numerical analysis</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23212">
+        <skos:prefLabel xml:lang="en">Venereology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23210"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Geslachtsziekten (SOA)</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23320">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Anesthesiology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Anesthesiologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23300"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14443">
+        <skos:prefLabel xml:lang="en">Waste treatment</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14440"/>
+        <skos:prefLabel xml:lang="nl">Afvalinzameling en afvalverwerking</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14530">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Fuel technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Brandstoftechnologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14500"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16600">
+        <skos:prefLabel xml:lang="en">Artificial intelligence, expert systems</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+        <skos:prefLabel xml:lang="nl">Kunstmatige intelligentie, expertsystemen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D11600">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Probability theory, statistics</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Waarschijnlijkheidsrekening en statistiek</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D11000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23226">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Nefrologie</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Nephrology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15500">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Atmospheric sciences</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Atmosfeerwetenschappen</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D33000">
+        <skos:prefLabel xml:lang="nl">Godgeleerdheid en religiewetenschappen</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Theology and religious studies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14510">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Inorganic chemical technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14500"/>
+        <skos:prefLabel xml:lang="nl">Anorganisch-chemische technologie</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23300">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Medical specialisms</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Niet-orgaangebonden specialismen</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D69000">
+        <skos:prefLabel xml:lang="nl">Gender studies</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Gender studies</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D60000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18230">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18200"/>
+        <skos:prefLabel xml:lang="en">Fisheries</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Visserij</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36900">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Taal- en letterkunde overige taalgroepen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">
+            Language and literature studies of other language groups
+        </skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D16300">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Theoretische informatica</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Theoretical computer science</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D16000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36100">
+        <skos:prefLabel xml:lang="nl">Linguïstiek</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Linguistics</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D36400">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Romaanse taal- en letterkunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Romance language and literature studies</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D36000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14540">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14500"/>
+        <skos:prefLabel xml:lang="en">Food technology</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Voedingsmiddelentechnologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/E15000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/E10000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Milieustudies</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Environmental studies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23240">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Dentistry</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Tandheelkunde</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23200"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35000">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Kunst- en cultuurwetenschappen</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <skos:prefLabel xml:lang="en">Arts and culture</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21800">
+        <skos:prefLabel xml:lang="en">Immunology, serology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:prefLabel xml:lang="nl">Immunologie, serologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21900">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+        <skos:prefLabel xml:lang="nl">Epidemiologie en medische statistiek</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Epidemiology and medical statistics</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23232">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">KNO</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Otorhinolaryngology</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23230"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23110">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23100"/>
+        <skos:prefLabel xml:lang="en">Infections, parasitology, virology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Infecties, parasitologie, virologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D17000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Sterrenkunde, astrofysica</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D10000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Astronomy, astrophysics</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D13600">
+        <skos:prefLabel xml:lang="en">Catalysis</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Katalyse</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D13000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D37000">
+        <skos:prefLabel xml:lang="en">Archaeology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Archeologie</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D30000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23221">
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+        <skos:prefLabel xml:lang="en">Blood and lymphatic diseases</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Bloed- en lymfeziekten</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14420">
+        <skos:prefLabel xml:lang="nl">Civiele techniek</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Civil engineering</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14400"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D35200">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Muziekwetenschappen</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Musicology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D35000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D32200">
+        <skos:prefLabel xml:lang="nl">
+            Geschiedenis en filosofie van de levenswetenschappen, ethiek, evolutiebiologie
+        </skos:prefLabel>
+        <skos:prefLabel xml:lang="en">
+            History and philosophy of the life sciences, ethics and evolution biology
+        </skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D32000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23223">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Gastrointestinal system</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23220"/>
+        <skos:prefLabel xml:lang="nl">Gastro-intestinaal systeem</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D18200">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="en">Plant production and animal production</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Plantaardige en dierlijke productie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D18000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D60000">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:topConceptOf rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Sociale wetenschappen</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Social sciences</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D15300">
+        <skos:prefLabel xml:lang="en">Physical geology</skos:prefLabel>
+        <skos:prefLabel xml:lang="nl">Fysische geologie</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D15000"/>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D21500">
+        <skos:prefLabel xml:lang="en">Histology, cell biology</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Histologie, celbiologie</skos:prefLabel>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D21000"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D14400">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D14000"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Bouwkunde, civiele techniek</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Civil engineering, building technology</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D23220">
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D23200"/>
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="nl">Inwendige geneeskunde</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Internal medicine</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://www.narcis.nl/classification/D22700">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+        <skos:prefLabel xml:lang="en">Toxicology (plants, invertebrates)</skos:prefLabel>
+        <skos:inScheme rdf:resource="https://www.narcis.nl/classification/"/>
+        <skos:prefLabel xml:lang="nl">Toxicologie (milieu)</skos:prefLabel>
+        <skos:broader rdf:resource="https://www.narcis.nl/classification/D22000"/>
+    </rdf:Description>
+</rdf:RDF>

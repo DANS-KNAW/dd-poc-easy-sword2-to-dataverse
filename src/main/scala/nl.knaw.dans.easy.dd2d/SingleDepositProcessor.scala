@@ -22,16 +22,18 @@ import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
 import org.json4s.{ DefaultFormats, Formats }
 
 import scala.util.Try
+import scala.xml.Elem
 
 class SingleDepositProcessor(deposit: File,
                              dansBagValidator: DansBagValidator,
                              dataverse: DataverseInstance,
                              autoPublish: Boolean = true,
                              publishAwaitUnlockMaxNumberOfRetries: Int,
-                             publishAwaitUnlockMillisecondsBetweenRetries: Int) {
+                             publishAwaitUnlockMillisecondsBetweenRetries: Int,
+                             narcisClassification: Elem) {
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
-    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries))
+    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries, narcisClassification))
     ingestTasks.process()
   }
 }

@@ -38,7 +38,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       dataverse,
       configuration.autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
-      configuration.publishAwaitUnlockMillisecondsBetweenRetries))
+      configuration.publishAwaitUnlockMillisecondsBetweenRetries,
+      configuration.narcisClassification))
 
   def checkPreconditions(): Try[Unit] = {
     for {
@@ -53,7 +54,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       dataverse,
       autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
-      configuration.publishAwaitUnlockMillisecondsBetweenRetries).process()
+      configuration.publishAwaitUnlockMillisecondsBetweenRetries,
+      configuration.narcisClassification).process()
   }
 
   def importDeposits(inbox: File, autoPublish: Boolean): Try[Unit] = {
@@ -62,7 +64,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       dataverse,
       autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
-      configuration.publishAwaitUnlockMillisecondsBetweenRetries)).process()
+      configuration.publishAwaitUnlockMillisecondsBetweenRetries,
+      configuration.narcisClassification)).process()
   }
 
   def start(): Try[Unit] = {

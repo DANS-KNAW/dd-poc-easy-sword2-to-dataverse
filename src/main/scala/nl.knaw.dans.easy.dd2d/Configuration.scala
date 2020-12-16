@@ -15,12 +15,13 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.net.URI
-
 import better.files.File
-import better.files.File.{ newTemporaryDirectory, root }
+import better.files.File.root
 import nl.knaw.dans.lib.dataverse.DataverseInstanceConfig
 import org.apache.commons.configuration.PropertiesConfiguration
+
+import java.net.URI
+import scala.xml.{ Elem, XML }
 
 case class Configuration(version: String,
                          inboxDir: File,
@@ -30,7 +31,8 @@ case class Configuration(version: String,
                          dataverse: DataverseInstanceConfig,
                          autoPublish: Boolean,
                          publishAwaitUnlockMaxNumberOfRetries: Int,
-                         publishAwaitUnlockMillisecondsBetweenRetries: Int
+                         publishAwaitUnlockMillisecondsBetweenRetries: Int,
+                         narcisClassification: Elem
                         )
 
 object Configuration {
@@ -45,6 +47,13 @@ object Configuration {
       setDelimiterParsingDisabled(true)
       load((cfgPath / "application.properties").toJava)
     }
+
+    val narcisClassificationPath = Seq(
+      root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "narcis_classification.xml",
+      home / "install" / "narcis_classification.xml")
+      .find(_.exists)
+      .getOrElse { throw new IllegalStateException("No Narcis Classification file found") }.canonicalPath
+    val narcisClassification = XML.loadFile(narcisClassificationPath)
 
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
@@ -64,7 +73,8 @@ object Configuration {
       ),
       autoPublish = properties.getString("deposits.auto-publish").toBoolean,
       publishAwaitUnlockMaxNumberOfRetries = properties.getInt("dataverse.publish.await-unlock-max-retries"),
-      publishAwaitUnlockMillisecondsBetweenRetries = properties.getInt("dataverse.publish.await-unlock-wait-time-ms")
+      publishAwaitUnlockMillisecondsBetweenRetries = properties.getInt("dataverse.publish.await-unlock-wait-time-ms"),
+      narcisClassification
     )
   }
 }

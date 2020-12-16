@@ -22,13 +22,13 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.util.Try
-import scala.xml.{ Node, NodeSeq }
+import scala.xml.{ Elem, Node, NodeSeq }
 
 /**
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat with BlockDataVaultMetadata {
+class DepositToDataverseMapper(narcisClassification: Elem) extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat with BlockDataVaultMetadata {
   lazy val citationFields = new ListBuffer[MetadataField]
   lazy val basicInformationFields = new ListBuffer[MetadataField]
   lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
@@ -69,7 +69,7 @@ class DepositToDataverseMapper() extends BlockCitation with BlockBasicInformatio
     addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_FILES_CV, (ddm \\ "language").filter(Language isISOLanguage), Language toBasicInformationBlockLanguageOfFiles)
     addCompoundFieldMultipleValues(basicInformationFields, DATE, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filter(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFormattedDateValueObject)
     addCompoundFieldMultipleValues(basicInformationFields, DATE_FREE_FORMAT, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filterNot(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFreeDateValue)
-//    addCompoundFieldWithControlledVocabulary(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv)
+    addCompoundFieldWithControlledVocabulary(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv(_, narcisClassification))
 
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)

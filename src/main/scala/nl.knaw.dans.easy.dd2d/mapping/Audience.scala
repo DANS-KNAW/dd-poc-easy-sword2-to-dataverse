@@ -17,7 +17,7 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import scala.xml.{ Node, XML }
+import scala.xml.{ Elem, Node, XML }
 
 /**
  * ddm:audience element with a NARCIS classification code in it.
@@ -44,10 +44,11 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
    * Creates a Map with Subject CV fields for a Compound Field
    *
    * @param node the audience element
+   * @param narcisClassification the Narcis classification
    * @return A JsonObject with Subject CV fields
    */
-  def toBasicInformationBlockSubjectCv(node: Node): Option[JsonObject] = {
-    val termAndUrl = getTermAndUrl(node)
+  def toBasicInformationBlockSubjectCv(node: Node, narcisClassification: Elem): Option[JsonObject] = {
+    val termAndUrl = getTermAndUrl(node, narcisClassification)
     termAndUrl.term match {
       case "" =>
         logger.error(s"Invalid controlled vocabulary term for 'Subject': $termAndUrl'")
@@ -65,10 +66,10 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
    * Gets term and url from the NARCIS classification
    *
    * @param node the audience element
+   * @param narcisClassification the Narcis classification
    * @return the Dataverse subject term and url
    */
-  private def getTermAndUrl(node: Node): TermAndUrl = {
-    val narcisClassification = XML.loadFile("src/main/resources/narcis_classification.xml")
+  private def getTermAndUrl(node: Node, narcisClassification: Elem): TermAndUrl = {
     val element = narcisClassification.child.filter(_.attributes.exists(_.value.text contains node.text))
     val term = element.headOption.flatMap(_.child.find(_.label == "prefLabel")).map(_.text).getOrElse("")
     val url = element.headOption.flatMap(_.attributes.value.headOption).getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString

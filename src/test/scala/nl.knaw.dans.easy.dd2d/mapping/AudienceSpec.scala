@@ -16,7 +16,11 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.TestSupportFixture
-import nl.knaw.dans.easy.dd2d.mapping.Audience.toCitationBlockSubject
+import nl.knaw.dans.easy.dd2d.mapping.Audience.{ toBasicInformationBlockSubjectCv, toCitationBlockSubject }
+import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField
+
+import scala.util.Success
+import scala.xml.XML
 
 class AudienceSpec extends TestSupportFixture {
 
@@ -30,4 +34,13 @@ class AudienceSpec extends TestSupportFixture {
     toCitationBlockSubject(audience) shouldBe Some("Other")
   }
 
+  "toBasicInformationBlockSubjectCv" should "return the correct Narcis classification" in {
+    val audience = <ddm:audience>D16</ddm:audience>
+    val narcisClassification = XML.loadFile("src/test/resources/narcis_classification.xml")
+    val result = toBasicInformationBlockSubjectCv(audience, narcisClassification)
+    inside(result) {
+      case Some(jsonObject) =>
+        jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, "https://www.narcis.nl/classification/D16800"))
+    }
+  }
 }
