@@ -40,18 +40,15 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
   )
 
   def toBasicInformationBlockLanguageOfFiles(node: Node): Option[JsonObject] = {
-    val isoLanguage = getISOLanguage(node)
-    isoLanguage match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Language of Files': '$isoLanguage'. Ignoring.")
-        None
-      case _ =>
+
+    iso639_2ToDataverse.get(node.text)
+      .map(isoLanguage => {
         val m = FieldMap()
         m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VALUE, isoLanguage)
         m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
         m.addPrimitiveField(LANGUAGE_OF_FILES_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + node.text)
-        Some(m.toJsonObject)
-    }
+        m.toJsonObject
+      })
   }
 
   def toBasicInformationLanguageOfMetadata(node: Node): Option[JsonObject] = {
@@ -59,26 +56,19 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
     val xmlLangAttribute = getXmlLangAttribute(node)
     //ISO 639-2: three letter country codes. Only these are resolvable when used in term url.
     val iso639_2LangAttribute = iso639_1ToIso639_2.getOrElse(xmlLangAttribute, "")
-    val isoLanguage = iso639_2ToDataverse.getOrElse(iso639_2LangAttribute, "")
-    isoLanguage match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata'")
-        None
-      case _ =>
+
+    iso639_2ToDataverse.get(iso639_2LangAttribute)
+      .map(isoLanguage => {
         val m = FieldMap()
         m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VALUE, isoLanguage)
         m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULARY, LANGUAGE_OF_FILES_CV_VOCABULARY_NAME)
         m.addPrimitiveField(LANGUAGE_OF_METADATA_CV_VOCABULART_URL, LANGUAGE_CV_ISO_639_2_URL + iso639_2LangAttribute)
-        Some(m.toJsonObject)
-    }
+        m.toJsonObject
+      }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Language of Metadata'"))
   }
 
   def isISOLanguage(node: Node): Boolean = {
     hasXsiType(node, "ISO639-2")
-  }
-
-  def getISOLanguage(node: Node): String = {
-    iso639_2ToDataverse.getOrElse(node.text, "")
   }
 
   def getXmlLangAttribute(ddm: Node): String = {

@@ -16,11 +16,12 @@
 package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledSingleValueField, MetadataField, PrimitiveSingleValueField }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.collection.mutable
 import scala.xml.Node
 
-package object mapping {
+package object mapping extends DebugEnhancedLogging {
   val XML_SCHEMA_INSTANCE_URI = "http://www.w3.org/2001/XMLSchema-instance"
 
   type JsonObject = Map[String, MetadataField]
@@ -55,4 +56,17 @@ package object mapping {
 
     def toJsonObject: JsonObject = fields.toMap
   }
+
+  implicit class OptionExtensions[T](val t: Option[T]) extends AnyVal {
+
+    def doIfNone[A](log: () => Unit): Option[T] = {
+      t match {
+        case Some(value) => Some(value)
+        case None =>
+          log()
+          None
+      }
+    }
+  }
 }
+

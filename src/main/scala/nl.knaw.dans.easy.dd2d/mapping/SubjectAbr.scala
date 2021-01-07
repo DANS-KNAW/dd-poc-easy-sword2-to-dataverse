@@ -119,18 +119,15 @@ object SubjectAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
   )
 
   def toSubjectAbrObject(node: Node): Option[JsonObject] = {
-    val abrSubject = ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse("")
-    abrSubject match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Subject (ABR Complex)': '$abrSubject'")
-        None
-      case _ =>
+    ariadneSubjectToDataversename
+      .get(node.text)
+      .map(_ => {
         val m = FieldMap()
-        m.addPrimitiveField(ABR_SUBJECT_VALUE, abrSubject)
+        m.addPrimitiveField(ABR_SUBJECT_VALUE, ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse(""))
         m.addPrimitiveField(ABR_SUBJECT_VOCABULARY, "ABR-complex")
         m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
-        Some(m.toJsonObject)
-    }
+        m.toJsonObject
+      }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Subject (ABR Complex)': ${ node.text }"))
   }
 
   def isNotEmpty(node: Node): Boolean = {

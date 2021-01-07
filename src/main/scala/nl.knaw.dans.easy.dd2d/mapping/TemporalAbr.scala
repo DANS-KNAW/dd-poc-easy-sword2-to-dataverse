@@ -79,18 +79,15 @@ object TemporalAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
   )
 
   def toTemporalAbr(node: Node): Option[JsonObject] = {
-    val abrTemporal = ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("")
-    abrTemporal match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Temporal (ABR Period)': $abrTemporal")
-        None
-      case _ =>
+    ariadneTemporalToDataversename
+      .get(node.text)
+      .map(_ => {
         val m = FieldMap()
         m.addPrimitiveField(ABR_PERIOD_VALUE, ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("Other"))
         m.addPrimitiveField(ABR_PERIOD_VOCABULARY, "ABR-periode")
         m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
-        Some(m.toJsonObject)
-    }
+        m.toJsonObject
+      }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Temporal (ABR Period)': ${ node.text }"))
   }
 
   def isNotEmpty(node: Node): Boolean = {

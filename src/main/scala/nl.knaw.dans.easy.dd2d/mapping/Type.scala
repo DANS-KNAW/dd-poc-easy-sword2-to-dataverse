@@ -21,37 +21,33 @@ import scala.xml.Node
 
 object Type extends BlockContentTypeAndFileFormat with DebugEnhancedLogging {
   //todo what values are allowed in ingest?
-  val dcmiTypes = Map(
-    "Collection" -> "Collection",
-    "Dataset" -> "Dataset",
-    "Event" -> "Event",
-    "Image" -> "Image",
-    "Interactive resource" -> "Interactive resource",
-    "Moving image" -> "Moving image",
-    "Physical object" -> "Physical object",
-    "Service" -> "Service",
-    "Software" -> "Software",
-    "Sound" -> "Sound",
-    "Still image" -> "Still image",
-    "Text" -> "Text"
+  val dcmiTypes = List(
+    "Collection",
+    "Dataset",
+    "Event",
+    "Image",
+    "Interactive resource",
+    "Moving image",
+    "Physical object",
+    "Service",
+    "Software",
+    "Sound",
+    "Still image",
+    "Text"
   )
 
   def toContentTypeAndFileFormatBlockType(node: Node): Option[JsonObject] = {
-    val contentType = getContentType(node)
-    contentType match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Content Type': '$contentType'")
-        None
-      case _ =>
-        val m = FieldMap()
-        m.addPrimitiveField(CONTENT_TYPE_CV_VALUE, contentType)
-        m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY, DCMI_TYPE)
-        m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY_URL, DCMI_TYPE_BASE_URL + contentType)
-        Some(m.toJsonObject)
+    val contentType = node.text
+    if (dcmiTypes.contains(contentType)) {
+      val m = FieldMap()
+      m.addPrimitiveField(CONTENT_TYPE_CV_VALUE, contentType)
+      m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY, DCMI_TYPE)
+      m.addPrimitiveField(CONTENT_TYPE_CV_VOCABULARY_URL, DCMI_TYPE_BASE_URL + contentType)
+      Some(m.toJsonObject)
     }
-  }
-
-  def getContentType(node: Node): String = {
-    dcmiTypes.getOrElse(node.text, "")
+    else {
+      logger.error(s"Invalid controlled vocabulary term for 'Content Type': '$contentType'")
+      None
+    }
   }
 }

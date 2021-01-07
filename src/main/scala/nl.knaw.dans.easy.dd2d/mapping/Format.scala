@@ -21,39 +21,34 @@ import scala.xml.Node
 
 object Format extends BlockContentTypeAndFileFormat with DebugEnhancedLogging {
 
-  val imtFormats = Map(
-    "application/postscript" -> "application/postscript",
-    "application/rtf" -> "application/rtf",
-    "application/pdf" -> "application/pdf",
-    "application/msword" -> "application/msword",
-    "text/plain" -> "text/plain",
-    "text/html" -> "text/html",
-    "text/sgml" -> "text/sgml",
-    "text/xml" -> "text/xml",
-    "image/jpeg" -> "image/jpeg",
-    "image/gif" -> "image/gif",
-    "image/tiff" -> "image/tiff",
-    "video/quicktime" -> "video/quicktime",
-    "video/mpeg1" -> "video/mpeg1"
+  val imtFormats = List(
+    "application/postscript",
+    "application/rtf",
+    "application/pdf",
+    "application/msword",
+    "text/plain",
+    "text/html",
+    "text/sgml",
+    "text/xml",
+    "image/jpeg",
+    "image/gif",
+    "image/tiff",
+    "video/quicktime",
+    "video/mpeg1"
   )
 
   def toContentTypeAndFileFormatBlockFormat(node: Node): Option[JsonObject] = {
-    // TODO: properly use Option[String] here and use Option.map instead of match construct
-    val contentFormat = getContentFormat(node)
-    contentFormat match {
-      case "" =>
-        logger.error(s"Invalid controlled vocabulary term for 'Format (Media Type)': '$contentFormat'")
-        None
-      case _ =>
-        val m = FieldMap()
-        m.addPrimitiveField(FORMAT_CV_VALUE, contentFormat)
-        m.addPrimitiveField(FORMAT_CV_VOCABULARY, DCMI_FORMAT)
-        m.addPrimitiveField(FORMAT_CV_VOCABUALRY_URL, DCMI_FORMAT_BASE_URL + contentFormat)
-        Some(m.toJsonObject)
+    val contentFormat = node.text
+    if (imtFormats.contains(contentFormat)) {
+      val m = FieldMap()
+      m.addPrimitiveField(FORMAT_CV_VALUE, node.text)
+      m.addPrimitiveField(FORMAT_CV_VOCABULARY, DCMI_FORMAT)
+      m.addPrimitiveField(FORMAT_CV_VOCABUALRY_URL, DCMI_FORMAT_BASE_URL + contentFormat)
+      Some(m.toJsonObject)
     }
-  }
-
-  def getContentFormat(node: Node): String = {
-    imtFormats.getOrElse(node.text, "")
+    else {
+      logger.error(s"Invalid controlled vocabulary term for 'Format (Media Type)': '$contentFormat'")
+      None
+    }
   }
 }
