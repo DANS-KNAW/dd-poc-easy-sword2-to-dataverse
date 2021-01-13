@@ -86,7 +86,7 @@ class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
   }
 
   private def removeDatasetsWithoutFirstVersion(firstVersions: baseIdToAllVersions, laterVersions: baseIdToAllVersions): baseIdToAllVersions = {
-    val datasetsWithoutFirstVersions = laterVersions.filter(k => firstVersions.contains(k._1))
+    val datasetsWithoutFirstVersions = laterVersions.filter(k => !firstVersions.contains(k._1))
     datasetsWithoutFirstVersions.foreach(v => logger.error(s"No first version was found for dataset ${ v._1 }. The dataset was not imported into Dataverse"))
     val correctVersions = for (k <- laterVersions if firstVersions.keySet.contains(k._1)) yield k
     correctVersions
