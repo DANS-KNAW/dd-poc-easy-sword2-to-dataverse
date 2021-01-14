@@ -72,7 +72,7 @@ object Language extends BlockBasicInformation with DebugEnhancedLogging {
   }
 
   def getXmlLangAttribute(ddm: Node): String = {
-    (ddm \\ "title").headOption.filter(_.attributes.nonEmpty).map(_.attributes).filter(_.key.contains("lang")).map(_.value).getOrElse("").toString
+    (ddm \\ "_").filter(_.attributes.nonEmpty).map(_.attributes).find(_.key.contains("lang")).map(_.value).getOrElse("").toString
   }
 
   def toCitationBlockLanguage(node: Node): Option[String] = {

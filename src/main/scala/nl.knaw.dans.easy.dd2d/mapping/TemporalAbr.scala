@@ -81,11 +81,11 @@ object TemporalAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
   def toTemporalAbr(node: Node): Option[JsonObject] = {
     ariadneTemporalToDataversename
       .get(node.text)
-      .map(_ => {
+      .map(item => {
         val m = FieldMap()
-        m.addPrimitiveField(ABR_PERIOD_VALUE, ariadneTemporalToDataversename.get(node.text).map(_.term).getOrElse("Other"))
+        m.addPrimitiveField(ABR_PERIOD_VALUE, item.term)
         m.addPrimitiveField(ABR_PERIOD_VOCABULARY, "ABR-periode")
-        m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, ariadneTemporalToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
+        m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URL, item.url)
         m.toJsonObject
       }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Temporal (ABR Period)': ${ node.text }"))
   }

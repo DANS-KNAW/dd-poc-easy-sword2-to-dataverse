@@ -59,11 +59,11 @@ package object mapping extends DebugEnhancedLogging {
 
   implicit class OptionExtensions[T](val t: Option[T]) extends AnyVal {
 
-    def doIfNone[A](log: () => Unit): Option[T] = {
+    def doIfNone[A](sideEffect: () => Unit): Option[T] = {
       t match {
         case Some(value) => Some(value)
         case None =>
-          log()
+          sideEffect()
           None
       }
     }

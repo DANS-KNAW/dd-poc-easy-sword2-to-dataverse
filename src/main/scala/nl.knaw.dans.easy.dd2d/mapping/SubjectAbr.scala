@@ -121,11 +121,11 @@ object SubjectAbr extends BlockArchaeologySpecific with DebugEnhancedLogging {
   def toSubjectAbrObject(node: Node): Option[JsonObject] = {
     ariadneSubjectToDataversename
       .get(node.text)
-      .map(_ => {
+      .map(item => {
         val m = FieldMap()
-        m.addPrimitiveField(ABR_SUBJECT_VALUE, ariadneSubjectToDataversename.get(node.text).map(_.term).getOrElse(""))
+        m.addPrimitiveField(ABR_SUBJECT_VALUE, item.term)
         m.addPrimitiveField(ABR_SUBJECT_VOCABULARY, "ABR-complex")
-        m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, ariadneSubjectToDataversename.get(node.text).map(_.url).getOrElse(ABR_BASE_URL))
+        m.addPrimitiveField(ABR_SUBJECT_VOCABULARY_URL, item.url)
         m.toJsonObject
       }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Subject (ABR Complex)': ${ node.text }"))
   }
