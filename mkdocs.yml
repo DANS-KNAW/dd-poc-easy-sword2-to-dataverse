@@ -24,6 +24,7 @@ repo_url: https://github.com/DANS-KNAW/dd-dans-deposit-to-dataverse
 
 nav:
   - Manual: index.md
+  - 'Deposit directory': deposit-directory.md
 
 plugins:
   - markdownextradata
