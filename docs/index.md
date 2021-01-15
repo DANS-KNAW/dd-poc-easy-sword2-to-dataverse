@@ -1,6 +1,6 @@
 dd-dans-deposit-to-dataverse
 ============================
-Imports DANS deposit directories into Dataverse datasets.
+Converts DANS deposit directories into Dataverse dataset-versions.
 
 SYNOPSIS
 --------
@@ -11,8 +11,51 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Service that watches an inbox directory for new deposit directories. Each deposit directory that appears is checked for conformity
-to DANS BagIt Profile (SIP) and subsequently added as a dataset to the configured Dataverse.
+### Ways to run the program
+Converts one or more [deposit directories](deposit-directory.md) into Dataverse dataset-versions. 
+The `import` subcommand will read the deposit directories currently present in the inbox specified
+as its argument, process those and then exit. When run as a service (`run-service`) the tool will 
+first enqueue all deposit directories found in the configured inbox (so those will be processed first),
+but then it will also process newly arriving deposit directories. 
+
+!!! note "Import vs deposit in future versions of the tool" 
+        
+    In the current version of the tool the processing of each deposit directory is the same for both
+    modes of operation. In the future this is likely to change, as we would want to leverage all the
+    capabilities of Dataverse's [import API](https://guides.dataverse.org/en/latest/api/native-api.html#import-a-dataset-into-a-dataverse){:target=__blank}
+    in the migration of datasets from EASY.
+
+### Order of deposits in `import`
+When using the `import` subcommand the deposits in the inbox are first put in the correct order. This order
+is based on the value of the `Created` element in the bag's `bag-info.txt` file. 
+
+### Processing of a deposit
+The processing of a deposit consists of the following steps:
+
+1. Check that the deposit is a valid [deposit directory](deposit-directory.md)
+2. Check that the bag in the deposit is a valid DANS bag.
+3. Map the dataset level metadata to the metadata fields expected in the target Dataverse.
+4. If:
+    * deposit represents first version of a dataset: create a new dataset draft
+    * deposit represents an update to an existing dataset: [draft a new version](#update-deposit)  
+5. Publish the new dataset-version if auto-publish is on.
+
+#### Update deposit
+<!--  How the update of the files is derived from the diff of latest published version and deposit  -->
+
+### Mapping to Dataverse dataset
+
+!!! note "Target Dataverse variations in mapping"
+
+    In the current version of the tool there is only one target Dataverse, and therefore only one set of
+    mapping rules. This will change in the future, as the target Dataverses will be different data stations   
+    with different requirements.
+
+#### Dataset level metadata
+Currently documented in a set of internal documents.
+
+#### File level metadata
+
 
 ARGUMENTS
 ---------

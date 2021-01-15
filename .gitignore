@@ -9,6 +9,7 @@
 /init-project.sh
 *.class
 *~
+.~*
 *.swp
 *.sc
 /*.iml

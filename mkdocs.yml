@@ -30,7 +30,9 @@ plugins:
   - markdownextradata
   - search
 
-extra: {}
+extra:
+  dans_bagit_profile: 'https://doi.org/10.17026/dans-z52-ybfe'
+  oais: 'https://public.ccsds.org/pubs/650x0m2.pdf'
   #TODO: aanvullen
 
 markdown_extensions:

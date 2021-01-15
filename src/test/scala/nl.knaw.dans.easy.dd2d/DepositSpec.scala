@@ -37,7 +37,7 @@ class DepositSpec extends TestSupportFixture {
   }
 
   it should "fail if it has no deposit.properties" in {
-    val file = testDirNonValid / "no-deposit-properties"
+    val file = testDirNonValid / "no-deposit-properties.ods"
     the[InvalidDepositException] thrownBy Deposit(file) should have message (s"Not a deposit: $file does not contain a deposit.properties file")
   }
 
