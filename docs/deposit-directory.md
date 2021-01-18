@@ -18,7 +18,11 @@ The overall layout of a deposit directory is summarized below. Simply put, it co
         │   ├── data
         │   │   └── file1.txt
         │   │       ...
-        │   └── sha1-manifest.txt
+        │   ├── metadata
+        │   │   └── dataset.xml
+        │   │       ...
+        │   ├── manifest-sha1.txt
+        │   └── tagmanifest-sha1.txt
         └── deposit.properties
 
 Bag
