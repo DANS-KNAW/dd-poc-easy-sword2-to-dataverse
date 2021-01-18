@@ -33,7 +33,7 @@ plugins:
 extra:
   dans_bagit_profile: 'https://doi.org/10.17026/dans-z52-ybfe'
   oais: 'https://public.ccsds.org/pubs/650x0m2.pdf'
-  #TODO: aanvullen
+  validate_dans_bag: 'https://dans-knaw.github.io/easy-validate-dans-bag/'
 
 markdown_extensions:
   - attr_list

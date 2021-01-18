@@ -29,6 +29,7 @@ Bag
 ---
 The bag contains all the data and metadata for a dataset-version to be created in the target Dataverse.
 It must conform to specifications of a SIP [^1] dans-bag as detailed in [DANS BagIt Profile]({{ dans_bagit_profile }}){:target=__blank}.
+This can be validated using the [Validate DANS Bag]({{ easy_validate_dans_bag }}){:target=__blank} tool.
 
 deposit.properties
 ------------------

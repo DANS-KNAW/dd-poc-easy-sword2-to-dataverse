@@ -69,7 +69,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
   }
 
   def start(): Try[Unit] = {
-    inboxWatcher.start()
+    inboxWatcher.start(Some(new DepositSorter()))
   }
 
   def stop(): Try[Unit] = {
