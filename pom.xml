@@ -31,7 +31,7 @@
 
     <name>DANS Deposit To Dataverse Service</name>
     <url>https://github.com/DANS-KNAW/dd-dans-deposit-to-dataverse</url>
-    <description>Imports DANS deposit directories into Dataverse datasets.</description>
+    <description>Converts DANS deposit directories into Dataverse dataset-versions.</description>
     <inceptionYear>2020</inceptionYear>
 
     <properties>
