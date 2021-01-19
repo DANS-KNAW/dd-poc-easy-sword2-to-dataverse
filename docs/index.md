@@ -45,8 +45,10 @@ The processing of a deposit consists of the following steps:
     * deposit represents an update to an existing dataset: [draft a new version](#update-deposit)  
 5. Publish the new dataset-version if auto-publish is on.
 
-<!-- TODO: document how the contact info determined -->
+!!! note "Contact info"
 
+    In the current version of the tool the contact information is always that of the dataverseAdmin account.
+    This is a temporary solution and will change once the relevant requirements have been analysed.
 
 #### Update deposit
 When receiving a deposit that specifies a new version for an exsiting dataset (an update-deposit) the assumption
@@ -86,7 +88,32 @@ is that the bag contains the metadata and file data that must be in the new vers
 Currently documented in a set of internal documents.
 
 #### File level metadata
+The file level metadata is derived from the deposit as follows:
 
+From `<bag>/metadata/files.xml` the corresponding `<file>` element is looked up:
+  
+  * The directory part of the `filepath` attribute is used for `directoryLabel`
+  * The filename part is used as the file name.
+  * The first description element found is used as the description attribute in Dataverse.
+  * If an `<accessibleToRights>` element is found then the dataset's accessibility is based on
+    the value in it:
+
+    accessibleToRights  | Restrict?
+    --------------------|---------------------------------
+    `KNOWN`             |  Yes
+    `NONE`              |  Yes
+    `RESTRICTED_REQUEST`|  Yes
+    `ANONYMOUS`         |  No
+
+    Otherwise the dataset's accessibility is based on the `<ddm:accessRights>` value found in
+    `<bag>/metadata/dataset.xml`: 
+
+    accessRights        | Restrict?
+    --------------------|---------------------------------
+    `OPEN_ACCESS_FOR_REGISTERED_USERS`|  Yes
+    `NO_ACCESS`              |  Yes
+    `REQUEST_PERMISSION`     |  Yes
+    `OPEN_ACCESS`            |  No
 
 ARGUMENTS
 ---------
