@@ -89,7 +89,7 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
 
     Option(narcisToSubject
       .find { case (k, _) => node.text.startsWith(k) }
-      .getOrElse(("", "Other"))
-      ._2)
+      .map(_._2)
+      .getOrElse("Other"))
   }
 }
