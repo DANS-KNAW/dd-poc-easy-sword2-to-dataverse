@@ -84,6 +84,13 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
    * @return the Dataverse subject term
    */
   def toCitationBlockSubject(node: Node): Option[String] = {
-    Option(narcisToSubject.getOrElse(node.text, "Other"))
+    if (!node.text.matches("""^[D|E]\d{5}$""")) {
+      throw new RuntimeException("NARCIS classification code format incorrect")
+    }
+
+    Option(narcisToSubject
+      .find { case (k, _) => node.text.startsWith(k) }
+      .getOrElse(("", "Other"))
+      ._2)
   }
 }
