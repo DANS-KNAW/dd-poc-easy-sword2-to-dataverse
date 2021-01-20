@@ -18,11 +18,11 @@ package nl.knaw.dans.easy.dd2d.mapping
 import nl.knaw.dans.easy.dd2d.TestSupportFixture
 import nl.knaw.dans.easy.dd2d.mapping.Audience.{ toBasicInformationBlockSubjectCv, toCitationBlockSubject }
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField
+import org.scalatest.prop.TableDrivenPropertyChecks
 
-import scala.util.Success
 import scala.xml.XML
 
-class AudienceSpec extends TestSupportFixture {
+class AudienceSpec extends TestSupportFixture with TableDrivenPropertyChecks {
 
   "toCitationBlockSubject" should "map the audience code to correct subject" in {
     val audience = <ddm:audience>D16</ddm:audience>
@@ -34,13 +34,33 @@ class AudienceSpec extends TestSupportFixture {
     toCitationBlockSubject(audience) shouldBe Some("Other")
   }
 
-  "toBasicInformationBlockSubjectCv" should "return the correct Narcis classification" in {
-    val audience = <ddm:audience>D16</ddm:audience>
+  "toBasicInformationBlockSubjectCv" should "return the correct Narcis classifications" in {
+    val narcisClassifications = Table(
+      ("audience", "classification"),
+      ("D11", "D11300"),
+      ("D12", "D12300"),
+      ("D13", "D13200"),
+      ("D14", "D14200"),
+      ("D16", "D16800"),
+      ("D17", "D17000"),
+      ("D18", "D18110"),
+      ("D2", "D20000"),
+      ("D3", "D36000"),
+      ("D4", "D42100"),
+      ("D6", "D65000"),
+      ("D7", "D70000"),
+      ("E15", "E15000"),
+    )
+
     val narcisClassification = XML.loadFile("src/test/resources/narcis_classification.xml")
-    val result = toBasicInformationBlockSubjectCv(audience, narcisClassification)
-    inside(result) {
-      case Some(jsonObject) =>
-        jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, "https://www.narcis.nl/classification/D16800"))
+
+    forAll(narcisClassifications) { (audience, classification) =>
+      val audienceNode = <ddm:audience>{audience}</ddm:audience>
+      val result = toBasicInformationBlockSubjectCv(audienceNode, narcisClassification)
+      inside(result) {
+        case Some(jsonObject) =>
+          jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, s"https://www.narcis.nl/classification/$classification"))
+      }
     }
   }
 }
