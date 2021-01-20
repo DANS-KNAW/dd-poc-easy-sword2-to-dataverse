@@ -66,12 +66,11 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
    * @return the Dataverse subject term and url or None
    */
   private def getTermAndUrl(node: Node, narcisClassification: Elem): Option[TermAndUrl] = {
-    narcisClassification
-      .child
+    (narcisClassification \ "Description")
       .find(_.attributes.exists(_.value.text contains node.text))
       .map(description => {
-        val term = description.headOption.flatMap(_.child.find(_.label == "prefLabel")).map(_.text).getOrElse("")
-        val url = description.headOption.flatMap(_.attributes.value.headOption).getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString
+        val term = (description \ "prefLabel").find(_.attributes.exists(_.value.text == "en")).map(_.text).getOrElse("")
+        val url = description.attributes.value.headOption.getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString
         TermAndUrl(term, url)
       })
   }
