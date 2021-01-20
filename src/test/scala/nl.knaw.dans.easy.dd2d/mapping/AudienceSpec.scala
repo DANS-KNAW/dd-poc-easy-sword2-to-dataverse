@@ -24,42 +24,54 @@ import scala.xml.XML
 
 class AudienceSpec extends TestSupportFixture with TableDrivenPropertyChecks {
 
-  "toCitationBlockSubject" should "map the audience code to correct subject" in {
-    val audience = <ddm:audience>D16</ddm:audience>
-    toCitationBlockSubject(audience) shouldBe Some("Computer and Information Science")
+  "toCitationBlockSubject" should "map the audience codes to correct subjects" in {
+    val narcisAudiences = Table(
+      ("audience", "subject"),
+      ("D11000", "Mathematical Sciences"),
+      ("D12000", "Physics"),
+      ("D13000", "Chemistry"),
+      ("D14000", "Engineering"),
+      ("D16000", "Computer and Information Science"),
+      ("D17000", "Astronomy and Astrophysics"),
+      ("D18000", "Agricultural Sciences"),
+      ("D20000", "Medicine, Health and Life Sciences"),
+      ("D30000", "Arts and Humanities"),
+      ("D40000", "Law"),
+      ("D60000", "Social Sciences"),
+      ("D70000", "Business and Management"),
+      ("E15000", "Earth and Environmental Sciences"),
+    )
+
+    forAll(narcisAudiences) { (audience, subject) =>
+      val audienceNode = <ddm:audience>{audience}</ddm:audience>
+      toCitationBlockSubject(audienceNode) shouldBe Some(subject)
+    }
   }
 
   it should "map unknown audience codes to 'Other'" in {
-    val audience = <ddm:audience>UNKNOWN</ddm:audience>
+    val audience = <ddm:audience>D99999</ddm:audience>
     toCitationBlockSubject(audience) shouldBe Some("Other")
   }
 
   "toBasicInformationBlockSubjectCv" should "return the correct Narcis classifications" in {
-    val narcisClassifications = Table(
-      ("audience", "classification"),
-      ("D11", "D11300"),
-      ("D12", "D12300"),
-      ("D13", "D13200"),
-      ("D14", "D14200"),
-      ("D16", "D16800"),
-      ("D17", "D17000"),
-      ("D18", "D18110"),
-      ("D2", "D20000"),
-      ("D3", "D36000"),
-      ("D4", "D42100"),
-      ("D6", "D65000"),
-      ("D7", "D70000"),
-      ("E15", "E15000"),
+    val narcisAudiences = Table(
+      ("audience", "term"),
+      ("D11300", "Functions, differential equations"),
+      ("D42100", "Political science"),
+      ("D65000", "Urban and rural planning"),
+      ("E15000", "Environmental studies")
     )
 
     val narcisClassification = XML.loadFile("src/test/resources/narcis_classification.xml")
 
-    forAll(narcisClassifications) { (audience, classification) =>
+    forAll(narcisAudiences) { (audience, term) =>
       val audienceNode = <ddm:audience>{audience}</ddm:audience>
       val result = toBasicInformationBlockSubjectCv(audienceNode, narcisClassification)
       inside(result) {
         case Some(jsonObject) =>
-          jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, s"https://www.narcis.nl/classification/$classification"))
+          jsonObject.get("subjectCvValue") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvValue", false, term))
+          jsonObject.get("subjectCvVocabulary") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabulary", false, "NARCIS classification"))
+          jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, s"https://www.narcis.nl/classification/$audience"))
       }
     }
   }
