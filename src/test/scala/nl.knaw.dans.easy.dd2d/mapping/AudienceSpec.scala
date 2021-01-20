@@ -53,7 +53,14 @@ class AudienceSpec extends TestSupportFixture with TableDrivenPropertyChecks {
     toCitationBlockSubject(audience) shouldBe Some("Other")
   }
 
-  "toBasicInformationBlockSubjectCv" should "return the correct Narcis classifications" in {
+  it should "throw a RuntimeException for an invalid NARCIS audience code" in {
+    val audience = <ddm:audience>INVALID</ddm:audience>
+    assertThrows[RuntimeException] {
+      toCitationBlockSubject(audience)
+    }
+  }
+
+  "toBasicInformationBlockSubjectCv" should "return the correct NARCIS classifications" in {
     val narcisAudiences = Table(
       ("audience", "term"),
       ("D11300", "Functions, differential equations"),
