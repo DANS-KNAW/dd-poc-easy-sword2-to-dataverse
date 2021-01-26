@@ -33,6 +33,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
   private val inboxWatcher =
     new InboxWatcher(new Inbox(configuration.inboxDir,
       dansBagValidator,
+      isImport = false,
       dataverse,
       configuration.autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
@@ -87,6 +88,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       val result =
         new InboxProcessor(new Inbox(inbox,
           dansBagValidator,
+          isImport = true,
           dataverse,
           autoPublish,
           configuration.publishAwaitUnlockMaxNumberOfRetries,

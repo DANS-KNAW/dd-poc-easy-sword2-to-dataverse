@@ -33,7 +33,7 @@ class SingleDepositProcessor(deposit: File,
                              narcisClassification: Elem) {
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
-    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries, narcisClassification))
+    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, isImport = true, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries, narcisClassification))
     ingestTasks.process()
   }
 }

@@ -31,27 +31,27 @@ class DepositIngestTaskSortSpec extends TestSupportFixture with MockFactory {
   val taskList: List[DepositIngestTask] = depositDirs.map(createDepositIngestTask).toList
   val DATASETVERSIONS_WITHOUT_FIRST_VERSION = 1
 
-  private def dirNameToUrnUuid(name: String): String = s"urn:uuid:${name}"
+  private def dirNameToUrnUuid(name: String): String = s"urn:uuid:${ name }"
 
-// TODO: rewrite tests so that urn:uuid is used as deposit ID and not an arbitrary string/dirname
-//  "The result" should "be a list with size" + (depositDirs.size - DATASETVERSIONS_WITHOUT_FIRST_VERSION) in {
-//    val result = depositSorter.sort(taskList)
-//    result should have size depositDirs.size - DATASETVERSIONS_WITHOUT_FIRST_VERSION
-//  }
-//
-//  it should "contain ordered versions of a Dataset" in {
-//    val result = depositSorter.sort(taskList)
-//    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit1_first", "deposit1_a", "deposit1_b")
-//    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit2_first", "deposit2_a")
-//    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit3_first", "deposit3_a", "deposit3_b")
-//  }
-//
-//  it should "not contain wrongly ordered versions of a Dataset" in {
-//    val result = depositSorter.sort(taskList)
-//    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) shouldNot contain inOrder("deposit1_b", "deposit1_a", "deposit1_first")
-//  }
+  // TODO: rewrite tests so that urn:uuid is used as deposit ID and not an arbitrary string/dirname
+  //  "The result" should "be a list with size" + (depositDirs.size - DATASETVERSIONS_WITHOUT_FIRST_VERSION) in {
+  //    val result = depositSorter.sort(taskList)
+  //    result should have size depositDirs.size - DATASETVERSIONS_WITHOUT_FIRST_VERSION
+  //  }
+  //
+  //  it should "contain ordered versions of a Dataset" in {
+  //    val result = depositSorter.sort(taskList)
+  //    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit1_first", "deposit1_a", "deposit1_b")
+  //    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit2_first", "deposit2_a")
+  //    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) should contain inOrder("deposit3_first", "deposit3_a", "deposit3_b")
+  //  }
+  //
+  //  it should "not contain wrongly ordered versions of a Dataset" in {
+  //    val result = depositSorter.sort(taskList)
+  //    result.map(_.getTarget.dir.name).map(dirNameToUrnUuid) shouldNot contain inOrder("deposit1_b", "deposit1_a", "deposit1_first")
+  //  }
 
   private def createDepositIngestTask(directory: File): DepositIngestTask = {
-    DepositIngestTask(Deposit(directory), dansBagValidator, dataverseInstance, publish = false, 3, 500, null)
+    DepositIngestTask(Deposit(directory), dansBagValidator, isImport = false, dataverseInstance, publish = false, 3, 500, null)
   }
 }

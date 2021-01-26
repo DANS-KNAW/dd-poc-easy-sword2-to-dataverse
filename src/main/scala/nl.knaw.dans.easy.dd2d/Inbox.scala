@@ -32,13 +32,14 @@ import scala.xml.Elem
  */
 class Inbox(dir: File,
             dansBagValidator: DansBagValidator,
+            isImport: Boolean = true,
             dataverse: DataverseInstance, autoPublish: Boolean = true,
             publishAwaitUnlockMaxNumberOfRetries: Int,
             publishAwaitUnlockMillisecondsBetweenRetries: Int,
             narcisClassification: Elem) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
   override def createTask(f: File): Option[DepositIngestTask] = {
     try {
-      Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries,narcisClassification))
+      Some(DepositIngestTask(Deposit(f), dansBagValidator, isImport, dataverse, autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries,narcisClassification))
     }
     catch {
       case e: InvalidDepositException =>
