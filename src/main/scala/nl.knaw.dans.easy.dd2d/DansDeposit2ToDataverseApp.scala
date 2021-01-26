@@ -48,7 +48,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
 
   def importSingleDeposit(deposit: File, autoPublish: Boolean): Try[Unit] = {
     val workflowDisabler = new WorkflowDisabler(dataverse)
-    val tryMemo = workflowDisabler.disableDefaultWorkflows(List("PrePublishDataset"))
+    val tryMemo = workflowDisabler.disableDefaultWorkflows(configuration.importDisableWorkflows)
     if (tryMemo.isFailure) {
       logger.error("Failed to disable one or more workflows!")
       tryMemo.map(_ => ())
@@ -73,7 +73,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
 
   def importDeposits(inbox: File, autoPublish: Boolean): Try[Unit] = {
     val workflowDisabler = new WorkflowDisabler(dataverse)
-    val tryMemo = workflowDisabler.disableDefaultWorkflows(List("PrePublishDataset"))
+    val tryMemo = workflowDisabler.disableDefaultWorkflows(configuration.importDisableWorkflows)
     if (tryMemo.isFailure) {
       logger.error("Failed to disable one or more workflows!")
       tryMemo.map(_ => ())
