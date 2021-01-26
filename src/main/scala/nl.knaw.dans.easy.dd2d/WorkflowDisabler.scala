@@ -15,11 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.dataverse.{ DataverseException, DataverseInstance }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 class WorkflowDisabler(instance: DataverseInstance) extends DebugEnhancedLogging {
   type DisabledWorkflowsMemo = Map[String, Int]
@@ -28,7 +28,7 @@ class WorkflowDisabler(instance: DataverseInstance) extends DebugEnhancedLogging
     trace(triggerTypesToDisable)
     for {
       triggerTypeToId <- triggerTypesToDisable.map(getTriggerTypeToWorkflowId).collectResults.map(_.filter(_.isDefined).map(_.get).toMap)
-      _ = triggerTypeToId.keys.map(unsetDefaultWorkflow)
+      _ <- triggerTypeToId.keys.map(unsetDefaultWorkflow).collectResults
     } yield triggerTypeToId
   }
 
@@ -44,7 +44,21 @@ class WorkflowDisabler(instance: DataverseInstance) extends DebugEnhancedLogging
   }
 
   private def unsetDefaultWorkflow(triggerType: String): Try[Unit] = {
-    instance.admin().unsetDefaultWorkflow(triggerType).map(_ => logger.info(s"Disabled default workflow for trigger type: $triggerType"))
+    for {
+      _ <- instance.admin().unsetDefaultWorkflow(triggerType)
+      _ <- checkDefaultWorkflowRemoved(triggerType)
+      _ = logger.info(s"Disabled default workflow for trigger type $triggerType")
+    } yield ()
+  }
+
+  private def checkDefaultWorkflowRemoved(triggerType: String): Try[Unit] = {
+    instance.admin().getDefaultWorkflow(triggerType).map(_ => ())
+      .recoverWith {
+        case e: DataverseException if e.status == 404 =>
+          logger.debug(s"Double checked that default workflow for trigger type $triggerType is currently not set")
+          Success(())
+        case e => Failure(e)
+      }
   }
 
   def restoreDefaultWorkflows(disabledWorkflowsMemo: DisabledWorkflowsMemo): Try[Unit] = {
