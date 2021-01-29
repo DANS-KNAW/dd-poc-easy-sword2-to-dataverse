@@ -37,29 +37,29 @@ class DepositToDataverseMapper(narcisClassification: Elem) extends BlockCitation
   lazy val contentTypeAndFileFormatFields = new ListBuffer[MetadataField]
 
   def toDataverseDataset(ddm: Node, contactData: CompoundField, vaultMetadata: VaultMetadata): Try[Dataset] = Try {
-    // Please keep ordered by order in Dataverse UI as much as possible
+    // Please, keep ordered by order in Dataverse UI as much as possible (note, if display-on-create is not set for all fields, some may be hidden initally)
 
-    // TODO: if a single value is expected, the first encountered will be used; is this OK? Add checks on multiplicity before processing?
+    val titles = ddm \ "profile" \ "title"
 
     // Citation
-    addPrimitiveFieldSingleValue(citationFields, TITLE, ddm \ "profile" \ "title")
+    addPrimitiveFieldSingleValue(citationFields, TITLE, titles.head)
+    addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, ddm \ "dcmiMetadata" \ "alternative")
     addCompoundFieldMultipleValues(citationFields, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
     citationFields.append(contactData)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, titles.tail, Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "dcmiMetadata" \ "alternativeTitle" , Description toDescriptionValueObject)
 
-    // TODO: creator unstructured
-    addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
-    addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language toCitationBlockLanguage)
-    addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, ddm \ "dcmiMetadata" \ "alternative")
-    addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
+    addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
     addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "author", DcxDaiAuthor toContributorValueObject)
     addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "organization", DcxDaiOrganization toContributorValueObject)
-    // TODO: contributor unstructured
+    addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
+    addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
 
     // Basic information
     addCompoundFieldWithControlledVocabulary(basicInformationFields, LANGUAGE_OF_METADATA_CV, ddm, Language toBasicInformationLanguageOfMetadata)
@@ -85,7 +85,6 @@ class DepositToDataverseMapper(narcisClassification: Elem) extends BlockCitation
     addCompoundFieldWithControlledVocabulary(contentTypeAndFileFormatFields, FORMAT_CV, ddm \\ "format", Format toContentTypeAndFileFormatBlockFormat)
 
     // Data vault
-    addVaultValue(dataVaultFields, DATAVERSE_PID, vaultMetadata.dataversePid)
     addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)
     addVaultValue(dataVaultFields, NBN, vaultMetadata.dataverseNbn)
     addVaultValue(dataVaultFields, DANS_OTHER_ID, vaultMetadata.dataverseOtherId)

@@ -19,11 +19,13 @@ import scala.xml.Node
 
 object DcxDaiOrganization extends Contributor with BlockCitation {
   private case class Organization(name: Option[String],
-                                  role: Option[String])
+                                  isni: Option[String],
+                                  viaf: Option[String])
 
   private def parseOrganization(node: Node): Organization = {
     Organization(name = (node \ "name").map(_.text).headOption,
-      role = (node \ "role").map(_.text).headOption)
+      isni = (node \ "ISNI").map(_.text).headOption,
+      viaf = ((node \ "VIAF").map(_.text).headOption))
   }
 
   def toContributorValueObject(node: Node): JsonObject = {
@@ -31,9 +33,6 @@ object DcxDaiOrganization extends Contributor with BlockCitation {
     val organization = parseOrganization(node)
     if (organization.name.isDefined) {
       m.addPrimitiveField(CONTRIBUTOR_NAME, organization.name.get)
-    }
-    if (organization.role.isDefined) {
-      m.addCvField(CONTRIBUTOR_TYPE, organization.role.map(contributoreRoleToContributorType.getOrElse(_, "Other")).getOrElse("Other"))
     }
     m.toJsonObject
   }
@@ -43,6 +42,14 @@ object DcxDaiOrganization extends Contributor with BlockCitation {
     val organization = parseOrganization(node)
     if (organization.name.isDefined) {
       m.addPrimitiveField(AUTHOR_NAME, organization.name.get)
+    }
+    if (organization.isni.isDefined) {
+      m.addPrimitiveField(AUTHOR_IDENTIFIER_SCHEME, "ISNI")
+      m.addPrimitiveField(AUTHOR_IDENTIFIER, organization.isni.get)
+    }
+    if (organization.viaf.isDefined) {
+      m.addPrimitiveField(AUTHOR_IDENTIFIER_SCHEME, "VIAF")
+      m.addPrimitiveField(AUTHOR_IDENTIFIER, organization.viaf.get)
     }
     m.toJsonObject
   }

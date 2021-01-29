@@ -41,4 +41,26 @@ class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
     val result = Serialization.writePretty(DcxDaiOrganization.toContributorValueObject(organization))
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Other"
   }
+
+  "toAuthorValueObject" should "use organization name as author name" in {
+    val organization =
+      <dcx-dai:organization>
+          <dcx-dai:name xml:lang="en">Anti-Vampire League</dcx-dai:name>
+      </dcx-dai:organization>
+    val result = Serialization.writePretty(DcxDaiOrganization.toAuthorValueObject(organization))
+    findString(result, s"$AUTHOR_NAME.value") shouldBe "Anti-Vampire League"
+  }
+
+  it should "use ISNI if present" in {
+    val organization =
+      <dcx-dai:organization>
+          <dcx-dai:name xml:lang="en">Anti-Vampire League</dcx-dai:name>
+          <dcx-dai:ISNI>http://isni.org/isni/0000000121032683</dcx-dai:ISNI>
+      </dcx-dai:organization>
+    val result = Serialization.writePretty(DcxDaiOrganization.toAuthorValueObject(organization))
+    debug(result)
+    findString(result, s"$AUTHOR_NAME.value") shouldBe "Anti-Vampire League"
+    findString(result, s"$AUTHOR_IDENTIFIER_SCHEME.value") shouldBe "ISNI"
+    findString(result, s"$AUTHOR_IDENTIFIER.value") shouldBe "http://isni.org/isni/0000000121032683"
+  }
 }

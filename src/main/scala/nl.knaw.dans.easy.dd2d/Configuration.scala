@@ -54,6 +54,11 @@ object Configuration {
       .find(_.exists)
       .getOrElse { throw new IllegalStateException("No Narcis Classification file found") }.canonicalPath
     val narcisClassification = XML.loadFile(narcisClassificationPath)
+    val iso639MappingFilePath = Seq(
+      root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "install" / "iso639-2-to-dv.csv",
+      home / "install" / "iso639-2-to-dv.csv")
+      .find(_.exists)
+      .getOrElse { throw new IllegalStateException("No ISO639-2 to Dataverse language terms mapping file found") }.canonicalPath
 
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
