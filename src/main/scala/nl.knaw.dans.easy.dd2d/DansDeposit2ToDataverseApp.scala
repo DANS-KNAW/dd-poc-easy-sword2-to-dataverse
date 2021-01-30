@@ -15,14 +15,13 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.io.PrintStream
-
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.InboxWatcher
 
+import java.io.PrintStream
 import scala.util.Try
 
 class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnhancedLogging {
@@ -39,7 +38,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       configuration.autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
       configuration.publishAwaitUnlockMillisecondsBetweenRetries,
-      configuration.narcisClassification))
+      configuration.narcisClassification,
+      configuration.isoToDataverseLanguage))
 
   def checkPreconditions(): Try[Unit] = {
     for {
@@ -55,7 +55,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
       configuration.publishAwaitUnlockMillisecondsBetweenRetries,
-      configuration.narcisClassification).process()
+      configuration.narcisClassification,
+      configuration.isoToDataverseLanguage).process()
   }
 
   def importDeposits(inbox: File, autoPublish: Boolean): Try[Unit] = {
@@ -65,7 +66,8 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       autoPublish,
       configuration.publishAwaitUnlockMaxNumberOfRetries,
       configuration.publishAwaitUnlockMillisecondsBetweenRetries,
-      configuration.narcisClassification)).process()
+      configuration.narcisClassification,
+      configuration.isoToDataverseLanguage)).process()
   }
 
   def start(): Try[Unit] = {

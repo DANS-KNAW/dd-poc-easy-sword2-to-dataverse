@@ -19,8 +19,12 @@ import better.files.File
 import better.files.File.root
 import nl.knaw.dans.lib.dataverse.DataverseInstanceConfig
 import org.apache.commons.configuration.PropertiesConfiguration
+import org.apache.commons.csv.{ CSVFormat, CSVParser }
 
 import java.net.URI
+import java.nio.charset.StandardCharsets
+import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.util.Try
 import scala.xml.{ Elem, XML }
 
 case class Configuration(version: String,
@@ -32,7 +36,8 @@ case class Configuration(version: String,
                          autoPublish: Boolean,
                          publishAwaitUnlockMaxNumberOfRetries: Int,
                          publishAwaitUnlockMillisecondsBetweenRetries: Int,
-                         narcisClassification: Elem
+                         narcisClassification: Elem,
+                         isoToDataverseLanguage: Map[String, String]
                         )
 
 object Configuration {
@@ -54,11 +59,11 @@ object Configuration {
       .find(_.exists)
       .getOrElse { throw new IllegalStateException("No Narcis Classification file found") }.canonicalPath
     val narcisClassification = XML.loadFile(narcisClassificationPath)
-    val iso639MappingFilePath = Seq(
+    val isoToDataverseLanguageMappingFile = Seq(
       root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "install" / "iso639-2-to-dv.csv",
       home / "install" / "iso639-2-to-dv.csv")
       .find(_.exists)
-      .getOrElse { throw new IllegalStateException("No ISO639-2 to Dataverse language terms mapping file found") }.canonicalPath
+      .getOrElse { throw new IllegalStateException("No ISO639-2 to Dataverse language terms mapping file found") }
 
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
@@ -79,7 +84,22 @@ object Configuration {
       autoPublish = properties.getString("deposits.auto-publish").toBoolean,
       publishAwaitUnlockMaxNumberOfRetries = properties.getInt("dataverse.publish.await-unlock-max-retries"),
       publishAwaitUnlockMillisecondsBetweenRetries = properties.getInt("dataverse.publish.await-unlock-wait-time-ms"),
-      narcisClassification
+      narcisClassification,
+      isoToDataverseLanguage = loadIso639ToDataverseMap(isoToDataverseLanguageMappingFile).get
     )
+  }
+
+  def loadIso639ToDataverseMap(csvFile: File): Try[Map[String, String]] = {
+    import resource.managed
+
+    def csvParse(csvParser: CSVParser): Map[String, String] = {
+      csvParser.iterator().asScala
+        .map { r => (r.get("ISO639-2"), r.get("Dataverse-language")) }.toMap
+    }
+
+    managed(CSVParser.parse(
+      csvFile.toJava,
+      StandardCharsets.UTF_8,
+      CSVFormat.RFC4180.withFirstRecordAsHeader())).map(csvParse).tried
   }
 }

@@ -35,10 +35,19 @@ class Inbox(dir: File,
             dataverse: DataverseInstance, autoPublish: Boolean = true,
             publishAwaitUnlockMaxNumberOfRetries: Int,
             publishAwaitUnlockMillisecondsBetweenRetries: Int,
-            narcisClassification: Elem) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
+            narcisClassification: Elem,
+            isoToDataverseLanage: Map[String, String]) extends AbstractInbox[Deposit](dir) with DebugEnhancedLogging {
   override def createTask(f: File): Option[DepositIngestTask] = {
     try {
-      Some(DepositIngestTask(Deposit(f), dansBagValidator, dataverse, autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries,narcisClassification))
+      Some(DepositIngestTask(
+        Deposit(f),
+        dansBagValidator,
+        dataverse,
+        autoPublish,
+        publishAwaitUnlockMaxNumberOfRetries,
+        publishAwaitUnlockMillisecondsBetweenRetries,
+        narcisClassification,
+        isoToDataverseLanage))
     }
     catch {
       case e: InvalidDepositException =>

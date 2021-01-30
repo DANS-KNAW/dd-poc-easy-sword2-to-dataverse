@@ -23,7 +23,7 @@ import scala.util.Success
 class DepositToDataverseMapperSpec extends TestSupportFixture {
 
   implicit val format: DefaultFormats.type = DefaultFormats
-  private val mapper = new DepositToDataverseMapper(null)
+  private val mapper = new DepositToDataverseMapper(null, null)
   private val vaultMetadata = Deposit(testDirValid / "valid-easy-submitted").vaultMetadata
   private val contactData = CompoundField(
     typeName = "datasetContact",
@@ -126,20 +126,6 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
             "authorName" -> PrimitiveSingleValueField("authorName", "Professor T Zonnebloem"),
             "authorAffiliation" -> PrimitiveSingleValueField("authorAffiliation", "Uitvindersgilde")
           ))
-    }
-  }
-
-  it should "map deposit.properties correctly to vault data" in {
-    val result = mapper.toDataverseDataset(<ddm:DDM/>, contactData, vaultMetadata)
-    result shouldBe a[Success[_]]
-    inside(result) {
-      case Success(Dataset(dsv)) =>
-        dsv.metadataBlocks.get("dataVault") shouldBe Some(
-          MetadataBlock("Data Vault Metadata",
-            List(PrimitiveSingleValueField("dansDataversePid", "doi:10.17026/dans-ztg-q3s4"),
-              PrimitiveSingleValueField("dansNbn", "urn:nbn:nl:ui:13-ar2-u8v"),
-              PrimitiveSingleValueField("dansSwordToken", "sword:123e4567-e89b-12d3-a456-556642440000")))
-        )
     }
   }
 }

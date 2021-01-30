@@ -29,6 +29,7 @@ class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
           <dcx-dai:role xml:lang="en">DataCurator</dcx-dai:role>
       </dcx-dai:organization>
     val result = Serialization.writePretty(DcxDaiOrganization.toContributorValueObject(organization))
+    debug(result)
     findString(result, s"$CONTRIBUTOR_NAME.value") shouldBe "Anti-Vampire League"
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Data Curator"
   }
@@ -39,6 +40,7 @@ class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
           <dcx-dai:role xml:lang="en">ContactPerson</dcx-dai:role>
       </dcx-dai:organization>
     val result = Serialization.writePretty(DcxDaiOrganization.toContributorValueObject(organization))
+    debug(result)
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Other"
   }
 
@@ -48,6 +50,7 @@ class DcxDaiOrganizationSpec extends TestSupportFixture with BlockCitation {
           <dcx-dai:name xml:lang="en">Anti-Vampire League</dcx-dai:name>
       </dcx-dai:organization>
     val result = Serialization.writePretty(DcxDaiOrganization.toAuthorValueObject(organization))
+    debug(result)
     findString(result, s"$AUTHOR_NAME.value") shouldBe "Anti-Vampire League"
   }
 

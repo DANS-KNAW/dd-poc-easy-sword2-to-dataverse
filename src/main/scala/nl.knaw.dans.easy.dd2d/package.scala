@@ -33,8 +33,8 @@ package object dd2d {
       val missing = new mutable.ListBuffer[String]()
 
       if (StringUtils.isBlank(dataversePid)) missing.append("dataversePid")
-// TODO: has not yet been implemented in export
-//      if (StringUtils.isBlank(dataverseBagId)) missing.append("dataverseBagId")
+      // TODO: has not yet been implemented in export
+      //      if (StringUtils.isBlank(dataverseBagId)) missing.append("dataverseBagId")
       if (StringUtils.isBlank(dataverseNbn)) missing.append("dataverseNbn")
 
       if (missing.nonEmpty) Failure(new RuntimeException(s"Not enough Data Vault Metadata for import deposit, missing: ${ missing.mkString(", ") }"))
@@ -52,5 +52,8 @@ package object dd2d {
 
   case class InvalidDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Not a deposit: $msg", cause)
+
+  case class MissingRequiredFieldException(fieldName: String)
+    extends Exception(s"No value found for required field: $fieldName")
 
 }

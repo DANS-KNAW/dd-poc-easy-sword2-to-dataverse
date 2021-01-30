@@ -19,7 +19,6 @@ import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
-import org.json4s.{ DefaultFormats, Formats }
 
 import scala.util.Try
 import scala.xml.Elem
@@ -30,10 +29,20 @@ class SingleDepositProcessor(deposit: File,
                              autoPublish: Boolean = true,
                              publishAwaitUnlockMaxNumberOfRetries: Int,
                              publishAwaitUnlockMillisecondsBetweenRetries: Int,
-                             narcisClassification: Elem) {
+                             narcisClassification: Elem,
+                             isoToDataverseLanage: Map[String, String]) {
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
-    ingestTasks.add(DepositIngestTask(Deposit(deposit), dansBagValidator, dataverse, publish = autoPublish, publishAwaitUnlockMaxNumberOfRetries, publishAwaitUnlockMillisecondsBetweenRetries, narcisClassification))
+    ingestTasks.add(
+      DepositIngestTask(
+        Deposit(deposit),
+        dansBagValidator,
+        dataverse,
+        publish = autoPublish,
+        publishAwaitUnlockMaxNumberOfRetries,
+        publishAwaitUnlockMillisecondsBetweenRetries,
+        narcisClassification,
+        isoToDataverseLanage))
     ingestTasks.process()
   }
 }
