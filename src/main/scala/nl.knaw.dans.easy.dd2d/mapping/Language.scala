@@ -21,7 +21,7 @@ import scala.xml.Node
 
 object Language extends BlockBasicInformation with DebugEnhancedLogging {
   def isISOLanguage(node: Node): Boolean = {
-    hasXsiType(node, "ISO639-2")
+    hasXsiType(node, "ISO639-2") || node.attribute("encodingScheme").flatMap(_.headOption.map(_.text == "ISO639-2")).getOrElse(false)
   }
 
   def toCitationBlockLanguage(isoToDataverse: Map[String, String])(node: Node): Option[String] = {

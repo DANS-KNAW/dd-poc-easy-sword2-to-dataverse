@@ -62,26 +62,14 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
     addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
 
-    // Basic information
-    addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filter(Relation isRelatedIdentifier), Relation toRelatedIdentifierValueObject)
-    addCompoundFieldMultipleValues(basicInformationFields, RELATED_ID_URL, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation).filterNot(Relation isRelatedIdentifier), Relation toRelatedUrlValueObject)
-    addPrimitiveFieldMultipleValues(basicInformationFields, LANGUAGE_OF_FILES, ddm \ "dcmiMetadata" \ "language")
-    addCompoundFieldMultipleValues(basicInformationFields, DATE, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filter(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFormattedDateValueObject)
-    addCompoundFieldMultipleValues(basicInformationFields, DATE_FREE_FORMAT, (ddm \ "dcmiMetadata" \ "_").filter(DateTypeElement isDate).filterNot(DateTypeElement hasW3CFormat), DateTypeElement toBasicInfoFreeDateValue)
-    addCompoundFieldWithControlledVocabulary(basicInformationFields, SUBJECT_CV, ddm \ "profile" \ "audience", Audience toBasicInformationBlockSubjectCv(_, narcisClassification))
-
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_SUBJECT, (ddm \\ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toSubjectAbrObject)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \\ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_SUBJECT, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toSubjectAbrObject)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
-
-    //content type and file format
-    addCompoundFieldWithControlledVocabulary(contentTypeAndFileFormatFields, CONTENT_TYPE_CV, ddm \\ "type", Type toContentTypeAndFileFormatBlockType)
-    addCompoundFieldWithControlledVocabulary(contentTypeAndFileFormatFields, FORMAT_CV, ddm \\ "format", Format toContentTypeAndFileFormatBlockFormat)
 
     // Data vault
     addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)

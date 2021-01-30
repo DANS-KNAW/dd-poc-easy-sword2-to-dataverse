@@ -62,4 +62,9 @@ class LanguageSpec extends TestSupportFixture {
     toCitationBlockLanguage(isoToDataverseLanguage)(language) shouldBe
       Some(s"Sanskrit (Sa${ `Latin Small Letter M with Dot Above` }sk${ `Latin Small Letter R with Dot Below` }ta)")
   }
+
+  it should "also accept the encodingScheme attribute to indicate ISO639-2" in {
+    val language = <dc:language encodingScheme="ISO639-2">deu</dc:language>
+    toCitationBlockLanguage(isoToDataverseLanguage)(language) shouldBe Some("German")
+  }
 }
