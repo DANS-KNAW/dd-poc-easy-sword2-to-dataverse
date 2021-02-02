@@ -20,7 +20,7 @@ import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 
 import scala.xml.Node
 
-object DateTypeElement extends BlockBasicInformation {
+object DateTypeElement {
   private val NAMESPACE_DCTERMS = "http://purl.org/dc/terms/"
 
   private val yyyymmddPattern: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
@@ -44,19 +44,5 @@ object DateTypeElement extends BlockBasicInformation {
 
   def toYearMonthDayFormat(node: Node): Option[String] = Option {
     yyyymmddPattern.print(DateTime.parse(node.text))
-  }
-
-  def toBasicInfoFormattedDateValueObject(node: Node): JsonObject = {
-    val m = FieldMap()
-    m.addCvField(DATE_TYPE, labelToDateType.getOrElse(node.label, "Date"))
-    m.addPrimitiveField(DATE_VALUE, toYearMonthDayFormat(node).getOrElse(""))
-    m.toJsonObject
-  }
-
-  def toBasicInfoFreeDateValue(node: Node): JsonObject = {
-    val m = FieldMap()
-    m.addCvField(DATE_FREE_FORMAT_TYPE, labelToDateType.getOrElse(node.label, "Date"))
-    m.addPrimitiveField(DATE_FREE_FORMAT_VALUE, node.text)
-    m.toJsonObject
   }
 }

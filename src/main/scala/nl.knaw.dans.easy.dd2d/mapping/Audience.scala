@@ -23,7 +23,7 @@ import scala.xml.{ Elem, Node }
  * ddm:audience element with a NARCIS classification code in it.
  * Used for Subject field in the Citation metadata block
  */
-object Audience extends BlockBasicInformation with DebugEnhancedLogging {
+object Audience  extends DebugEnhancedLogging {
   val narcisToSubject = Map(
     "D11" -> "Mathematical Sciences",
     "D12" -> "Physics",
@@ -39,41 +39,6 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
     "D7" -> "Business and Management",
     "E15" -> "Earth and Environmental Sciences"
   )
-
-  /**
-   * Creates a Map with Subject CV fields for a Compound Field
-   *
-   * @param node                 the audience element
-   * @param narcisClassification the Narcis classification
-   * @return A JsonObject with Subject CV fields
-   */
-  def toBasicInformationBlockSubjectCv(node: Node, narcisClassification: Elem): Option[JsonObject] = {
-    getTermAndUrl(node, narcisClassification)
-      .map(termAndUrl => {
-        val m = FieldMap()
-        m.addPrimitiveField(SUBJECT_CV_VALUE, termAndUrl.term)
-        m.addPrimitiveField(SUBJECT_CV_VOCABULARY, SUBJECT_NARCIS_CLASSIFICATION)
-        m.addPrimitiveField(SUBJECT_CV_VOCABULARY_URI, termAndUrl.url)
-        m.toJsonObject
-      }).doIfNone(() => logger.error(s"Invalid controlled vocabulary term for 'Subject': ${ node.text }"))
-  }
-
-  /**
-   * Gets term and url from the NARCIS classification
-   *
-   * @param node                 the audience element
-   * @param narcisClassification the Narcis classification
-   * @return the Dataverse subject term and url or None
-   */
-  private def getTermAndUrl(node: Node, narcisClassification: Elem): Option[TermAndUrl] = {
-    (narcisClassification \ "Description")
-      .find(_.attributes.exists(_.value.text contains node.text))
-      .map(description => {
-        val term = (description \ "prefLabel").find(_.attributes.exists(_.value.text == "en")).map(_.text).getOrElse("")
-        val url = description.attributes.value.headOption.getOrElse(SUBJECT_NARCIS_CLASSIFICATION_URL).toString
-        TermAndUrl(term, url)
-      })
-  }
 
   /**
    * Returns the best match for this NARCIS classification code in the Dataverse subject vocabulary

@@ -38,6 +38,11 @@ package object mapping extends DebugEnhancedLogging {
     node.attribute(XML_SCHEMA_INSTANCE_URI, "type").map(_.text).map(t => t.endsWith(s":$xsiType") || t == xsiType).exists(identity)
   }
 
+  def hasAttribute(node: Node, name: String, value: String): Boolean = {
+    node.attribute(name).exists(_.text == value)
+  }
+
+
   case class FieldMap() {
     private val fields = mutable.Map[String, MetadataField]()
 

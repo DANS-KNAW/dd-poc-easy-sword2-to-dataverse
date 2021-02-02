@@ -15,6 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-trait BlockPersonalData {
-  val CONTAINS_PERSONAL_DATA = "dansContainsPersonalData"
+trait BlockRights {
+  val RIGHTS_HOLDER = "dansRightsHolder"
 }

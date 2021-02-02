@@ -19,7 +19,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object Language extends BlockBasicInformation with DebugEnhancedLogging {
+object Language extends BlockCitation with DebugEnhancedLogging {
   def isISOLanguage(node: Node): Boolean = {
     hasXsiType(node, "ISO639-2") || node.attribute("encodingScheme").flatMap(_.headOption.map(_.text == "ISO639-2")).getOrElse(false)
   }

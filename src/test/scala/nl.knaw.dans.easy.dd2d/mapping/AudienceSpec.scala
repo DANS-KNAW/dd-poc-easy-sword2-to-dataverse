@@ -16,7 +16,7 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.easy.dd2d.TestSupportFixture
-import nl.knaw.dans.easy.dd2d.mapping.Audience.{ toBasicInformationBlockSubjectCv, toCitationBlockSubject }
+import nl.knaw.dans.easy.dd2d.mapping.Audience.toCitationBlockSubject
 import nl.knaw.dans.lib.dataverse.model.dataset.PrimitiveSingleValueField
 import org.scalatest.prop.TableDrivenPropertyChecks
 
@@ -57,29 +57,6 @@ class AudienceSpec extends TestSupportFixture with TableDrivenPropertyChecks {
     val audience = <ddm:audience>INVALID</ddm:audience>
     assertThrows[RuntimeException] {
       toCitationBlockSubject(audience)
-    }
-  }
-
-  "toBasicInformationBlockSubjectCv" should "return the correct NARCIS classifications" in {
-    val narcisAudiences = Table(
-      ("audience", "term"),
-      ("D11300", "Functions, differential equations"),
-      ("D42100", "Political science"),
-      ("D65000", "Urban and rural planning"),
-      ("E15000", "Environmental studies")
-    )
-
-    val narcisClassification = XML.loadFile("src/test/resources/narcis_classification.xml")
-
-    forAll(narcisAudiences) { (audience, term) =>
-      val audienceNode = <ddm:audience>{audience}</ddm:audience>
-      val result = toBasicInformationBlockSubjectCv(audienceNode, narcisClassification)
-      inside(result) {
-        case Some(jsonObject) =>
-          jsonObject.get("subjectCvValue") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvValue", false, term))
-          jsonObject.get("subjectCvVocabulary") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabulary", false, "NARCIS classification"))
-          jsonObject.get("subjectCvVocabularyURI") shouldBe Some(PrimitiveSingleValueField("primitive", "subjectCvVocabularyURI", false, s"https://www.narcis.nl/classification/$audience"))
-      }
     }
   }
 }

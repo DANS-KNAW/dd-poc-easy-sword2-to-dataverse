@@ -17,13 +17,30 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 trait BlockArchaeologySpecific {
   val ARCHIS_ZAAK_ID = "dansArchisZaakId"
-  val ABR_SUBJECT = "dansAbrSubjectCv"
-  val ABR_SUBJECT_VALUE = "dansAbrSubjectCvValue"
-  val ABR_SUBJECT_VOCABULARY = "dansAbrSubjectCvVocabulary"
-  val ABR_SUBJECT_VOCABULARY_URL = "dansAbrSubjectCvVocabularyURI"
-  val ABR_PERIOD = "dansAbrPeriodCv"
-  val ABR_PERIOD_VALUE = "dansAbrPeriodCvValue"
-  val ABR_PERIOD_VOCABULARY = "dansAbrPeriodCvVocabulary"
-  val ABR_PERIOD_VOCABULARY_URL = "dansAbrPeriodCvVocabularyURI"
-  val ABR_BASE_URL = "https://data.cultureelerfgoed.nl/term/id/abr/"
+
+  val ABR_RAPPORT_TYPE = "dansAbrRapportType"
+  val ABR_RAPPORT_TYPE_VOCABULARY = "dansAbrRapportTypeVocabulary"
+  val ABR_RAPPORT_TYPE_VOCABULARY_URI = "dansAbrRapportTypeVocabularyURI"
+  val ABR_RAPPORT_TYPE_TERM = "dansAbrRapportTypeTerm"
+  val ABR_RAPPORT_TYPE_TERM_URI = "dansAbrRapportTypeTermURI"
+
+  val ABR_RAPPORT_NUMMER = "dansAbrRapportNummer"
+
+  val ABR_VERWERVINGSWIJZE = "dansAbrVerwervingswijze"
+  val ABR_VERWERVINGSWIJZE_VOCABULARY = "dansAbrVerwervingswijzeVocabulary"
+  val ABR_VERWERVINGSWIJZE_VOCABULARY_URI = "dansAbrVerwervingswijzeVocabularyURI"
+  val ABR_VERWERVINGSWIJZE_TERM = "dansAbrVerwervingswijzeTerm"
+  val ABR_VERWERVINGSWIJZE_TERM_URI = "dansAbrVerwervingswijzeTermURI"
+
+  val ABR_COMPLEX = "dansAbrComplex"
+  val ABR_COMPLEX_VOCABULARY = "dansAbrComplexVocabulary"
+  val ABR_COMPLEX_VOCABULARY_URI = "dansAbrComplexVocabularyURI"
+  val ABR_COMPLEX_TERM = "dansAbrComplexTerm"
+  val ABR_COMPLEX_TERM_URI = "dansAbrComplexTermURI"
+
+  val ABR_PERIOD = "dansAbrPeriod"
+  val ABR_PERIOD_VOCUABULARY = "dansAbrPeriodVocabulary"
+  val ABR_PERIOD_VOCUABULARY_URI = "dansAbrPeriodVocabularyURI"
+  val ABR_PERIOD_TERM = "dansAbrPeriodTerm"
+  val ABR_PERIOD_TERM_URI = "dansAbrPeriodTermURI"
 }

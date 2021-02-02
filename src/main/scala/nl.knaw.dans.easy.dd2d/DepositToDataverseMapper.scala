@@ -28,13 +28,16 @@ import scala.xml.{ Elem, Node, NodeSeq }
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguage: Map[String, String]) extends BlockCitation with BlockBasicInformation with BlockArchaeologySpecific with BlockTemporalAndSpatial with BlockContentTypeAndFileFormat with BlockDataVaultMetadata {
+class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguage: Map[String, String]) extends BlockCitation
+  with BlockArchaeologySpecific
+  with BlockTemporalAndSpatial
+  with BlockRights
+  with BlockDataVaultMetadata {
   lazy val citationFields = new ListBuffer[MetadataField]
-  lazy val basicInformationFields = new ListBuffer[MetadataField]
   lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
   lazy val temporalSpatialFields = new ListBuffer[MetadataField]
+  lazy val rightsFields = new ListBuffer[MetadataField]
   lazy val dataVaultFields = new ListBuffer[MetadataField]
-  lazy val contentTypeAndFileFormatFields = new ListBuffer[MetadataField]
 
   def toDataverseDataset(ddm: Node, contactData: CompoundField, vaultMetadata: VaultMetadata): Try[Dataset] = Try {
     // Please, keep ordered by order in Dataverse UI as much as possible (note, if display-on-create is not set for all fields, some may be hidden initally)
@@ -53,8 +56,10 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
     citationFields.append(contactData)
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (titles.isEmpty) NodeSeq.Empty else titles.tail, Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if(alternativeTitles.isEmpty) NodeSeq.Empty else alternativeTitles.tail, Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (titles.isEmpty) NodeSeq.Empty
+                                                                else titles.tail, Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
+                                                                else alternativeTitles.tail, Description toDescriptionValueObject)
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
     addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
@@ -65,12 +70,15 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
 
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_SUBJECT, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toSubjectAbrObject)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isTemporalAbr), TemporalAbr toTemporalAbr)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+
+    // Rights
+    addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
+
 
     // Data vault
     addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)
@@ -87,6 +95,7 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
     addMetadataBlock(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
     addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
+    addMetadataBlock(versionMap, "dansRights", "Rights Metadata", rightsFields)
     addMetadataBlock(versionMap, "dataVault", "Data Vault Metadata", dataVaultFields)
     val datasetVersion = DatasetVersion(metadataBlocks = versionMap.toMap)
     Dataset(datasetVersion)
