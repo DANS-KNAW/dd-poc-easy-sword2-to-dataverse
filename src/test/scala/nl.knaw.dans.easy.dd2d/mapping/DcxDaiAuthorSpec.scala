@@ -58,7 +58,7 @@ class DcxDaiAuthorSpec extends TestSupportFixture with BlockCitation {
           </dcx-dai:organization>
       </dcx-dai:author>
     val result = Serialization.writePretty(DcxDaiAuthor.toContributorValueObject(author))
-    findString(result, s"$CONTRIBUTOR_NAME.value") shouldBe "Dr A van Helsing"
+    findString(result, s"$CONTRIBUTOR_NAME.value") shouldBe "Dr A van Helsing (Anti-Vampire League)"
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Project Manager"
   }
 

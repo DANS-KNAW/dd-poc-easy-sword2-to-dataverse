@@ -73,7 +73,7 @@ object DcxDaiAuthor extends Contributor with BlockCitation {
     val author = parseAuthor(node)
     val name = formatName(author)
     if (StringUtils.isNotBlank(name)) {
-      m.addPrimitiveField(CONTRIBUTOR_NAME, name)
+      m.addPrimitiveField(CONTRIBUTOR_NAME, name + (if (author.organization.isDefined) s" (${author.organization.get})" else ""))
     }
     else if (author.organization.isDefined) {
       m.addPrimitiveField(CONTRIBUTOR_NAME, author.organization.get)

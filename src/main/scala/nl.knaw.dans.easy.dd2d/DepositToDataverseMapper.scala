@@ -42,18 +42,19 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     val titles = ddm \ "profile" \ "title"
     if (titles.isEmpty) throw MissingRequiredFieldException("title")
 
+    val alternativeTitles = (ddm \ "dcmiMetadata" \ "title") ++ (ddm \ "dcmiMetadata" \ "alternative")
+
     // Citation
     addPrimitiveFieldSingleValue(citationFields, TITLE, titles.head)
-    addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, ddm \ "dcmiMetadata" \ "alternative")
+    addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, alternativeTitles)
     addCompoundFieldMultipleValues(citationFields, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
     citationFields.append(contactData)
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, titles.tail, Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "dcmiMetadata" \ "alternativeTitle", Description toDescriptionValueObject)
-
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (titles.isEmpty) NodeSeq.Empty else titles.tail, Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if(alternativeTitles.isEmpty) NodeSeq.Empty else alternativeTitles.tail, Description toDescriptionValueObject)
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
     addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
@@ -84,10 +85,8 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   private def assembleDataverseDataset(): Dataset = {
     val versionMap = mutable.Map[String, MetadataBlock]()
     addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
-    addMetadataBlock(versionMap, "basicInformation", "Basic Information", basicInformationFields)
     addMetadataBlock(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
     addMetadataBlock(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields)
-    addMetadataBlock(versionMap, "dansContentTypeAndFileFormat", "Content Type and File Format", contentTypeAndFileFormatFields)
     addMetadataBlock(versionMap, "dataVault", "Data Vault Metadata", dataVaultFields)
     val datasetVersion = DatasetVersion(metadataBlocks = versionMap.toMap)
     Dataset(datasetVersion)
