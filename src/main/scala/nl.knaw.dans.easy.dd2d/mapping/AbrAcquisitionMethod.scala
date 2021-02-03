@@ -30,18 +30,18 @@ object AbrAcquisitionMethod extends BlockArchaeologySpecific with AbrScheme with
 
     if (optSubjectScheme.isDefined && optSchemeUri.isDefined && optValueUri.isDefined) {
       val m = FieldMap()
-      m.addPrimitiveField(ABR_VERWERVINGSWIJZE_SCHEME, optSubjectScheme.get)
-      m.addPrimitiveField(ABR_VERWERVINGSWIJZE_SCHEME_URI, optSchemeUri.get)
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM, term)
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM_URI, optValueUri.get)
+      m.addPrimitiveField(SCHEME_ABR_VERWERVINGSWIJZE, optSubjectScheme.get)
+      m.addPrimitiveField(SCHEME_URI_ABR_VERWERVINGSWIJZE, optSchemeUri.get)
+      m.addPrimitiveField(ABR_VERWERVINGSWIJZE_TERM, term)
+      m.addPrimitiveField(ABR_VERWERVINGSWIJZE_TERM_URI, optValueUri.get)
       Option(m.toJsonObject)
     }
     else None
   }
 
-  def isAbrReportType(node: Node): Boolean = {
+  def isAbrVerwervingswijze(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
     // TODO: correct the scheme: should be 'ABR Period' ??
-    node.label == "subject" && hasAttribute(node, "subjectScheme", ABR_RAPPORT_TYPE_SCHEME) && hasAttribute(node, "schemeURI", ABR_RAPPORT_TYPE_SCHEME_URI)
+    node.label == "acquisitionMethod" && hasAttribute(node, "subjectScheme", SCHEME_ABR_VERWERVINGSWIJZE) && hasAttribute(node, "schemeURI", SCHEME_URI_ABR_VERWERVINGSWIJZE)
   }
 }

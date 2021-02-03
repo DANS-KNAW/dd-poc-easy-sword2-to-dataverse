@@ -41,6 +41,6 @@ object SubjectAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnha
 
   def isAbrComplex(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
-    node.label == "subject" && hasAttribute(node, "subjectScheme", ABR_COMPLEX_SCHEME) && hasAttribute(node, "schemeURI", ABR_COMPLEX_SCHEME_URI)
+    node.label == "subject" && hasAttribute(node, "subjectScheme", SCHEME_ABR_COMPLEX) && hasAttribute(node, "schemeURI", SCHEME_URI_ABR_COMPLEX)
   }
 }

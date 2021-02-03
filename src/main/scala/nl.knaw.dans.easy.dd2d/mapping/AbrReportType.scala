@@ -42,6 +42,6 @@ object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugE
   def isAbrReportType(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
     // TODO: correct the scheme: should be 'ABR Period' ??
-    node.label == "subject" && hasAttribute(node, "subjectScheme", ABR_RAPPORT_TYPE_SCHEME) && hasAttribute(node, "schemeURI", ABR_RAPPORT_TYPE_SCHEME_URI)
+    node.label == "reportNumber" && hasAttribute(node, "subjectScheme", SCHEME_ABR_RAPPORT_TYPE) && hasAttribute(node, "schemeURI", SCHEME_URI_ABR_RAPPORT_TYPE)
   }
 }
