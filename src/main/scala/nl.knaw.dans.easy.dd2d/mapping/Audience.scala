@@ -34,10 +34,13 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
     "D18" -> "Agricultural Sciences",
     "D2" -> "Medicine, Health and Life Sciences",
     "D3" -> "Arts and Humanities",
-    "D4" -> "Law",
+    "D41" -> "Law",
+    "D5" -> "Social Sciences",
     "D6" -> "Social Sciences",
+    "D42" -> "Social Sciences",
     "D7" -> "Business and Management",
-    "E15" -> "Earth and Environmental Sciences"
+    "D15" -> "Earth and Environmental Sciences",
+    "E15" -> "Earth and Environmental Sciences",
   )
 
   /**
@@ -84,12 +87,15 @@ object Audience extends BlockBasicInformation with DebugEnhancedLogging {
    */
   def toCitationBlockSubject(node: Node): Option[String] = {
     if (!node.text.matches("""^[D|E]\d{5}$""")) {
-      throw new RuntimeException("NARCIS classification code format incorrect")
+      throw new RuntimeException("NARCIS classification code incorrectly formatted")
     }
 
-    Option(narcisToSubject
-      .find { case (k, _) => node.text.startsWith(k) }
-      .map(_._2)
-      .getOrElse("Other"))
+    Some(narcisToSubject
+      .toSeq
+      .filter { case (x, _) => node.text.startsWith(x) })
+      .collect {
+        case l if l.nonEmpty => l.maxBy(_._1.length)._2
+        case _ => "Other"
+      }
   }
 }
