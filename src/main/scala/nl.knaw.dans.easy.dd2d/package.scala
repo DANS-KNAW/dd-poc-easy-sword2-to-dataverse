@@ -17,13 +17,30 @@ package nl.knaw.dans.easy
 
 import better.files.File
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
+import org.apache.commons.lang.StringUtils
+
+import scala.collection.mutable
+import scala.util.{ Failure, Success, Try }
 
 package object dd2d {
   type DepositName = String
   type Sha1Hash = String
   type DatabaseId = Int
 
-  case class VaultMetadata(dataversePid: String, dataverseBagId: String, dataverseNbn: String, dataverseOtherId: String, dataverseOtherIdVersion: String, dataverseSwordToken: String)
+  case class VaultMetadata(dataversePid: String, dataverseBagId: String, dataverseNbn: String, dataverseOtherId: String, dataverseOtherIdVersion: String, dataverseSwordToken: String) {
+
+    def checkMinimumFieldsForImport(): Try[Unit] = {
+      val missing = new mutable.ListBuffer[String]()
+
+      if (StringUtils.isBlank(dataversePid)) missing.append("dataversePid")
+// TODO: has not yet been implemented in export
+//      if (StringUtils.isBlank(dataverseBagId)) missing.append("dataverseBagId")
+      if (StringUtils.isBlank(dataverseNbn)) missing.append("dataverseNbn")
+
+      if (missing.nonEmpty) Failure(new RuntimeException(s"Not enough Data Vault Metadata for import deposit, missing: ${ missing.mkString(", ") }"))
+      else Success(())
+    }
+  }
 
   case class FileInfo(file: File, metadata: FileMeta)
 

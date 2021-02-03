@@ -22,12 +22,12 @@
     <parent>
         <groupId>nl.knaw.dans.shared</groupId>
         <artifactId>dans-scala-app-project</artifactId>
-        <version>6.0.1</version>
+        <version>6.1.1</version>
     </parent>
 
     <groupId>nl.knaw.dans.easy</groupId>
     <artifactId>dd-dans-deposit-to-dataverse</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <name>DANS Deposit To Dataverse Service</name>
     <url>https://github.com/DANS-KNAW/dd-dans-deposit-to-dataverse</url>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>nl.knaw.dans.lib</groupId>
             <artifactId>dans-dataverse-scala-lib_2.12</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.scalaj</groupId>
@@ -134,6 +134,7 @@
         <dependency>
             <groupId>gov.loc</groupId>
             <artifactId>bagit</artifactId>
+            <version>5.2.0</version>
         </dependency>
 
     </dependencies>

@@ -41,7 +41,6 @@ class AudienceSpec extends TestSupportFixture with TableDrivenPropertyChecks {
       ("D42100", "Social Sciences"),
       ("D70100", "Business and Management"),
       ("D15300", "Earth and Environmental Sciences"),
-      ("E15000", "Earth and Environmental Sciences"),
     )
 
     forAll(narcisAudiences) { (audience, subject) =>
