@@ -39,8 +39,8 @@ trait BlockArchaeologySpecific {
   val ABR_COMPLEX_TERM_URI = "dansAbrComplexTermURI"
 
   val ABR_PERIOD = "dansAbrPeriod"
-  val ABR_PERIOD_VOCUABULARY = "dansAbrPeriodVocabulary"
-  val ABR_PERIOD_VOCUABULARY_URI = "dansAbrPeriodVocabularyURI"
+  val ABR_PERIOD_VOCABULARY = "dansAbrPeriodVocabulary"
+  val ABR_PERIOD_VOCABULARY_URI = "dansAbrPeriodVocabularyURI"
   val ABR_PERIOD_TERM = "dansAbrPeriodTerm"
   val ABR_PERIOD_TERM_URI = "dansAbrPeriodTermURI"
 }

@@ -56,10 +56,13 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
     citationFields.append(contactData)
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (titles.isEmpty) NodeSeq.Empty
-                                                                else titles.tail, Description toDescriptionValueObject)
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
                                                                 else alternativeTitles.tail, Description toDescriptionValueObject)
+    // TODO: add languages that cannot be mapped to Dataverse language terms.
+
+    val audience = ddm \ "profile" \ "audience"
+    if (audience.isEmpty) throw MissingRequiredFieldException(SUBJECT)
+
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
     addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
@@ -70,15 +73,20 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
 
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(SubjectAbr isAbrComplex), AbrReportType toAbrRapportType)
+    addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(TemporalAbr isAbrPeriod), AbrAcquisitionMethod toVerwervingswijze)
     addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
+    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
 
     // Rights
+    val rightsHolder = ddm \ "dcmiMetadata" \ "rightsHolder"
+    if (rightsHolder.isEmpty) throw MissingRequiredFieldException(RIGHTS_HOLDER)
     addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
-
 
     // Data vault
     addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)

@@ -39,8 +39,10 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
       <ddm:DDM>
         <ddm:profile>
            <dc:title>A title</dc:title>
+           <ddm:audience>D10000</ddm:audience>
         </ddm:profile>
         <ddm:dcmiMetadata>
+           <dct:rightsHolder>Mr Rights</dct:rightsHolder>
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
@@ -61,8 +63,10 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
            <dc:title>A title</dc:title>
            <dc:description>Descr 1</dc:description>
            <dc:description>Descr 2</dc:description>
+          <ddm:audience>D10000</ddm:audience>
         </ddm:profile>
         <ddm:dcmiMetadata>
+            <dct:rightsHolder>Mrs Rights</dct:rightsHolder>
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
@@ -106,8 +110,10 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
                       </dcx-dai:organization>
                   </dcx-dai:author>
               </dcx-dai:creatorDetails>
+            <ddm:audience>D10000</ddm:audience>
           </ddm:profile>
           <ddm:dcmiMetadata>
+            <dct:rightsHolder>Mrs Rights</dct:rightsHolder>
           </ddm:dcmiMetadata>
       </ddm:DDM>
 

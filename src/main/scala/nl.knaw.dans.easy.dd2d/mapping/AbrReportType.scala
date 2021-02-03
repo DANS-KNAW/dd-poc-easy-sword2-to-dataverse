@@ -19,29 +19,29 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.xml.Node
 
-object TemporalAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
+object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrPeriod(node: Node): Option[JsonObject] = {
+  def toAbrRapportType(node: Node): Option[JsonObject] = {
     // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:temporal node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:temporal node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:temporal node"))
+    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:reportNumber node"))
+    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:reportNumber node"))
+    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:reportNumber node"))
     val term = node.text
 
     if (optSubjectScheme.isDefined && optSchemeUri.isDefined && optValueUri.isDefined) {
       val m = FieldMap()
-      m.addPrimitiveField(ABR_PERIOD_VOCABULARY, optSubjectScheme.get)
-      m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URI, optSchemeUri.get)
-      m.addPrimitiveField(ABR_PERIOD_TERM, term)
-      m.addPrimitiveField(ABR_PERIOD_TERM_URI, optValueUri.get)
+      m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY, optSubjectScheme.get)
+      m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY_URI, optSchemeUri.get)
+      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM, term)
+      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM_URI, optValueUri.get)
       Option(m.toJsonObject)
     }
     else None
   }
 
-  def isAbrPeriod(node: Node): Boolean = {
+  def isAbrReportType(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
     // TODO: correct the scheme: should be 'ABR Period' ??
-    node.label == "subject" && hasAttribute(node, "subjectScheme", ABR_PERIOD_SCHEME) && hasAttribute(node, "schemeURI", ABR_PERIOD_SCHEME_URI)
+    node.label == "subject" && hasAttribute(node, "subjectScheme", ABR_RAPPORT_TYPE_SCHEME) && hasAttribute(node, "schemeURI", ABR_RAPPORT_TYPE_SCHEME_URI)
   }
 }
