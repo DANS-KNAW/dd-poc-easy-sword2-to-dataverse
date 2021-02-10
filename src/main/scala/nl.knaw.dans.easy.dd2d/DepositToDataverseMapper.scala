@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import nl.knaw.dans.easy.dd2d.fieldbuilders.{ AbstractFieldBuilder, CompoundFieldBuilder, CvFieldBuilder }
 import nl.knaw.dans.easy.dd2d.mapping._
 import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 
@@ -34,6 +35,7 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   with BlockRights
   with BlockDataVaultMetadata {
   lazy val citationFields = new ListBuffer[MetadataField]
+  lazy val citationFields2 = new mutable.HashMap[String, MetadataFieldValue]()
   lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
   lazy val temporalSpatialFields = new ListBuffer[MetadataField]
   lazy val rightsFields = new ListBuffer[MetadataField]
@@ -118,10 +120,33 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
       .foreach(v => metadataBlockFields += PrimitiveSingleValueField(name, v))
   }
 
+  private def addPrimitiveFieldSingleValue2(metadataBlockFields: mutable.HashMap[String, ListBuffer[MetadataFieldValue]], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+    sourceNodes
+      .map(nodeTransformer)
+      .filter(_.isDefined)
+      .map(_.get)
+      .take(1)
+      .foreach(v => {
+        val values = metadataBlockFields.getOrElse(name, new mutable.ListBuffer[MetadataFieldValue]())
+        if (values.nonEmpty) throw new IllegalArgumentException("Trying to add second value to single value field")
+        else values.append(MetadataFieldStringValue(v))
+        metadataBlockFields.put(name, values)
+      })
+  }
+
   private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
     if (values.nonEmpty) {
       metadataBlockFields += PrimitiveMultipleValueField(name, values)
+    }
+  }
+
+  private def addPrimitiveFieldMultipleValues2(metadataBlockFields: mutable.HashMap[String, ListBuffer[MetadataFieldValue]], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+    val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
+    values.foreach { v =>
+      val values = metadataBlockFields.getOrElse(name, new mutable.ListBuffer[MetadataFieldValue]())
+      values.append(MetadataFieldStringValue(v))
+      metadataBlockFields.put(name, values)
     }
   }
 
@@ -132,11 +157,28 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     }
   }
 
+  private def addCvFieldMultipleValues2(metadataBlockFields: mutable.HashMap[String, AbstractFieldBuilder], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String]): Unit = {
+    val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
+    metadataBlockFields.getOrElseUpdate(name, new CvFieldBuilder(name)) match {
+      case cfb: CvFieldBuilder => values.foreach(cfb.addValue)
+      case _ => throw new IllegalArgumentException("Trying to add non-controlled-vocabulary value(s) to controlled vocabulary field")
+    }
+  }
+
   private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
     if (valueObjects.nonEmpty) {
       metadataBlockFields += CompoundField(name, valueObjects.toList)
+    }
+  }
+
+  private def addCompoundFieldMultipleValues2(fields: mutable.HashMap[String, AbstractFieldBuilder], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
+    val valueObjects = new ListBuffer[JsonObject]()
+    sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
+    fields.getOrElseUpdate(name, new CompoundFieldBuilder(name)) match {
+      case cfb: CompoundFieldBuilder => valueObjects.foreach(cfb.addValue)
+      case _ => throw new IllegalArgumentException("Trying to add non-compound value(s) to compound field")
     }
   }
 
@@ -163,6 +205,12 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   private def addMetadataBlock(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: ListBuffer[MetadataField]): Unit = {
     if (fields.nonEmpty) {
       versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.toList))
+    }
+  }
+
+  private def addMetadataBlock2(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: mutable.HashMap[String, AbstractFieldBuilder]): Unit = {
+    if (fields.nonEmpty) {
+      versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.values.map(_.build()).toList))
     }
   }
 }
