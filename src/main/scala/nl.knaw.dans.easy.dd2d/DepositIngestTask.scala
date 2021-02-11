@@ -57,10 +57,9 @@ case class DepositIngestTask(deposit: Deposit,
       // TODO: base contact on owner of deposit
       response <- instance.admin().getSingleUser("dataverseAdmin")
       user <- response.data
-      datasetContact <- createDatasetContact(user.displayName, user.email)
-      datasetContact2 <- createDatasetContact2(user.displayName, user.email)
+      datasetContacts <- createDatasetContacts(user.displayName, user.email)
       ddm <- deposit.tryDdm
-      dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContact, List(datasetContact2), deposit.vaultMetadata)
+      dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContacts, deposit.vaultMetadata)
       isUpdate <- deposit.isUpdate
       _ = debug(s"isUpdate? = $isUpdate")
       editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
@@ -85,22 +84,11 @@ case class DepositIngestTask(deposit: Deposit,
     case (nr, msg) => s" - [$nr] $msg"
   }
 
-  private def createDatasetContact(name: String, email: String): Try[CompoundField] = Try {
-    CompoundField(
-      typeName = "datasetContact",
-      value =
-        List(toFieldMap(
-          PrimitiveSingleValueField("datasetContactName", name),
-          PrimitiveSingleValueField("datasetContactEmail", email)
-        ))
-    )
-  }
-
-  private def createDatasetContact2(name: String, email: String): Try[JsonObject] = Try {
-    toFieldMap(
+  private def createDatasetContacts(name: String, email: String): Try[List[JsonObject]] = Try {
+    List(toFieldMap(
       PrimitiveSingleValueField("datasetContactName", name),
       PrimitiveSingleValueField("datasetContactEmail", email)
-    )
+    ))
   }
 
   private def publishDataset(persistentId: String): Try[Unit] = {
