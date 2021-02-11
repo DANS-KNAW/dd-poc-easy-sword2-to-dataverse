@@ -56,10 +56,4 @@ package object dd2d {
 
   case class MissingRequiredFieldException(fieldName: String)
     extends Exception(s"No value found for required field: $fieldName")
-
-
-  abstract class MetadataFieldValue
-
-  case class MetadataFieldObjectValue(jsonObject: JsonObject) extends MetadataFieldValue
-  case class MetadataFieldStringValue(s: String) extends MetadataFieldValue
 }
