@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.easy.dd2d.fieldbuilders.{ AbstractFieldBuilder, CompoundFieldBuilder, CvFieldBuilder }
+import nl.knaw.dans.easy.dd2d.fieldbuilders.{ AbstractFieldBuilder, CompoundFieldBuilder, CvFieldBuilder, PrimitiveFieldBuilder }
 import nl.knaw.dans.easy.dd2d.mapping._
 import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 
@@ -35,13 +35,17 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   with BlockRights
   with BlockDataVaultMetadata {
   lazy val citationFields = new ListBuffer[MetadataField]
-  lazy val citationFields2 = new mutable.HashMap[String, MetadataFieldValue]()
+  lazy val citationFields2 = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
+  lazy val archaeologySpecificFields2 = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val temporalSpatialFields = new ListBuffer[MetadataField]
+  lazy val temporalSpatialFields2 = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val rightsFields = new ListBuffer[MetadataField]
+  lazy val rightsFields2 = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val dataVaultFields = new ListBuffer[MetadataField]
+  lazy val dataVaultFields2 = new mutable.HashMap[String, AbstractFieldBuilder]()
 
-  def toDataverseDataset(ddm: Node, contactData: CompoundField, vaultMetadata: VaultMetadata): Try[Dataset] = Try {
+  def toDataverseDataset(ddm: Node, contactData: CompoundField, contactData2: List[JsonObject], vaultMetadata: VaultMetadata): Try[Dataset] = Try {
     // Please, keep ordered by order in Dataverse UI as much as possible (note, if display-on-create is not set for all fields, some may be hidden initally)
 
     val titles = ddm \ "profile" \ "title"
@@ -51,53 +55,110 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
 
     // Citation
     addPrimitiveFieldSingleValue(citationFields, TITLE, titles.head)
+    addPrimitiveFieldSingleValue2(citationFields2, TITLE, titles.head)
+
     addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, alternativeTitles)
+    addPrimitiveFieldSingleValue2(citationFields2, ALTERNATIVE_TITLE, alternativeTitles)
+
     addCompoundFieldMultipleValues(citationFields, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
+
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
+
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
+
     addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
+
     citationFields.append(contactData)
+    addCompoundFieldMultipleValues2(citationFields2, DATASET_CONTACT, contactData2)
+
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
+
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
                                                                 else alternativeTitles.tail, Description toDescriptionValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
+                                                                  else alternativeTitles.tail, Description toDescriptionValueObject)
+
     // TODO: add languages that cannot be mapped to Dataverse language terms.
 
     val audience = ddm \ "profile" \ "audience"
     if (audience.isEmpty) throw MissingRequiredFieldException(SUBJECT)
 
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
+    addCvFieldMultipleValues2(citationFields2, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
+
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
+    addCvFieldMultipleValues2(citationFields2, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
+
     addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
+    addPrimitiveFieldSingleValue2(citationFields2, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
+
     addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "author", DcxDaiAuthor toContributorValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "author", DcxDaiAuthor toContributorValueObject)
+
     addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "organization", DcxDaiOrganization toContributorValueObject)
+    addCompoundFieldMultipleValues2(citationFields2, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "organization", DcxDaiOrganization toContributorValueObject)
+
     addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
+    addPrimitiveFieldSingleValue2(citationFields2, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
+
     addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
+    addPrimitiveFieldMultipleValues2(citationFields2, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
 
     // Archaeology specific
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
+    addPrimitiveFieldMultipleValues2(archaeologySpecificFields2, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
+
+    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
+    addCompoundFieldMultipleValues2(archaeologySpecificFields2, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
+
     addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
-    addCompoundFieldWithControlledVocabulary(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
+    addPrimitiveFieldMultipleValues2(archaeologySpecificFields2, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
+
+    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
+    addCompoundFieldMultipleValues2(archaeologySpecificFields2, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
+
+    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
+    addCompoundFieldMultipleValues2(archaeologySpecificFields2, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
+
+    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
+    addCompoundFieldMultipleValues2(archaeologySpecificFields2, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
 
     // Temporal and spatial coverage
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
+    addCompoundFieldMultipleValues2(temporalSpatialFields2, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
+
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+    addCompoundFieldMultipleValues2(temporalSpatialFields2, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
 
     // Rights
     val rightsHolder = ddm \ "dcmiMetadata" \ "rightsHolder"
     if (rightsHolder.isEmpty) throw MissingRequiredFieldException(RIGHTS_HOLDER)
     addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
+    addPrimitiveFieldMultipleValues2(rightsFields2, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
 
     // Data vault
     addVaultValue(dataVaultFields, BAG_ID, vaultMetadata.dataverseBagId)
-    addVaultValue(dataVaultFields, NBN, vaultMetadata.dataverseNbn)
-    addVaultValue(dataVaultFields, DANS_OTHER_ID, vaultMetadata.dataverseOtherId)
-    addVaultValue(dataVaultFields, DANS_OTHER_ID_VERSION, vaultMetadata.dataverseOtherIdVersion)
-    addVaultValue(dataVaultFields, SWORD_TOKEN, vaultMetadata.dataverseSwordToken)
+    addPrimitiveFieldSingleValue2(dataVaultFields2, BAG_ID, Option(vaultMetadata.dataverseBagId))
 
-    assembleDataverseDataset()
+    addVaultValue(dataVaultFields, NBN, vaultMetadata.dataverseNbn)
+    addPrimitiveFieldSingleValue2(dataVaultFields2, NBN, Option(vaultMetadata.dataverseNbn))
+
+    addVaultValue(dataVaultFields, DANS_OTHER_ID, vaultMetadata.dataverseOtherId)
+    addPrimitiveFieldSingleValue2(dataVaultFields2, DANS_OTHER_ID, Option(vaultMetadata.dataverseOtherId))
+
+    addVaultValue(dataVaultFields, DANS_OTHER_ID_VERSION, vaultMetadata.dataverseOtherIdVersion)
+    addPrimitiveFieldSingleValue2(dataVaultFields2, DANS_OTHER_ID_VERSION, Option(vaultMetadata.dataverseOtherIdVersion))
+
+    addVaultValue(dataVaultFields, SWORD_TOKEN, vaultMetadata.dataverseSwordToken)
+    addPrimitiveFieldSingleValue2(dataVaultFields2, SWORD_TOKEN, Option(vaultMetadata.dataverseSwordToken))
+
+//    assembleDataverseDataset()
+    assembleDataverseDataset2()
   }
 
   private def assembleDataverseDataset(): Dataset = {
@@ -111,6 +172,18 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     Dataset(datasetVersion)
   }
 
+  private def assembleDataverseDataset2(): Dataset = {
+    val versionMap = mutable.Map[String, MetadataBlock]()
+    addMetadataBlock2(versionMap, "citation", "Citation Metadata", citationFields2)
+    addMetadataBlock2(versionMap, "archaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields2)
+    addMetadataBlock2(versionMap, "temporal-spatial", "Temporal and Spatial Coverage", temporalSpatialFields2)
+    addMetadataBlock2(versionMap, "dansRights", "Rights Metadata", rightsFields2)
+    addMetadataBlock2(versionMap, "dataVault", "Data Vault Metadata", dataVaultFields2)
+    val datasetVersion = DatasetVersion(metadataBlocks = versionMap.toMap)
+    Dataset(datasetVersion)
+  }
+
+
   private def addPrimitiveFieldSingleValue(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     sourceNodes
       .map(nodeTransformer)
@@ -120,18 +193,25 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
       .foreach(v => metadataBlockFields += PrimitiveSingleValueField(name, v))
   }
 
-  private def addPrimitiveFieldSingleValue2(metadataBlockFields: mutable.HashMap[String, ListBuffer[MetadataFieldValue]], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+  private def addPrimitiveFieldSingleValue2(metadataBlockFields: mutable.HashMap[String, AbstractFieldBuilder], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     sourceNodes
       .map(nodeTransformer)
       .filter(_.isDefined)
       .map(_.get)
       .take(1)
       .foreach(v => {
-        val values = metadataBlockFields.getOrElse(name, new mutable.ListBuffer[MetadataFieldValue]())
-        if (values.nonEmpty) throw new IllegalArgumentException("Trying to add second value to single value field")
-        else values.append(MetadataFieldStringValue(v))
-        metadataBlockFields.put(name, values)
+        metadataBlockFields.getOrElseUpdate(name, new PrimitiveFieldBuilder(name, multipleValues = false)) match {
+          case b: PrimitiveFieldBuilder => b.addValue(v)
+        }
       })
+  }
+
+  private def addPrimitiveFieldSingleValue2(metadataBlockFields: mutable.HashMap[String, AbstractFieldBuilder], name: String, value: Option[String]): Unit = {
+    value.foreach { v =>
+      metadataBlockFields.getOrElseUpdate(name, new PrimitiveFieldBuilder(name, multipleValues = false)) match {
+        case b: PrimitiveFieldBuilder => b.addValue(v)
+      }
+    }
   }
 
   private def addPrimitiveFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
@@ -141,12 +221,12 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     }
   }
 
-  private def addPrimitiveFieldMultipleValues2(metadataBlockFields: mutable.HashMap[String, ListBuffer[MetadataFieldValue]], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
+  private def addPrimitiveFieldMultipleValues2(metadataBlockFields: mutable.HashMap[String, AbstractFieldBuilder], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String] = AnyElement toText): Unit = {
     val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
     values.foreach { v =>
-      val values = metadataBlockFields.getOrElse(name, new mutable.ListBuffer[MetadataFieldValue]())
-      values.append(MetadataFieldStringValue(v))
-      metadataBlockFields.put(name, values)
+      metadataBlockFields.getOrElseUpdate(name, new PrimitiveFieldBuilder(name, multipleValues = true)) match {
+        case b: PrimitiveFieldBuilder => b.addValue(v)
+      }
     }
   }
 
@@ -182,6 +262,13 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     }
   }
 
+  private def addCompoundFieldMultipleValues2(fields: mutable.HashMap[String, AbstractFieldBuilder], name: String, valueObjects: List[JsonObject]): Unit = {
+    fields.getOrElseUpdate(name, new CompoundFieldBuilder(name)) match {
+      case cfb: CompoundFieldBuilder => valueObjects.foreach(cfb.addValue)
+      case _ => throw new IllegalArgumentException("Trying to add non-compound value(s) to compound field")
+    }
+  }
+
   private def addCompoundFieldWithControlledVocabulary(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[JsonObject]): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
     sourceNodes.foreach({
@@ -210,7 +297,7 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
 
   private def addMetadataBlock2(versionMap: mutable.Map[String, MetadataBlock], blockId: String, blockDisplayName: String, fields: mutable.HashMap[String, AbstractFieldBuilder]): Unit = {
     if (fields.nonEmpty) {
-      versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.values.map(_.build()).toList))
+      versionMap.put(blockId, MetadataBlock(blockDisplayName, fields.values.map(_.build()).filter(_.isDefined).map(_.get).toList))
     }
   }
 }

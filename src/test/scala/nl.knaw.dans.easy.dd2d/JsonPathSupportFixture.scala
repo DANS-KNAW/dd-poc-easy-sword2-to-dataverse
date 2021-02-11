@@ -33,11 +33,20 @@ trait JsonPathSupportFixture {
     ctx.read("$." + path).asInstanceOf[String]
   }
 
+  protected def getPathAsString(json: String, path: String): String = {
+    val ctx = JsonPath.parse(json)
+    ctx.read(path).asInstanceOf[String]
+  }
+
   protected def findBoolean(json: String, path: String): Boolean = {
     val ctx = JsonPath.parse(json)
     ctx.read("$." + path).asInstanceOf[Boolean]
   }
 
+  protected def getPathAsBoolean(json: String, path: String): Boolean = {
+    val ctx = JsonPath.parse(json)
+    ctx.read(path).asInstanceOf[Boolean]
+  }
 
   /**
    * Reads the JSON code in `json` and extracts the object found using the JSON Path expression in `path`
@@ -49,5 +58,10 @@ trait JsonPathSupportFixture {
   protected def findObject(json: String, path: String): Map[String, Any] = {
     val ctx = JsonPath.parse(json)
     ctx.read("$." + path).asInstanceOf[java.util.HashMap[String, Any]].asScala.toMap
+  }
+
+  protected def getPathAsMap(json: String, path: String): Map[String, Any] = {
+    val ctx = JsonPath.parse(json)
+    ctx.read(path).asInstanceOf[Map[String, Any]]
   }
 }

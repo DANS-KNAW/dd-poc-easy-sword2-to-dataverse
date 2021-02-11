@@ -33,6 +33,11 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         PrimitiveSingleValueField("datasetContactEmail", "contact@example.org")
       ))
   )
+  private val contactData2 = List(toFieldMap(
+    PrimitiveSingleValueField("datasetContactName", "Contact Name"),
+    PrimitiveSingleValueField("datasetContactEmail", "contact@example.org")
+  ))
+
 
   "toDataverseDataset" should "map profile/title to citation/title" in {
     val ddm =
@@ -46,7 +51,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, contactData, contactData2, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>
@@ -70,7 +75,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, contactData, contactData2, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>
@@ -117,7 +122,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
           </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, contactData, contactData2, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>

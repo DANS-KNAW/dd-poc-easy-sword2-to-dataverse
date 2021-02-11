@@ -15,10 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.lang.Thread.sleep
-
 import better.files.File
 import nl.knaw.dans.easy.dd2d.dansbag.{ DansBagValidationResult, DansBagValidator }
+import nl.knaw.dans.easy.dd2d.mapping.JsonObject
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, PrimitiveSingleValueField, UpdateType, toFieldMap }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -59,8 +58,9 @@ case class DepositIngestTask(deposit: Deposit,
       response <- instance.admin().getSingleUser("dataverseAdmin")
       user <- response.data
       datasetContact <- createDatasetContact(user.displayName, user.email)
+      datasetContact2 <- createDatasetContact2(user.displayName, user.email)
       ddm <- deposit.tryDdm
-      dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContact, deposit.vaultMetadata)
+      dataverseDataset <- mapper.toDataverseDataset(ddm, datasetContact, List(datasetContact2), deposit.vaultMetadata)
       isUpdate <- deposit.isUpdate
       _ = debug(s"isUpdate? = $isUpdate")
       editor = if (isUpdate) new DatasetUpdater(deposit, dataverseDataset.datasetVersion.metadataBlocks, instance)
@@ -93,6 +93,13 @@ case class DepositIngestTask(deposit: Deposit,
           PrimitiveSingleValueField("datasetContactName", name),
           PrimitiveSingleValueField("datasetContactEmail", email)
         ))
+    )
+  }
+
+  private def createDatasetContact2(name: String, email: String): Try[JsonObject] = Try {
+    toFieldMap(
+      PrimitiveSingleValueField("datasetContactName", name),
+      PrimitiveSingleValueField("datasetContactEmail", email)
     )
   }
 
