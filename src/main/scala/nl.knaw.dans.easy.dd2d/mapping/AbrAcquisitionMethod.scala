@@ -39,7 +39,7 @@ object AbrAcquisitionMethod extends BlockArchaeologySpecific with AbrScheme with
   /**
    * Predicate to select only the elements that can be processed by [[AbrAcquisitionMethod.toVerwervingswijze]].
    *
-   * @param node
+   * @param node the node to examine
    * @return
    */
   def isAbrVerwervingswijze(node: Node): Boolean = {

@@ -39,7 +39,7 @@ object SubjectAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnha
   /**
    * Predicate to select only the elements that can be processed by [[SubjectAbr.toAbrComplex()]].
    *
-   * @param node
+   * @param node the node to examine
    * @return
    */
   def isAbrComplex(node: Node): Boolean = {

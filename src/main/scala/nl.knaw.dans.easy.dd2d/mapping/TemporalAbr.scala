@@ -39,7 +39,7 @@ object TemporalAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnh
   /**
    * Predicate to select only the elements that can be processed by [[TemporalAbr.toAbrPeriod()]].
    *
-   * @param node
+   * @param node the node to examine
    * @return
    */
   def isAbrPeriod(node: Node): Boolean = {

@@ -39,7 +39,7 @@ object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugE
   /**
    *  Predicate to select only the elements that can be processed by [[AbrReportType.toAbrRapportType]].
    *
-   * @param node
+   * @param node the node to examine
    * @return
    */
   def isAbrReportType(node: Node): Boolean = {
