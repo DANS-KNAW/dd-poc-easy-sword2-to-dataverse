@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy
 
 import better.files.File
+import nl.knaw.dans.easy.dd2d.mapping.JsonObject
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 import org.apache.commons.lang.StringUtils
 
@@ -58,5 +59,4 @@ package object dd2d {
 
   case class InvalidSpatialSchemeException(label: String, attribute: String)
     extends Exception(s"Invalid spatial scheme ($attribute) as attribute of element '$label''")
-
 }

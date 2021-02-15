@@ -17,28 +17,32 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
+import scala.util.Try
 import scala.xml.Node
 
 object SubjectAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrComplex(node: Node): Option[JsonObject] = {
+  def toAbrComplex(node: Node): Try[JsonObject] = Try {
     // TODO: also take attribute namespace into account (should be ddm)
     val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:subject node"))
     val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:subject node"))
     val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:subject node"))
     val term = node.text
 
-    if (optSubjectScheme.isDefined && optSchemeUri.isDefined && optValueUri.isDefined) {
-      val m = FieldMap()
-      m.addPrimitiveField(ABR_COMPLEX_VOCABULARY, optSubjectScheme.get)
-      m.addPrimitiveField(ABR_COMPLEX_VOCABULARY_URI, optSchemeUri.get)
-      m.addPrimitiveField(ABR_COMPLEX_TERM, term)
-      m.addPrimitiveField(ABR_COMPLEX_TERM_URI, optValueUri.get)
-      Option(m.toJsonObject)
-    }
-    else None
+    val m = FieldMap()
+    m.addPrimitiveField(ABR_COMPLEX_VOCABULARY, optSubjectScheme.get)
+    m.addPrimitiveField(ABR_COMPLEX_VOCABULARY_URI, optSchemeUri.get)
+    m.addPrimitiveField(ABR_COMPLEX_TERM, term)
+    m.addPrimitiveField(ABR_COMPLEX_TERM_URI, optValueUri.get)
+    m.toJsonObject
   }
 
+  /**
+   * Predicate to select only the elements that can be processed by [[SubjectAbr.toAbrComplex()]].
+   *
+   * @param node the node to examine
+   * @return
+   */
   def isAbrComplex(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
     node.label == "subject" && hasAttribute(node, "subjectScheme", SCHEME_ABR_COMPLEX) && hasAttribute(node, "schemeURI", SCHEME_URI_ABR_COMPLEX)

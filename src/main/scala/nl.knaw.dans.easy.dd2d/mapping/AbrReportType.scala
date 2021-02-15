@@ -17,28 +17,32 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
+import scala.util.Try
 import scala.xml.Node
 
 object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrRapportType(node: Node): Option[JsonObject] = {
+  def toAbrRapportType(node: Node): Try[JsonObject] = Try {
     // TODO: also take attribute namespace into account (should be ddm)
     val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:reportNumber node"))
     val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:reportNumber node"))
     val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:reportNumber node"))
     val term = node.text
 
-    if (optSubjectScheme.isDefined && optSchemeUri.isDefined && optValueUri.isDefined) {
-      val m = FieldMap()
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY, optSubjectScheme.get)
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY_URI, optSchemeUri.get)
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM, term)
-      m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM_URI, optValueUri.get)
-      Option(m.toJsonObject)
-    }
-    else None
+    val m = FieldMap()
+    m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY, optSubjectScheme.get)
+    m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY_URI, optSchemeUri.get)
+    m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM, term)
+    m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM_URI, optValueUri.get)
+    m.toJsonObject
   }
 
+  /**
+   *  Predicate to select only the elements that can be processed by [[AbrReportType.toAbrRapportType]].
+   *
+   * @param node the node to examine
+   * @return
+   */
   def isAbrReportType(node: Node): Boolean = {
     // TODO: also take attribute namespace into account (should be ddm)
     // TODO: correct the scheme: should be 'ABR Period' ??
