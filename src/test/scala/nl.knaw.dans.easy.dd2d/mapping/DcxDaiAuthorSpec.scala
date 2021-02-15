@@ -38,7 +38,7 @@ class DcxDaiAuthorSpec extends TestSupportFixture with BlockCitation {
           </dcx-dai:organization>
       </dcx-dai:author>
 
-    val result = Serialization.writePretty(DcxDaiAuthor.toAuthorValueObject(author))
+    val result = Serialization.writePretty(DcxDaiAuthor.toAuthorValueObject(author).get)
     findString(result, s"$AUTHOR_NAME.value") shouldBe "Dr A van Helsing"
     findString(result, s"$AUTHOR_AFFILIATION.value") shouldBe "Anti-Vampire League"
     findString(result, s"$AUTHOR_IDENTIFIER_SCHEME.value") shouldBe "ORCID"
@@ -57,7 +57,7 @@ class DcxDaiAuthorSpec extends TestSupportFixture with BlockCitation {
               <dcx-dai:name xml:lang="en">Anti-Vampire League</dcx-dai:name>
           </dcx-dai:organization>
       </dcx-dai:author>
-    val result = Serialization.writePretty(DcxDaiAuthor.toContributorValueObject(author))
+    val result = Serialization.writePretty(DcxDaiAuthor.toContributorValueObject(author).get)
     findString(result, s"$CONTRIBUTOR_NAME.value") shouldBe "Dr A van Helsing (Anti-Vampire League)"
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Project Manager"
   }
@@ -70,7 +70,7 @@ class DcxDaiAuthorSpec extends TestSupportFixture with BlockCitation {
               <dcx-dai:name xml:lang="en">Anti-Vampire League</dcx-dai:name>
           </dcx-dai:organization>
       </dcx-dai:author>
-    val result = Serialization.writePretty(DcxDaiAuthor.toContributorValueObject(author))
+    val result = Serialization.writePretty(DcxDaiAuthor.toContributorValueObject(author).get)
     findString(result, s"$CONTRIBUTOR_NAME.value") shouldBe "Anti-Vampire League"
     findString(result, s"$CONTRIBUTOR_TYPE.value") shouldBe "Other"
   }

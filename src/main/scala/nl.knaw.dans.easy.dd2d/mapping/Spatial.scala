@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import nl.knaw.dans.easy.dd2d.InvalidSpatialSchemeException
+
 import scala.xml.Node
 
 trait Spatial {
@@ -32,9 +34,16 @@ trait Spatial {
   case class Point(x: String, y: String)
 
   protected def isRd(env: Node): Boolean = {
-    // Not specifying a namespace in the attribut lookup because srsName is not recognized by the parser to be in the GML namespace,
+    if (validScheme(env))
+      env.attribute("srsName").exists(_.text == RD_SRS_NAME)
+    else
+       throw InvalidSpatialSchemeException(env.label, env.attribute("srsName").mkString(" | "))
+  }
+
+  private def validScheme(env: Node): Boolean = {
+    // Not specifying a namespace in the attribute lookup because srsName is not recognized by the parser to be in the GML namespace,
     // even when the Envelope element has GML as its default namespace.
-    env.attribute("srsName").exists(_.text == RD_SRS_NAME)
+    env.attribute("srsName").exists(n => List(RD_SRS_NAME, DEGREES_SRS_NAME).contains(n.text))
   }
 
   protected def getPoint(p: Node): Point = {

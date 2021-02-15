@@ -15,11 +15,12 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import scala.util.Try
 import scala.xml.Node
 
 object SpatialPoint extends Spatial with BlockTemporalAndSpatial {
-  def toEasyTsmSpatialPointValueObject(point: Node): JsonObject = {
-    val isRD = isRd(point) // TODO: improve error handling
+  def toEasyTsmSpatialPointValueObject(point: Node): Try[JsonObject] = Try {
+    val isRD = isRd(point)
     val p = getPoint(point)
     val m = FieldMap()
 

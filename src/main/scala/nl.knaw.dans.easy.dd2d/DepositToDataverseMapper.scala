@@ -17,11 +17,12 @@ package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.mapping._
 import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 import scala.xml.{ Elem, Node, NodeSeq }
 
 /**
@@ -32,7 +33,8 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   with BlockArchaeologySpecific
   with BlockTemporalAndSpatial
   with BlockRights
-  with BlockDataVaultMetadata {
+  with BlockDataVaultMetadata
+  with DebugEnhancedLogging {
   lazy val citationFields = new ListBuffer[MetadataField]
   lazy val archaeologySpecificFields = new ListBuffer[MetadataField]
   lazy val temporalSpatialFields = new ListBuffer[MetadataField]
@@ -132,9 +134,17 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     }
   }
 
-  private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => JsonObject): Unit = {
+  private def addCompoundFieldMultipleValues(metadataBlockFields: ListBuffer[MetadataField], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Try[JsonObject]): Unit = {
     val valueObjects = new ListBuffer[JsonObject]()
-    sourceNodes.foreach(e => valueObjects += nodeTransformer(e))
+    sourceNodes.foreach({
+      e =>
+        nodeTransformer(e) match {
+          case Success(jsonObject) => valueObjects += jsonObject
+          case Failure(exception) =>
+            logger.error(exception.getMessage)
+            valueObjects
+        }
+    })
     if (valueObjects.nonEmpty) {
       metadataBlockFields += CompoundField(name, valueObjects.toList)
     }

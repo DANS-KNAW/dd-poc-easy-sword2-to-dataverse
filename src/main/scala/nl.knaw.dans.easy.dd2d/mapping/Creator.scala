@@ -15,11 +15,12 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import scala.util.Try
 import scala.xml.Node
 
 object Creator extends BlockCitation {
 
-  def toAuthorValueObject(node: Node): JsonObject = {
+  def toAuthorValueObject(node: Node): Try[JsonObject] = Try {
     val m = FieldMap()
     m.addPrimitiveField(AUTHOR_NAME, node.text)
     m.toJsonObject

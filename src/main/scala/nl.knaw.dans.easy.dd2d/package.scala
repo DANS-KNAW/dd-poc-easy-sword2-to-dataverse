@@ -56,4 +56,7 @@ package object dd2d {
   case class MissingRequiredFieldException(fieldName: String)
     extends Exception(s"No value found for required field: $fieldName")
 
+  case class InvalidSpatialSchemeException(label: String, attribute: String)
+    extends Exception(s"Invalid spatial scheme ($attribute) as attribute of element '$label''")
+
 }

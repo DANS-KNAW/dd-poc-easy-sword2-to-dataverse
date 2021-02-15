@@ -15,11 +15,12 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import scala.util.Try
 import scala.xml.Node
 
 object Description extends BlockCitation {
 
-  def toDescriptionValueObject(node: Node): JsonObject = {
+  def toDescriptionValueObject(node: Node): Try[JsonObject] = Try {
     val m = FieldMap()
     m.addPrimitiveField(DESCRIPTION_VALUE, node.text)
     // TODO: add date subfield?

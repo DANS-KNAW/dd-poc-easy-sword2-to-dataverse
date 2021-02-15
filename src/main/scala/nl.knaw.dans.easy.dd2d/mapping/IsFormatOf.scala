@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import scala.util.Try
 import scala.xml.Node
 
 object IsFormatOf extends BlockCitation {
@@ -24,7 +25,7 @@ object IsFormatOf extends BlockCitation {
     else Option.empty
   }
 
-  def toOtherIdValueObject(node: Node): JsonObject = {
+  def toOtherIdValueObject(node: Node): Try[JsonObject] = Try {
     val m = FieldMap()
     m.addPrimitiveField(OTHER_ID_VALUE, node.text)
     m.toJsonObject

@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import scala.util.Try
 import scala.xml.Node
 
 object DcxDaiOrganization extends Contributor with BlockCitation {
@@ -30,7 +31,7 @@ object DcxDaiOrganization extends Contributor with BlockCitation {
       viaf = ((node \ "VIAF").map(_.text).headOption))
   }
 
-  def toContributorValueObject(node: Node): JsonObject = {
+  def toContributorValueObject(node: Node): Try[JsonObject] = Try {
     val m = FieldMap()
     val organization = parseOrganization(node)
     if (organization.name.isDefined) {
@@ -42,7 +43,7 @@ object DcxDaiOrganization extends Contributor with BlockCitation {
     m.toJsonObject
   }
 
-  def toAuthorValueObject(node: Node): JsonObject = {
+  def toAuthorValueObject(node: Node): Try[JsonObject] = Try {
     val m = FieldMap()
     val organization = parseOrganization(node)
     if (organization.name.isDefined) {

@@ -24,7 +24,7 @@ class DescriptionSpec extends TestSupportFixture with BlockCitation {
 
   "toDescriptionValueObject" should "create Json object for the description value" in {
     val description = <dcterms:description>The poise of the head strikes me at once...</dcterms:description>
-    val result = Serialization.writePretty(Description.toDescriptionValueObject(description))
+    val result = Serialization.writePretty(Description.toDescriptionValueObject(description).get)
     findObject(result, s"$DESCRIPTION_VALUE") shouldBe Map("typeName" -> "dsDescriptionValue", "multiple" -> false, "typeClass" -> "primitive", "value" -> "The poise of the head strikes me at once...")
   }
 

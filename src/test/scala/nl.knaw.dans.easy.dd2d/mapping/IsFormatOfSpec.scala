@@ -24,7 +24,7 @@ class IsFormatOfSpec extends TestSupportFixture with BlockCitation {
 
   "toOtherIdValueObject" should "create Json object for the other id value" in {
     val description = <dcterms:isFormatOf>https://test.example/1</dcterms:isFormatOf>
-    val result = Serialization.writePretty(IsFormatOf.toOtherIdValueObject(description))
+    val result = Serialization.writePretty(IsFormatOf.toOtherIdValueObject(description).get)
     findObject(result, s"$OTHER_ID_VALUE") shouldBe Map("typeName" -> "otherIdValue", "multiple" -> false, "typeClass" -> "primitive", "value" -> "https://test.example/1")
   }
 
