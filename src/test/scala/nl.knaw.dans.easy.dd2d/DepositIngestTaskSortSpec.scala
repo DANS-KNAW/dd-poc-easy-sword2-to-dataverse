@@ -52,6 +52,6 @@ class DepositIngestTaskSortSpec extends TestSupportFixture with MockFactory {
   //  }
 
   private def createDepositIngestTask(directory: File): DepositIngestTask = {
-    DepositIngestTask(Deposit(directory), dansBagValidator, dataverseInstance, publish = false, 3, 500, null, null)
+    DepositIngestTask(Deposit(directory), dansBagValidator, dataverseInstance, publish = false, 3, 500, null, null, null, null, null)
   }
 }

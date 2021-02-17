@@ -29,6 +29,9 @@ import scala.xml.{ Elem, XML }
 
 case class Configuration(version: String,
                          inboxDir: File,
+                         outboxDirRejected: File,
+                         outboxDirFailed: File,
+                         outboxDirProcessed: File,
                          validatorServiceUrl: URI,
                          validatorConnectionTimeoutMs: Int,
                          validatorReadTimeoutMs: Int,
@@ -68,6 +71,9 @@ object Configuration {
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
       inboxDir = File(properties.getString("deposits.inbox")),
+      outboxDirRejected = File(properties.getString("deposits.rejected")),
+      outboxDirFailed = File(properties.getString("deposits.failed")),
+      outboxDirProcessed = File(properties.getString("deposits.processed")),
       validatorServiceUrl = new URI(properties.getString("validate-dans-bag.service-url")),
       validatorConnectionTimeoutMs = properties.getInt("validate-dans-bag.connection-timeout-ms"),
       validatorReadTimeoutMs = properties.getInt("validate-dans-bag.read-timeout-ms"),
