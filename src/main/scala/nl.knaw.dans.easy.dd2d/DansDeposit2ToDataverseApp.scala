@@ -86,9 +86,11 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     inboxWatcher.stop()
   }
 
-  private def initOutboxDirs (outboxDir: Path): Unit = {
+  private def initOutboxDirs (outboxDir: Path): Try[Unit] = Try {
+    if (!File(outboxDir).isEmpty)
+      throw NonEmptyOutboxDirException(outboxDir.toString)
+
     File(outboxDir.toString.concat("/deposits-processed")).createDirectoryIfNotExists(true)
     File(outboxDir.toString.concat("/deposits-rejected")).createDirectoryIfNotExists(true)
-    File(outboxDir.toString.concat("/deposits-failed")).createDirectoryIfNotExists(true)
-  }
+    File(outboxDir.toString.concat("/deposits-failed")).createDirectoryIfNotExists(true)}
 }

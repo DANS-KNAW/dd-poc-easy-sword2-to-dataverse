@@ -16,7 +16,6 @@
 package nl.knaw.dans.easy
 
 import better.files.File
-import nl.knaw.dans.easy.dd2d.mapping.JsonObject
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 import org.apache.commons.lang.StringUtils
 
@@ -56,4 +55,7 @@ package object dd2d {
 
   case class MissingRequiredFieldException(fieldName: String)
     extends Exception(s"No value found for required field: $fieldName")
+
+  case class NonEmptyOutboxDirException(outboxDir: String)
+    extends Exception(s"Output directory: $outboxDir already contains results")
 }
