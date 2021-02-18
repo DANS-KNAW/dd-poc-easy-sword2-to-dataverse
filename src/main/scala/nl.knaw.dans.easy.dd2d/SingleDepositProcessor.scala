@@ -20,6 +20,7 @@ import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
 
+import java.nio.file.Path
 import scala.util.Try
 import scala.xml.Elem
 
@@ -31,9 +32,7 @@ class SingleDepositProcessor(deposit: File,
                              publishAwaitUnlockMillisecondsBetweenRetries: Int,
                              narcisClassification: Elem,
                              isoToDataverseLanage: Map[String, String],
-                             outboxDirProcessed: File,
-                             outboxDirRejected: File,
-                             outboxDirFailed: File) {
+                             outboxDir: Path) {
   def process(): Try[Unit] = Try {
     val ingestTasks = new PassiveTaskQueue[Deposit]()
     ingestTasks.add(
@@ -46,9 +45,7 @@ class SingleDepositProcessor(deposit: File,
         publishAwaitUnlockMillisecondsBetweenRetries,
         narcisClassification,
         isoToDataverseLanage,
-        outboxDirProcessed,
-        outboxDirRejected,
-        outboxDirFailed))
+        outboxDir))
     ingestTasks.process()
   }
 }

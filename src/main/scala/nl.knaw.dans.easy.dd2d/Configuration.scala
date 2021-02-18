@@ -23,15 +23,14 @@ import org.apache.commons.csv.{ CSVFormat, CSVParser }
 
 import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.nio.file.{ Path, Paths }
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.util.Try
 import scala.xml.{ Elem, XML }
 
 case class Configuration(version: String,
                          inboxDir: File,
-                         outboxDirRejected: File,
-                         outboxDirFailed: File,
-                         outboxDirProcessed: File,
+                         outboxDir: Path,
                          validatorServiceUrl: URI,
                          validatorConnectionTimeoutMs: Int,
                          validatorReadTimeoutMs: Int,
@@ -71,9 +70,7 @@ object Configuration {
     new Configuration(
       version = (home / "bin" / "version").contentAsString.stripLineEnd,
       inboxDir = File(properties.getString("deposits.inbox")),
-      outboxDirRejected = File(properties.getString("deposits.rejected")),
-      outboxDirFailed = File(properties.getString("deposits.failed")),
-      outboxDirProcessed = File(properties.getString("deposits.processed")),
+      outboxDir = Paths.get(properties.getString("deposits.outbox")),
       validatorServiceUrl = new URI(properties.getString("validate-dans-bag.service-url")),
       validatorConnectionTimeoutMs = properties.getInt("validate-dans-bag.connection-timeout-ms"),
       validatorReadTimeoutMs = properties.getInt("validate-dans-bag.read-timeout-ms"),

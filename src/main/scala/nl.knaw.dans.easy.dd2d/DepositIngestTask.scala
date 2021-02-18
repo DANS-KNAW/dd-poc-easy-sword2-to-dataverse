@@ -24,6 +24,7 @@ import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.Task
 
+import java.nio.file.Path
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
 import scala.xml.Elem
@@ -42,19 +43,17 @@ case class DepositIngestTask(deposit: Deposit,
                              publishAwaitUnlockMillisecondsBetweenRetries: Int,
                              narcisClassification: Elem,
                              isoToDataverseLanguage: Map[String, String],
-                             outboxDirProcessed: File,
-                             outboxDirRejected: File,
-                             outboxDirFailed: File) extends Task[Deposit] with DebugEnhancedLogging {
+                             outboxDir: Path) extends Task[Deposit] with DebugEnhancedLogging {
   trace(deposit, instance)
 
   private val mapper = new DepositToDataverseMapper(narcisClassification, isoToDataverseLanguage)
   private val bagDirPath = File(deposit.bagDir.path)
 
   override def run(): Try[Unit] = doRun()
-    .doIfSuccess(_ => moveDepositToOutbox(outboxDirProcessed))
+    .doIfSuccess(_ => moveDepositToOutbox("deposits-processed"))
     .doIfFailure {
-      case _: RejectedDepositException => moveDepositToOutbox(outboxDirRejected)
-      case _ => moveDepositToOutbox(outboxDirFailed)
+      case _: RejectedDepositException => moveDepositToOutbox("deposits-rejected")
+      case _ => moveDepositToOutbox("deposits-failed")
     }
 
   private def doRun(): Try[Unit] = {
@@ -82,12 +81,12 @@ case class DepositIngestTask(deposit: Deposit,
     // TODO: delete draft if something went wrong
   }
 
-  def moveDepositToOutbox(outBox: File): Unit = {
+  def moveDepositToOutbox(subDir: String): Unit = {
     try {
-      deposit.dir.copyToDirectory(outBox)
+      deposit.dir.copyToDirectory(File(outboxDir.toString.concat(s"/$subDir")))
       deposit.dir.delete()
     } catch {
-      case _: Exception => logger.error(s"Failed to move deposit: $deposit to the designated outbox")
+      case e: Exception => logger.info(s"Failed to move deposit: $deposit to the designated outbox : $e")
     }
   }
 

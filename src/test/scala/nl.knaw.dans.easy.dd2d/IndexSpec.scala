@@ -25,9 +25,7 @@ class IndexSpec extends TestSupportFixture {
   private val configuration = Configuration(
     version = "my-version",
     inboxDir = null,
-    outboxDirRejected = null,
-    outboxDirFailed = null,
-    outboxDirProcessed = null,
+    outboxDir = null,
     validatorServiceUrl = null,
     validatorConnectionTimeoutMs = 1000,
     validatorReadTimeoutMs= 1000,
