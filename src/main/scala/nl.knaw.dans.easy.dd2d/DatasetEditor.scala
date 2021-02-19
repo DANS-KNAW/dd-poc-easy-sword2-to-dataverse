@@ -45,7 +45,7 @@ abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) exte
         .map(f => {
           debug(s"Adding file, directoryLabel = ${f.metadata.directoryLabel}, label = ${f.metadata.label}")
           instance.dataset(persistentId)
-            .addFile(f.file, Option(f.metadata))
+            .addFile(Option(f.file), Option(f.metadata))
             .map(_ => instance.dataset(persistentId).awaitUnlock())
         })
         .collectResults
