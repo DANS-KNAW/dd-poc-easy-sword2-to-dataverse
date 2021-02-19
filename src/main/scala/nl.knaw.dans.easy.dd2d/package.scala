@@ -58,4 +58,11 @@ package object dd2d {
 
   case class NonEmptyOutboxDirException(outboxDir: String)
     extends Exception(s"Output directory: $outboxDir already contains results")
+
+  object OutboxSubdir extends Enumeration {
+    type OutboxSubdir = Value
+    val PROCESSED = Value("/deposits-processed")
+    val REJECTED = Value("/deposits-rejected")
+    val FAILED = Value("/deposits-failed")
+  }
 }

@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
+import nl.knaw.dans.easy.dd2d.OutboxSubdir.{ FAILED, PROCESSED, REJECTED }
 import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
@@ -76,6 +77,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       configuration.narcisClassification,
       configuration.isoToDataverseLanguage,
       outboxDir)).process()
+    deleteEmptyDepositsDir(inbox)
   }
 
   def start(): Try[Unit] = {
@@ -86,11 +88,16 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     inboxWatcher.stop()
   }
 
-  private def initOutboxDirs (outboxDir: Path): Try[Unit] = Try {
+  private def initOutboxDirs(outboxDir: Path): Try[Unit] = Try {
     if (!File(outboxDir).isEmpty)
       throw NonEmptyOutboxDirException(outboxDir.toString)
 
-    File(outboxDir.toString.concat("/deposits-processed")).createDirectoryIfNotExists(true)
-    File(outboxDir.toString.concat("/deposits-rejected")).createDirectoryIfNotExists(true)
-    File(outboxDir.toString.concat("/deposits-failed")).createDirectoryIfNotExists(true)}
+    File(outboxDir.toString.concat(PROCESSED.toString)).createDirectoryIfNotExists(true)
+    File(outboxDir.toString.concat(REJECTED.toString)).createDirectoryIfNotExists(true)
+    File(outboxDir.toString.concat(FAILED.toString)).createDirectoryIfNotExists(true)
+  }
+
+  private def deleteEmptyDepositsDir(inbox: File): Try[Unit] = Try {
+    inbox.delete(true)
+  }
 }

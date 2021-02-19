@@ -16,6 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
+import nl.knaw.dans.easy.dd2d.OutboxSubdir.{ FAILED, OutboxSubdir, PROCESSED, REJECTED }
 import nl.knaw.dans.easy.dd2d.dansbag.{ DansBagValidationResult, DansBagValidator }
 import nl.knaw.dans.easy.dd2d.mapping.JsonObject
 import nl.knaw.dans.lib.dataverse.DataverseInstance
@@ -50,10 +51,10 @@ case class DepositIngestTask(deposit: Deposit,
   private val bagDirPath = File(deposit.bagDir.path)
 
   override def run(): Try[Unit] = doRun()
-    .doIfSuccess(_ => moveDepositToOutbox("deposits-processed"))
+    .doIfSuccess(_ => moveDepositToOutbox(PROCESSED))
     .doIfFailure {
-      case _: RejectedDepositException => moveDepositToOutbox("deposits-rejected")
-      case _ => moveDepositToOutbox("deposits-failed")
+      case _: RejectedDepositException => moveDepositToOutbox(REJECTED)
+      case _ => moveDepositToOutbox(FAILED)
     }
 
   private def doRun(): Try[Unit] = {
@@ -81,9 +82,9 @@ case class DepositIngestTask(deposit: Deposit,
     // TODO: delete draft if something went wrong
   }
 
-  def moveDepositToOutbox(subDir: String): Unit = {
+  def moveDepositToOutbox(subDir: OutboxSubdir): Unit = {
     try {
-      deposit.dir.copyToDirectory(File(outboxDir.toString.concat(s"/$subDir")))
+      deposit.dir.copyToDirectory(File(outboxDir.toString.concat(subDir.toString)))
       deposit.dir.delete()
     } catch {
       case e: Exception => logger.info(s"Failed to move deposit: $deposit to the designated outbox : $e")
