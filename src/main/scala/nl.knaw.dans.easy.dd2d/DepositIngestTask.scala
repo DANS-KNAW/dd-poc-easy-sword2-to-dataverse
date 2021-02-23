@@ -84,7 +84,7 @@ case class DepositIngestTask(deposit: Deposit,
 
   def moveDepositToOutbox(subDir: OutboxSubdir): Unit = {
     try {
-      deposit.dir.copyToDirectory(File(outboxDir.toString.concat(subDir.toString)))
+      deposit.dir.copyToDirectory(File(outboxDir) / subDir.toString))
       deposit.dir.delete()
     } catch {
       case e: Exception => logger.info(s"Failed to move deposit: $deposit to the designated outbox : $e")
