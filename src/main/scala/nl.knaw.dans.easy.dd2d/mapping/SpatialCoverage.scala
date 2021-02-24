@@ -15,18 +15,23 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
-trait BlockTemporalAndSpatial {
-  val TEMPORAL_COVERAGE = "dansTemporalCoverage"
-  val SPATIAL_POINT = "dansSpatialPoint"
-  val SPATIAL_POINT_SCHEME = "dansSpatialPointScheme"
-  val SPATIAL_POINT_X = "dansSpatialPointX"
-  val SPATIAL_POINT_Y = "dansSpatialPointY"
-  val SPATIAL_BOX = "dansSpatialBox"
-  val SPATIAL_BOX_SCHEME = "dansSpatialBoxScheme"
-  val SPATIAL_BOX_NORTH = "dansSpatialBoxNorth"
-  val SPATIAL_BOX_EAST = "dansSpatialBoxEast"
-  val SPATIAL_BOX_SOUTH = "dansSpatialBoxSouth"
-  val SPATIAL_BOX_WEST = "dansSpatialBoxWest"
-  val SPATIAL_COVERAGE_CONTROLLED = "dansSpatialCoverageControlled"
-  val SPATIAL_COVERAGE_UNCONTROLLED = "dansSpatialCoverageText"
+import scala.xml.Node
+
+object SpatialCoverage extends Spatial with BlockTemporalAndSpatial {
+  private val controlledValues = List(
+    "Netherlands",
+    "United Kingdom",
+    "Belgium",
+    "Germany"
+  )
+
+  def toControlledSpatialValue(node: Node): Option[String] = {
+    if (controlledValues.contains(node.text)) Some(node.text)
+    else Option.empty
+  }
+
+  def toUncontrolledSpatialValue(node: Node): Option[String] = {
+    if (controlledValues.contains(node.text)) Option.empty
+    else Some(node.text)
+  }
 }

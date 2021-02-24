@@ -17,7 +17,7 @@ package nl.knaw.dans.easy.dd2d
 
 import nl.knaw.dans.easy.dd2d.fieldbuilders.{ AbstractFieldBuilder, CompoundFieldBuilder, CvFieldBuilder, PrimitiveFieldBuilder }
 import nl.knaw.dans.easy.dd2d.mapping._
-import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, ControlledMultipleValueField, Dataset, DatasetVersion, MetadataBlock, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ Dataset, DatasetVersion, MetadataBlock }
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -59,12 +59,17 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
     addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
                                                                 else alternativeTitles.tail, Description toDescriptionValueObject)
+    val otherDescriptions = (ddm \ "dcmiMetadata" \ "date") ++
+      (ddm \ "dcmiMetadata" \ "dateAccepted") ++
+      (ddm \ "dcmiMetadata" \ "dateCopyrighted ") ++
+      (ddm \ "dcmiMetadata" \ "dateSubmitted") ++
+      (ddm \ "dcmiMetadata" \ "modified") ++
+      (ddm \ "dcmiMetadata" \ "issued") ++
+      (ddm \ "dcmiMetadata" \ "valid") ++
+      (ddm \ "dcmiMetadata" \ "coverage")
+    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, otherDescriptions, Description toPrefixedDescription)
 
-    // TODO: add languages that cannot be mapped to Dataverse language terms.
-
-    val audience = ddm \ "profile" \ "audience"
-    if (audience.isEmpty) throw MissingRequiredFieldException(SUBJECT)
-
+    checkRequiredField(SUBJECT, ddm \ "profile" \ "audience")
     addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
     addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
     addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
@@ -82,13 +87,18 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
 
     // Temporal and spatial coverage
+    addPrimitiveFieldMultipleValues(temporalSpatialFields, TEMPORAL_COVERAGE, ddm \ "dcmiMetadata" \ "temporal")
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+    addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_CONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toControlledSpatialValue)
+    addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_UNCONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toUncontrolledSpatialValue)
 
     // Rights
-    val rightsHolder = ddm \ "dcmiMetadata" \ "rightsHolder"
-    if (rightsHolder.isEmpty) throw MissingRequiredFieldException(RIGHTS_HOLDER)
+    checkRequiredField(RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder")
     addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
+
+    // Collection
+    // TODO: add collection block
 
     // Data vault
     addPrimitiveFieldSingleValue(dataVaultFields, BAG_ID, Option(vaultMetadata.dataverseBagId))
@@ -98,6 +108,10 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     addPrimitiveFieldSingleValue(dataVaultFields, SWORD_TOKEN, Option(vaultMetadata.dataverseSwordToken))
 
     assembleDataverseDataset()
+  }
+
+  private def checkRequiredField(fieldName: String, nodes: NodeSeq): Unit = {
+    if (nodes.isEmpty) throw MissingRequiredFieldException(fieldName)
   }
 
   private def assembleDataverseDataset(): Dataset = {

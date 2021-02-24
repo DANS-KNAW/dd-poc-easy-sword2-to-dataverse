@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d.mapping
 
+import nl.knaw.dans.easy.dd2d.mapping.Description.DESCRIPTION_VALUE
 import org.joda.time.DateTime
 import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter }
 
