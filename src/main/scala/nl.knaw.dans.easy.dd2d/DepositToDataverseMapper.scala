@@ -40,7 +40,7 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   lazy val rightsFields = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val dataVaultFields = new mutable.HashMap[String, AbstractFieldBuilder]()
 
-  def toDataverseDataset(ddm: Node, contactData: List[JsonObject], vaultMetadata: VaultMetadata): Try[Dataset] = Try {
+  def toDataverseDataset(ddm: Node, optAgreements: Option[Node], contactData: List[JsonObject], vaultMetadata: VaultMetadata): Try[Dataset] = Try {
     // Please, keep ordered by order in Dataverse UI as much as possible (note, if display-on-create is not set for all fields, some may be hidden initally)
 
     val titles = ddm \ "profile" \ "title"
@@ -88,14 +88,17 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
 
     // Temporal and spatial coverage
     addPrimitiveFieldMultipleValues(temporalSpatialFields, TEMPORAL_COVERAGE, ddm \ "dcmiMetadata" \ "temporal")
-    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, ddm \ "dcmiMetadata" \ "spatial" \ "Point", SpatialPoint toEasyTsmSpatialPointValueObject)
+    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, (ddm \ "dcmiMetadata" \ "spatial").filter(_.child.exists(_.label == "Point")), SpatialPoint toEasyTsmSpatialPointValueObject)
     addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
     addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_CONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toControlledSpatialValue)
-    addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_UNCONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toUncontrolledSpatialValue)
+    addPrimitiveFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_UNCONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toUncontrolledSpatialValue)
 
     // Rights
     checkRequiredField(RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder")
     addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
+    optAgreements.foreach { agreements =>
+      addCvFieldSingleValue(rightsFields, PERSONAL_DATA_PRESENT, agreements \ "personalDataStatement", PersonalStatement toHasPersonalDataValue)
+    }
 
     // Collection
     // TODO: add collection block
@@ -155,6 +158,14 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
         case b: PrimitiveFieldBuilder => b.addValue(v)
         case _ => throw new IllegalArgumentException("Trying to add non-primitive value(s) to primitive field")
       }
+    }
+  }
+
+  private def addCvFieldSingleValue(metadataBlockFields: mutable.HashMap[String, AbstractFieldBuilder], name: String, sourceNodes: NodeSeq, nodeTransformer: Node => Option[String]): Unit = {
+    val values = sourceNodes.map(nodeTransformer).filter(_.isDefined).map(_.get).toList
+    metadataBlockFields.getOrElseUpdate(name, new CvFieldBuilder(name, multipleValues = false)) match {
+      case cfb: CvFieldBuilder => values.foreach(cfb.addValue)
+      case _ => throw new IllegalArgumentException("Trying to add non-controlled-vocabulary value(s) to controlled vocabulary field")
     }
   }
 

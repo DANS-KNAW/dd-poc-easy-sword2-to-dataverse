@@ -25,6 +25,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
   implicit val format: DefaultFormats.type = DefaultFormats
   private val mapper = new DepositToDataverseMapper(null, null)
   private val vaultMetadata = Deposit(testDirValid / "valid-easy-submitted").vaultMetadata
+  private val optAgreements = Deposit(testDirValid / "valid-easy-submitted").tryOptAgreementsXml.get
   private val contactData = List(toFieldMap(
     PrimitiveSingleValueField("datasetContactName", "Contact Name"),
     PrimitiveSingleValueField("datasetContactEmail", "contact@example.org")
@@ -42,7 +43,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, optAgreements, contactData, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>
@@ -66,7 +67,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, optAgreements, contactData, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>
@@ -113,7 +114,7 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
           </ddm:dcmiMetadata>
       </ddm:DDM>
 
-    val result = mapper.toDataverseDataset(ddm, contactData, vaultMetadata)
+    val result = mapper.toDataverseDataset(ddm, optAgreements, contactData, vaultMetadata)
     result shouldBe a[Success[_]]
     inside(result) {
       case Success(Dataset(dsv)) =>

@@ -17,18 +17,13 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import scala.xml.Node
 
-object SpatialPoint extends Spatial with BlockTemporalAndSpatial {
-  def toEasyTsmSpatialPointValueObject(spatial: Node): JsonObject = {
-    val isRD = isRd(spatial) // TODO: improve error handling
-    // TODO: Only one Point expected here, but should be more robust
-    val pointElem = (spatial \ "Point").head
-    val p = getPoint(pointElem)
-    val m = FieldMap()
+object PersonalStatement {
 
-    m.addCvField(SPATIAL_POINT_SCHEME, if (isRD) RD_SCHEME
-                                       else LATLON_SCHEME)
-    m.addPrimitiveField(SPATIAL_POINT_X, p.x)
-    m.addPrimitiveField(SPATIAL_POINT_Y, p.y)
-    m.toJsonObject
+  def toHasPersonalDataValue(personalStatement: Node): Option[String] = {
+    if ((personalStatement \ "notAvailable").nonEmpty) Option("Unknown")
+    else (personalStatement \ "containsPrivacySensitiveData")
+      .map(_.text.toBoolean)
+      .map(yes => if (yes) "Yes"
+                  else "No").headOption
   }
 }

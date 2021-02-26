@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.nio.file.{ Path, Paths }
-
 import better.files.File
 import gov.loc.repository.bagit.domain.Bag
 import gov.loc.repository.bagit.reader.BagReader
@@ -24,8 +22,9 @@ import nl.knaw.dans.easy.dd2d.mapping.{ AccessRights, FileElement }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.apache.commons.configuration.PropertiesConfiguration
 
+import java.nio.file.{ Path, Paths }
 import scala.util.{ Failure, Try }
-import scala.xml.{ Node, Utility, XML }
+import scala.xml.{ Elem, Node, Utility, XML }
 
 /**
  * Represents a deposit directory and provides access to the files and metadata in it.
@@ -47,6 +46,7 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   private val bagReader = new BagReader()
   private val ddmPath = bagDir / "metadata" / "dataset.xml"
   private val filesXmlPath = bagDir / "metadata" / "files.xml"
+  private val agreementsXmlPath = bagDir / "metadata" / "depositor-info" / "agreements.xml"
   private val depositProperties = new PropertiesConfiguration() {
     setDelimiterParsingDisabled(true)
     load((dir / "deposit.properties").toJava)
@@ -65,6 +65,20 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   lazy val tryFilesXml: Try[Node] = Try {
     Utility.trim {
       XML.loadFile((bagDir / filesXmlPath.toString).toJava)
+    }
+  }.recoverWith {
+    case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
+  }
+
+  lazy val tryOptAgreementsXml: Try[Option[Node]] = Try {
+    val agreementsFile = bagDir / agreementsXmlPath.toString
+    if (agreementsFile.exists) {
+      Option(Utility.trim {
+        XML.loadFile((bagDir / agreementsXmlPath.toString).toJava)
+      })
+    }
+    else {
+      Option.empty[Node]
     }
   }.recoverWith {
     case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))

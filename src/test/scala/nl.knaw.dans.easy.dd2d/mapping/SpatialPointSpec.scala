@@ -22,10 +22,13 @@ import org.json4s.{ DefaultFormats, Formats }
 import scala.util.{ Failure, Try }
 
 class SpatialPointSpec extends TestSupportFixture with BlockTemporalAndSpatial {
-  private implicit val jsonFormats: Formats = new DefaultFormats {}
+  private implicit val jsonFormats: Formats = DefaultFormats
 
   "toEasyTsmSpatialPointValueObject" should "create correct spatial point details in Json object" in {
-    val spatialPoint = <gml:pos>52.08113 4.34510</gml:pos>
+    val spatialPoint =
+      <spatial>
+        <Point>52.08113 4.34510</Point>
+      </spatial>
     val result = Serialization.writePretty(SpatialPoint.toEasyTsmSpatialPointValueObject(spatialPoint))
     findString(result, s"$SPATIAL_POINT_SCHEME.value") shouldBe "latitude/longitude (m)"
     findString(result, s"$SPATIAL_POINT_X.value") shouldBe "52.08113"
@@ -33,7 +36,10 @@ class SpatialPointSpec extends TestSupportFixture with BlockTemporalAndSpatial {
   }
 
   it should "give 'RD(in m.)' as spatial point scheme and coordinates as integers" in {
-    val spatialPoint = <gml:pos srsName="http://www.opengis.net/def/crs/EPSG/0/28992">469470 209942</gml:pos>
+    val spatialPoint =
+      <spatial srsName="http://www.opengis.net/def/crs/EPSG/0/28992">
+        <Point>469470 209942</Point>
+      </spatial>
     val result = Serialization.writePretty(SpatialPoint.toEasyTsmSpatialPointValueObject(spatialPoint))
     findString(result, s"$SPATIAL_POINT_SCHEME.value") shouldBe "RD(in m.)"
     findString(result, s"$SPATIAL_POINT_X.value") shouldBe "469470"
@@ -41,7 +47,10 @@ class SpatialPointSpec extends TestSupportFixture with BlockTemporalAndSpatial {
   }
 
   it should "throw exception when spatial point coordinates are given incorrectly" in {
-    val spatialPoint = <gml:pos>52.08113, 4.34510</gml:pos>
+    val spatialPoint =
+      <spatial srsName="http://www.opengis.net/def/crs/EPSG/0/28992">
+        <Point>52.08113, 4.34510</Point>
+      </spatial>
     inside(Try(SpatialPoint.toEasyTsmSpatialPointValueObject(spatialPoint))) {
       case Failure(e: NumberFormatException) => e.getMessage should include("52.08113,")
     }
