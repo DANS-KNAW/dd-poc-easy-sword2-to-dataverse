@@ -33,11 +33,13 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   with BlockArchaeologySpecific
   with BlockTemporalAndSpatial
   with BlockRights
+  with BlockCollection
   with BlockDataVaultMetadata {
   lazy val citationFields = new mutable.HashMap[String, AbstractFieldBuilder]()
+  lazy val rightsFields = new mutable.HashMap[String, AbstractFieldBuilder]()
+  lazy val collectionFields = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val archaeologySpecificFields = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val temporalSpatialFields = new mutable.HashMap[String, AbstractFieldBuilder]()
-  lazy val rightsFields = new mutable.HashMap[String, AbstractFieldBuilder]()
   lazy val dataVaultFields = new mutable.HashMap[String, AbstractFieldBuilder]()
 
   def toDataverseDataset(ddm: Node, optAgreements: Option[Node], contactData: List[JsonObject], vaultMetadata: VaultMetadata): Try[Dataset] = Try {
@@ -101,7 +103,7 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
     }
 
     // Collection
-    // TODO: add collection block
+    addCompoundFieldMultipleValues(collectionFields, COLLECTION, ddm \ "dcmiMetadata" \ "inCollection", Collection toCollection)
 
     // Data vault
     addPrimitiveFieldSingleValue(dataVaultFields, BAG_ID, Option(vaultMetadata.dataverseBagId))
@@ -120,9 +122,10 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   private def assembleDataverseDataset(): Dataset = {
     val versionMap = mutable.Map[String, MetadataBlock]()
     addMetadataBlock(versionMap, "citation", "Citation Metadata", citationFields)
+    addMetadataBlock(versionMap, "dansRights", "Rights Metadata", rightsFields)
+    addMetadataBlock(versionMap, "dansCollection", "Collection Metadata", collectionFields)
     addMetadataBlock(versionMap, "dansArchaeologyMetadata", "Archaeology-Specific Metadata", archaeologySpecificFields)
     addMetadataBlock(versionMap, "dansTemporalSpatial", "Temporal and Spatial Coverage", temporalSpatialFields)
-    addMetadataBlock(versionMap, "dansRights", "Rights Metadata", rightsFields)
     addMetadataBlock(versionMap, "dansDataVaultMetadata", "Data Vault Metadata", dataVaultFields)
     val datasetVersion = DatasetVersion(metadataBlocks = versionMap.toMap)
     Dataset(datasetVersion)
