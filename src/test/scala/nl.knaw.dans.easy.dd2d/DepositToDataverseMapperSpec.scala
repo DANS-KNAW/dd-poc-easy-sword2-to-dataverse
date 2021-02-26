@@ -23,7 +23,7 @@ import scala.util.Success
 class DepositToDataverseMapperSpec extends TestSupportFixture {
 
   implicit val format: DefaultFormats.type = DefaultFormats
-  private val mapper = new DepositToDataverseMapper(null, null)
+  private val mapper = new DepositToDataverseMapper(List("citation", "dansDataVaultMetadata"),null, null)
   private val vaultMetadata = Deposit(testDirValid / "valid-easy-submitted").vaultMetadata
   private val optAgreements = Deposit(testDirValid / "valid-easy-submitted").tryOptAgreementsXml.get
   private val contactData = List(toFieldMap(

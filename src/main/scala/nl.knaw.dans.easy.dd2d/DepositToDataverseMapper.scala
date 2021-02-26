@@ -29,7 +29,7 @@ import scala.xml.{ Elem, Node, NodeSeq }
  * Maps DANS Dataset Metadata to Dataverse JSON.
  */
 // TODO: Rename if we also need to take elements from EMD
-class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguage: Map[String, String]) extends BlockCitation
+class DepositToDataverseMapper(activeMetadataBlocks: List[String], narcisClassification: Elem, isoToDataverseLanguage: Map[String, String]) extends BlockCitation
   with BlockArchaeologySpecific
   with BlockTemporalAndSpatial
   with BlockRights
@@ -45,72 +45,84 @@ class DepositToDataverseMapper(narcisClassification: Elem, isoToDataverseLanguag
   def toDataverseDataset(ddm: Node, optAgreements: Option[Node], contactData: List[JsonObject], vaultMetadata: VaultMetadata): Try[Dataset] = Try {
     // Please, keep ordered by order in Dataverse UI as much as possible (note, if display-on-create is not set for all fields, some may be hidden initally)
 
-    val titles = ddm \ "profile" \ "title"
-    if (titles.isEmpty) throw MissingRequiredFieldException("title")
+    if (activeMetadataBlocks.contains("citation")) {
+      val titles = ddm \ "profile" \ "title"
+      if (titles.isEmpty) throw MissingRequiredFieldException("title")
 
-    val alternativeTitles = (ddm \ "dcmiMetadata" \ "title") ++ (ddm \ "dcmiMetadata" \ "alternative")
+      val alternativeTitles = (ddm \ "dcmiMetadata" \ "title") ++ (ddm \ "dcmiMetadata" \ "alternative")
 
-    // Citation
-    addPrimitiveFieldSingleValue(citationFields, TITLE, titles.head)
-    addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, alternativeTitles)
-    addCompoundFieldMultipleValues(citationFields, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
-    addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
-    addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
-    addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
-    addCompoundFieldMultipleValues(citationFields, DATASET_CONTACT, contactData)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
-                                                                else alternativeTitles.tail, Description toDescriptionValueObject)
-    val otherDescriptions = (ddm \ "dcmiMetadata" \ "date") ++
-      (ddm \ "dcmiMetadata" \ "dateAccepted") ++
-      (ddm \ "dcmiMetadata" \ "dateCopyrighted ") ++
-      (ddm \ "dcmiMetadata" \ "dateSubmitted") ++
-      (ddm \ "dcmiMetadata" \ "modified") ++
-      (ddm \ "dcmiMetadata" \ "issued") ++
-      (ddm \ "dcmiMetadata" \ "valid") ++
-      (ddm \ "dcmiMetadata" \ "coverage")
-    addCompoundFieldMultipleValues(citationFields, DESCRIPTION, otherDescriptions, Description toPrefixedDescription)
+      addPrimitiveFieldSingleValue(citationFields, TITLE, titles.head)
+      addPrimitiveFieldSingleValue(citationFields, ALTERNATIVE_TITLE, alternativeTitles)
+      addCompoundFieldMultipleValues(citationFields, OTHER_ID, ddm \ "dcmiMetadata" \ "isFormatOf", IsFormatOf toOtherIdValueObject)
+      addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "author", DcxDaiAuthor toAuthorValueObject)
+      addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creatorDetails" \ "organization", DcxDaiOrganization toAuthorValueObject)
+      addCompoundFieldMultipleValues(citationFields, AUTHOR, ddm \ "profile" \ "creator", Creator toAuthorValueObject)
+      addCompoundFieldMultipleValues(citationFields, DATASET_CONTACT, contactData)
+      addCompoundFieldMultipleValues(citationFields, DESCRIPTION, ddm \ "profile" \ "description", Description toDescriptionValueObject)
+      addCompoundFieldMultipleValues(citationFields, DESCRIPTION, if (alternativeTitles.isEmpty) NodeSeq.Empty
+                                                                  else alternativeTitles.tail, Description toDescriptionValueObject)
+      val otherDescriptions = (ddm \ "dcmiMetadata" \ "date") ++
+        (ddm \ "dcmiMetadata" \ "dateAccepted") ++
+        (ddm \ "dcmiMetadata" \ "dateCopyrighted ") ++
+        (ddm \ "dcmiMetadata" \ "dateSubmitted") ++
+        (ddm \ "dcmiMetadata" \ "modified") ++
+        (ddm \ "dcmiMetadata" \ "issued") ++
+        (ddm \ "dcmiMetadata" \ "valid") ++
+        (ddm \ "dcmiMetadata" \ "coverage")
+      addCompoundFieldMultipleValues(citationFields, DESCRIPTION, otherDescriptions, Description toPrefixedDescription)
 
-    checkRequiredField(SUBJECT, ddm \ "profile" \ "audience")
-    addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
-    addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
-    addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
-    addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "author", DcxDaiAuthor toContributorValueObject)
-    addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "organization", DcxDaiOrganization toContributorValueObject)
-    addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
-    addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
-
-    // Archaeology specific
-    addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
-    addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
-    addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
-
-    // Temporal and spatial coverage
-    addPrimitiveFieldMultipleValues(temporalSpatialFields, TEMPORAL_COVERAGE, ddm \ "dcmiMetadata" \ "temporal")
-    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, (ddm \ "dcmiMetadata" \ "spatial").filter(_.child.exists(_.label == "Point")), SpatialPoint toEasyTsmSpatialPointValueObject)
-    addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
-    addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_CONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toControlledSpatialValue)
-    addPrimitiveFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_UNCONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toUncontrolledSpatialValue)
-
-    // Rights
-    checkRequiredField(RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder")
-    addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
-    optAgreements.foreach { agreements =>
-      addCvFieldSingleValue(rightsFields, PERSONAL_DATA_PRESENT, agreements \ "personalDataStatement", PersonalStatement toHasPersonalDataValue)
+      checkRequiredField(SUBJECT, ddm \ "profile" \ "audience")
+      addCvFieldMultipleValues(citationFields, SUBJECT, ddm \ "profile" \ "audience", Audience toCitationBlockSubject)
+      addCvFieldMultipleValues(citationFields, LANGUAGE, ddm \ "dcmiMetadata" \ "language", Language.toCitationBlockLanguage(isoToDataverseLanguage))
+      addPrimitiveFieldSingleValue(citationFields, PRODUCTION_DATE, ddm \ "profile" \ "created", DateTypeElement toYearMonthDayFormat)
+      addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "author", DcxDaiAuthor toContributorValueObject)
+      addCompoundFieldMultipleValues(citationFields, CONTRIBUTOR, ddm \ "dcmiMetadata" \ "contributorDetails" \ "organization", DcxDaiOrganization toContributorValueObject)
+      addPrimitiveFieldSingleValue(citationFields, DISTRIBUTION_DATE, ddm \ "profile" \ "available", DateTypeElement toYearMonthDayFormat)
+      addPrimitiveFieldMultipleValues(citationFields, DATA_SOURCES, ddm \ "dcmiMetadata" \ "source")
+    }
+    else {
+      throw new IllegalStateException("Metadatablock citation should always be active")
     }
 
-    // Collection
-    addCompoundFieldMultipleValues(collectionFields, COLLECTION, ddm \ "dcmiMetadata" \ "inCollection", Collection toCollection)
+    if (activeMetadataBlocks.contains("dansRights")) {
+      checkRequiredField(RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder")
+      addPrimitiveFieldMultipleValues(rightsFields, RIGHTS_HOLDER, ddm \ "dcmiMetadata" \ "rightsHolder", AnyElement toText)
+      optAgreements.foreach { agreements =>
+        addCvFieldSingleValue(rightsFields, PERSONAL_DATA_PRESENT, agreements \ "personalDataStatement", PersonalStatement toHasPersonalDataValue)
+      }
+    }
 
-    // Data vault
-    addPrimitiveFieldSingleValue(dataVaultFields, BAG_ID, Option(vaultMetadata.dataverseBagId))
-    addPrimitiveFieldSingleValue(dataVaultFields, NBN, Option(vaultMetadata.dataverseNbn))
-    addPrimitiveFieldSingleValue(dataVaultFields, DANS_OTHER_ID, Option(vaultMetadata.dataverseOtherId))
-    addPrimitiveFieldSingleValue(dataVaultFields, DANS_OTHER_ID_VERSION, Option(vaultMetadata.dataverseOtherIdVersion))
-    addPrimitiveFieldSingleValue(dataVaultFields, SWORD_TOKEN, Option(vaultMetadata.dataverseSwordToken))
+    if (activeMetadataBlocks.contains("dansCollectionMetadata")) {
+      addCompoundFieldMultipleValues(collectionFields, COLLECTION, ddm \ "dcmiMetadata" \ "inCollection", Collection toCollection)
+    }
+
+    if (activeMetadataBlocks.contains("dansArchaeologyMetadata")) {
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
+      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
+      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
+      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
+      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
+    }
+
+    if (activeMetadataBlocks.contains("dansTemporalSpatial")) {
+      addPrimitiveFieldMultipleValues(temporalSpatialFields, TEMPORAL_COVERAGE, ddm \ "dcmiMetadata" \ "temporal")
+      addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_POINT, (ddm \ "dcmiMetadata" \ "spatial").filter(_.child.exists(_.label == "Point")), SpatialPoint toEasyTsmSpatialPointValueObject)
+      addCompoundFieldMultipleValues(temporalSpatialFields, SPATIAL_BOX, ddm \ "dcmiMetadata" \ "spatial" \ "boundedBy", SpatialBox toEasyTsmSpatialBoxValueObject)
+      addCvFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_CONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toControlledSpatialValue)
+      addPrimitiveFieldMultipleValues(temporalSpatialFields, SPATIAL_COVERAGE_UNCONTROLLED, (ddm \ "dcmiMetadata" \ "spatial").filterNot(_.child.exists(_.isInstanceOf[Elem])), SpatialCoverage toUncontrolledSpatialValue)
+    }
+
+    if (activeMetadataBlocks.contains("dansDataVaultMetadata")) {
+      addPrimitiveFieldSingleValue(dataVaultFields, BAG_ID, Option(vaultMetadata.dataverseBagId))
+      addPrimitiveFieldSingleValue(dataVaultFields, NBN, Option(vaultMetadata.dataverseNbn))
+      addPrimitiveFieldSingleValue(dataVaultFields, DANS_OTHER_ID, Option(vaultMetadata.dataverseOtherId))
+      addPrimitiveFieldSingleValue(dataVaultFields, DANS_OTHER_ID_VERSION, Option(vaultMetadata.dataverseOtherIdVersion))
+      addPrimitiveFieldSingleValue(dataVaultFields, SWORD_TOKEN, Option(vaultMetadata.dataverseSwordToken))
+    }
+    else {
+      throw new IllegalStateException("Metadatablock dansDataVaultMetadata should always be active")
+    }
 
     assembleDataverseDataset()
   }

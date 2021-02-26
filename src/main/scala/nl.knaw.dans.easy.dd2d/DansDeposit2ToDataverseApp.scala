@@ -33,6 +33,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     readTimeoutMs = configuration.validatorReadTimeoutMs)
   private val inboxWatcher = {
     new InboxWatcher(new Inbox(configuration.inboxDir,
+      getActiveMetadataBlocks.get,
       dansBagValidator,
       dataverse,
       configuration.autoPublish,
@@ -55,6 +56,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       _ <- initOutboxDirs(outboxDir, requireAbsenceOfResults = false)
       - <- mustNotExist(OutboxSubdir.values.map(_.toString).map(subdir => outboxDir / subdir / deposit.name).toList)
       _ <- new SingleDepositProcessor(deposit,
+        getActiveMetadataBlocks.get,
         dansBagValidator,
         dataverse,
         autoPublish,
@@ -70,6 +72,7 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
     for {
       _ <- initOutboxDirs(outboxDir)
       _ <- new InboxProcessor(new Inbox(inbox,
+        getActiveMetadataBlocks.get,
         dansBagValidator,
         dataverse,
         autoPublish,
@@ -111,5 +114,12 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
 
   private def mustNotExist(fs: List[File]): Try[Unit] = Try {
     fs.find(_.exists).map(d => throw ExistingResultsInOutboxException(d))
+  }
+
+  private def getActiveMetadataBlocks: Try[List[String]] = {
+    for {
+      result <- dataverse.dataverse("root").listMetadataBocks()
+      blocks <- result.data
+    } yield blocks.map(_.name)
   }
 }

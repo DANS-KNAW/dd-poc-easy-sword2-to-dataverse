@@ -32,6 +32,7 @@ import scala.xml.Elem
  * @param dataverse the DataverseInstance to use for the DepositIngestTasks
  */
 class Inbox(dir: File,
+            activeMetadataBlocks: List[String],
             dansBagValidator: DansBagValidator,
             dataverse: DataverseInstance, autoPublish: Boolean = true,
             publishAwaitUnlockMaxNumberOfRetries: Int,
@@ -43,6 +44,7 @@ class Inbox(dir: File,
     try {
       Some(DepositIngestTask(
         Deposit(f),
+        activeMetadataBlocks,
         dansBagValidator,
         dataverse,
         autoPublish,

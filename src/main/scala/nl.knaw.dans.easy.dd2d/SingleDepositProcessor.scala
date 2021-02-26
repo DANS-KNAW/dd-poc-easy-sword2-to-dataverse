@@ -25,6 +25,7 @@ import scala.util.Try
 import scala.xml.Elem
 
 class SingleDepositProcessor(deposit: File,
+                             activeMetadataBlocks: List[String],
                              dansBagValidator: DansBagValidator,
                              dataverse: DataverseInstance,
                              autoPublish: Boolean = true,
@@ -38,6 +39,7 @@ class SingleDepositProcessor(deposit: File,
     ingestTasks.add(
       DepositIngestTask(
         Deposit(deposit),
+        activeMetadataBlocks,
         dansBagValidator,
         dataverse,
         publish = autoPublish,

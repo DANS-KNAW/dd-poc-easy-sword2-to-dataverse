@@ -37,6 +37,7 @@ import scala.xml.Elem
  * @param instance the Dataverse instance to ingest in
  */
 case class DepositIngestTask(deposit: Deposit,
+                             activeMetadataBlocks: List[String],
                              dansBagValidator: DansBagValidator,
                              instance: DataverseInstance,
                              publish: Boolean = true,
@@ -47,7 +48,7 @@ case class DepositIngestTask(deposit: Deposit,
                              outboxDir: File) extends Task[Deposit] with DebugEnhancedLogging {
   trace(deposit, instance)
 
-  private val mapper = new DepositToDataverseMapper(narcisClassification, isoToDataverseLanguage)
+  private val mapper = new DepositToDataverseMapper(activeMetadataBlocks, narcisClassification, isoToDataverseLanguage)
   private val bagDirPath = File(deposit.bagDir.path)
 
   override def run(): Try[Unit] = doRun()
