@@ -24,7 +24,7 @@ import org.apache.commons.configuration.PropertiesConfiguration
 
 import java.nio.file.{ Path, Paths }
 import scala.util.{ Failure, Try }
-import scala.xml.{ Elem, Node, Utility, XML }
+import scala.xml.{ Node, Utility, XML }
 
 /**
  * Represents a deposit directory and provides access to the files and metadata in it.
@@ -55,9 +55,7 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
   lazy val tryBag: Try[Bag] = Try { bagReader.read(bagDir.path) }
 
   lazy val tryDdm: Try[Node] = Try {
-    Utility.trim {
-      XML.loadFile((bagDir / ddmPath.toString).toJava)
-    }
+    XML.loadFile((bagDir / ddmPath.toString).toJava)
   }.recoverWith {
     case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
   }
