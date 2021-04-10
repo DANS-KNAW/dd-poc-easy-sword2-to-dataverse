@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, Dataset, MetadataBlock, PrimitiveSingleValueField, toFieldMap }
+import nl.knaw.dans.lib.dataverse.model.dataset.{ CompoundField, Dataset, PrimitiveSingleValueField, toFieldMap }
 import org.json4s.DefaultFormats
 
 import scala.util.Success
@@ -74,8 +74,8 @@ class DepositToDataverseMapperSpec extends TestSupportFixture {
         dsv.metadataBlocks("citation").fields should contain(
           CompoundField("dsDescription",
             List(
-              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "Descr 1")),
-              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "Descr 2"))
+              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "<p>Descr 1</p>")),
+              Map("dsDescriptionValue" -> PrimitiveSingleValueField("dsDescriptionValue", "<p>Descr 2</p>"))
             )))
     }
   }
