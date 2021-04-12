@@ -15,123 +15,126 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.lang.Thread.sleep
-import java.nio.file.Path
-
-import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms
-import nl.knaw.dans.lib.dataverse.DataverseInstance
+import better.files.File
 import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlocks
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
+import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance }
+import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import scala.collection.JavaConverters.{ asScalaSetConverter, mapAsScalaMapConverter }
+import java.nio.file.{ Path, Paths }
 import scala.util.{ Failure, Success, Try }
 
-class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance: DataverseInstance) extends DatasetEditor(deposit, instance) with DebugEnhancedLogging {
+class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance: DataverseInstance) extends DatasetEditor(instance) with DebugEnhancedLogging {
   trace(deposit)
+  private val dataset: DatasetApi = instance.dataset(deposit.dataversePid)
 
   override def performEdit(): Try[PersistendId] = {
     for {
-      _ <- Try { sleep(1000) } // Temporary stop-gap to avoid random behavior from Dataverse
-
       _ <- dataset.awaitUnlock()
       _ <- dataset.updateMetadata(metadataBlocks)
+      _ <- dataset.awaitUnlock()
+      bagPathToFileInfo <- deposit.getPathToFileInfo
+      pathToFileInfo = bagPathToFileInfo.map { case (bagPath, fileInfo) => (Paths.get("data").relativize(bagPath) -> fileInfo) }
+      _ = debug(s"pathToFileInfo = $pathToFileInfo")
+      pathToFileMetaInLatestVersion <- getFilesInLatestVersion
+      _ = debug(s"pathToFileMetaInLatestVersion = $pathToFileMetaInLatestVersion")
+      _ <- validateFileMetas(pathToFileMetaInLatestVersion.values.toList)
 
-      pathToFileInfo <- deposit.getPathToFileInfo
-      checksumToFileInfoInDeposit <- getFilesInDeposit(pathToFileInfo)
-      checksumToFileMetaInLatestVersion <- getFilesInLatestVersion
+      filesToReplace <- getFilesToReplace(pathToFileInfo, pathToFileMetaInLatestVersion)
+      fileReplacements <- replaceFiles(filesToReplace.mapValues(fileInfo => fileInfo.file))
 
-      // (old, new) checksum
-      checksumPairsToReplace <- getFilesToReplace(checksumToFileInfoInDeposit, checksumToFileMetaInLatestVersion)
-      checksumReplacedFiles = checksumPairsToReplace.map(_._1)
-      checksumReplacementFiles = checksumPairsToReplace.map(_._2)
-      _ <- logFilesToReplace(checksumReplacedFiles, checksumToFileMetaInLatestVersion)
-      _ <- replaceFiles(checksumPairsToReplace, checksumToFileMetaInLatestVersion, checksumToFileInfoInDeposit)
+      oldToNewPathMovedFiles <- getOldToNewPathOfFilesToMove(pathToFileMetaInLatestVersion, pathToFileInfo)
+      fileMovements = oldToNewPathMovedFiles.map { case (old, newPath) => (pathToFileMetaInLatestVersion(old).dataFile.get.id, pathToFileInfo(newPath).metadata) }
+      // Movement will be realized by updating label and directoryLabel attributes of the file; there is no separate "move-file" API endpoint.
 
-      checksumsFilesToDelete = (checksumToFileMetaInLatestVersion.keySet diff checksumReplacedFiles.toSet) diff checksumToFileInfoInDeposit.keySet
-      _ <- logFilesToDelete(checksumsFilesToDelete.toList, checksumToFileMetaInLatestVersion)
-      _ <- deleteFiles(checksumsFilesToDelete.map(checksumToFileMetaInLatestVersion).map(_.dataFile.get.id).toList)
+      pathsToDelete = pathToFileMetaInLatestVersion.keySet diff pathToFileInfo.keySet diff oldToNewPathMovedFiles.keySet
+      fileDeletions <- getFileDeletions(pathsToDelete, pathToFileMetaInLatestVersion)
+      _ <- deleteFiles(fileDeletions.toList)
 
-      checksumsFilesToAdd = (checksumToFileInfoInDeposit.keySet diff checksumReplacementFiles.toSet) diff checksumToFileMetaInLatestVersion.keySet
-      _ <- logFilesToAdd(checksumsFilesToAdd.toList, checksumToFileInfoInDeposit)
-      _ <- addFiles(deposit.dataversePid, checksumsFilesToAdd.map(checksumToFileInfoInDeposit).toList)
+      pathsToAdd = pathToFileInfo.keySet diff pathToFileMetaInLatestVersion.keySet diff oldToNewPathMovedFiles.values.toSet
+      fileAdditions <- addFiles(deposit.dataversePid, pathsToAdd.map(pathToFileInfo).toList).map(_.mapValues(_.metadata))
+
+      _ <- updateFileMetadata(fileReplacements ++ fileMovements ++ fileAdditions)
     } yield deposit.dataversePid
   }
 
-  /**
-   * Creates a map from SHA-1 hash to FileInfo for the files in the payload of the deposited bag.
-   *
-   * @param pathToFileInfo map from bag-local path to FileInfo
-   * @return
-   */
-  private def getFilesInDeposit(pathToFileInfo: Map[Path, FileInfo]): Try[Map[Sha1Hash, FileInfo]] = {
-    for {
-      bag <- deposit.tryBag
-      optSha1Manifest = bag.getPayLoadManifests.asScala.find(_.getAlgorithm == StandardSupportedAlgorithms.SHA1)
-      _ = if (optSha1Manifest.isEmpty) throw new IllegalArgumentException("Deposit bag does not have SHA-1 payload manifest")
-      sha1ToFilePath = optSha1Manifest.get.getFileToChecksumMap.asScala.map { case (p, c) => (c, deposit.bagDir.path relativize p) }
-      sha1ToFileInfo = sha1ToFilePath.map { case (sha1, path) => (sha1 -> pathToFileInfo(path)) }.toMap
-    } yield sha1ToFileInfo
-  }
-
-  /**
-   * Creates a map from SHA-1 hash to FileMeta for all the files in the latest version of the dataset.
-   *
-   * @return
-   */
-  private def getFilesInLatestVersion: Try[Map[Sha1Hash, FileMeta]] = {
+  private def getFilesInLatestVersion: Try[Map[Path, FileMeta]] = {
     for {
       response <- dataset.listFiles()
       files <- response.data
-      _ <- validateFileMetadas(files)
-      checksumToFileMeta = files.map(f => (f.dataFile.get.checksum.value, f)).toMap
-    } yield checksumToFileMeta
+      pathToFileMeta = files.map(f => (getPathFromFileMeta(f), f)).toMap
+    } yield pathToFileMeta
   }
 
-  private def validateFileMetadas(files: List[FileMeta]): Try[Unit] = {
+  private def getPathFromFileMeta(fileMeta: FileMeta): Path = {
+    Paths.get(fileMeta.directoryLabel.getOrElse(""), fileMeta.label.getOrElse(""))
+  }
+
+  private def validateFileMetas(files: List[FileMeta]): Try[Unit] = {
     if (files.map(_.dataFile).exists(_.isEmpty)) Failure(new IllegalArgumentException("Found file metadata without dataFile element"))
     else if (files.map(_.dataFile.get).exists(_.checksum.`type` != "SHA-1")) Failure(new IllegalArgumentException("Not all file checksums are of type SHA-1"))
          else Success(())
   }
 
+  private def getFilesToReplace(pathToFileInfo: Map[Path, FileInfo], pathToFileMetaInLatestVersion: Map[Path, FileMeta]): Try[Map[Int, FileInfo]] = Try {
+    trace(())
+    val intersection = pathToFileInfo.keySet intersect pathToFileMetaInLatestVersion.keySet
+    val checksumsDiffer = intersection.filter(p => pathToFileInfo(p).checksum != pathToFileMetaInLatestVersion(p).dataFile.get.checksum.value) // TODO: validate filemetas first
+    checksumsDiffer.map(p => (pathToFileMetaInLatestVersion(p).dataFile.get.id, pathToFileInfo(p))).toMap
+  }
+
   /**
-   * Calculates which files have to be replaced and returns a list of SHA-1 has pairs, the first of which is the old hash and the second the hash of the replacement.
-   * Files which have the same (directoryLabel, label) pair in the deposit and in the latest version of the dataset are marked as files to be replaced.
+   * Creatings a mapping for moving files to a new location. To determine this, the file needs to be unique in the old and the new version, because
+   * its checksum is used to locate it. Files that occur multiple times in either the old or the new version cannot be moved in this way. They
+   * will appear to have been deleted in the old version and added in the new. This has the same net result, except that the "Changes" overview in
+   * Dataverse does not record that the file was effectively moved.
    *
-   * @param checksumToFileInfoInDeposit       map from SHA-1 hash to FileInfo for each payload file in the deposited bag
-   * @param checksumToFileMetaInLatestVersion map from SHA-1 hash to FileMeta for each file in the latest version of the dataset
+   * @param pathToFileMetaInLatestVersion map from path to file metadata in the old version
+   * @param pathToFileInfo map from path to file info in the new version (i.e. the deposit).
    * @return
    */
-  private def getFilesToReplace(checksumToFileInfoInDeposit: Map[Sha1Hash, FileInfo], checksumToFileMetaInLatestVersion: Map[Sha1Hash, FileMeta]): Try[List[(Sha1Hash, Sha1Hash)]] = {
+  private def getOldToNewPathOfFilesToMove(pathToFileMetaInLatestVersion: Map[Path, FileMeta], pathToFileInfo: Map[Path, FileInfo]): Try[Map[Path, Path]] = {
     for {
-      labelPairToChecksumDeposit <- Try { checksumToFileInfoInDeposit.map { case (c, fi) => ((fi.metadata.directoryLabel, fi.metadata.label) -> c) } }
-      labelPairToChecksumLatestVersion <- Try { checksumToFileMetaInLatestVersion.map { case (c, m) => ((m.directoryLabel, m.label) -> c) } }
-      intersection = labelPairToChecksumDeposit.keySet intersect labelPairToChecksumLatestVersion.keySet
-      checksumsDiffer = intersection.filter(p => labelPairToChecksumDeposit(p) != labelPairToChecksumLatestVersion(p))
-      toBeReplaced = checksumsDiffer.map(p => (labelPairToChecksumLatestVersion(p), labelPairToChecksumDeposit(p))).toList
-    } yield toBeReplaced
+      checksumsToPathNonDuplicatedFilesInDeposit <- getChecksumsToPathOfNonDuplicateFiles(pathToFileInfo.mapValues(_.checksum))
+      checksumsToPathNonDuplicatedFilesInLatestVersion <- getChecksumsToPathOfNonDuplicateFiles(pathToFileMetaInLatestVersion.mapValues(_.dataFile.get.checksum.value))
+      checksumsOfPotentiallyMovedFiles = checksumsToPathNonDuplicatedFilesInDeposit.keySet intersect checksumsToPathNonDuplicatedFilesInLatestVersion.keySet
+      oldToNewPathMovedFiles = checksumsOfPotentiallyMovedFiles
+        .map(c => (checksumsToPathNonDuplicatedFilesInLatestVersion(c), checksumsToPathNonDuplicatedFilesInDeposit(c)))
+        .filter { case (pathInLatestVersion, pathInDeposit) => pathInLatestVersion != pathInDeposit }
+    } yield oldToNewPathMovedFiles.toMap
   }
 
-  /*
-   * Utility function for logging.
-   */
-
-  private def logFilesToReplace(checksums: List[Sha1Hash], checksumToFileMeta: Map[Sha1Hash, FileMeta]): Try[Unit] = Try {
-    if (logger.underlying.isDebugEnabled) debugFiles("Files to replace", checksums.map(checksumToFileMeta))
-    else Success(())
+  private def getChecksumsToPathOfNonDuplicateFiles(pathToChecksum: Map[Path, String]): Try[Map[String, Path]] = Try {
+    pathToChecksum
+      .groupBy { case (_, c) => c }
+      .filter { case (_, pathToFileInfoMappings) => pathToFileInfoMappings.size == 1 }
+      .map { case (c, m) => (c, m.head._1) }
   }
 
-  private def logFilesToAdd(checksums: List[Sha1Hash], checksumToFileInfo: Map[Sha1Hash, FileInfo]): Try[Unit] = Try {
-    if (logger.underlying.isDebugEnabled) debugFiles("Files to add", checksums.map(checksumToFileInfo).map(_.metadata).toList)
-    else Success(())
+  private def getFileDeletions(paths: Set[Path], pathToFileMeta: Map[Path, FileMeta]): Try[Set[Int]] = Try {
+    paths.map(path => pathToFileMeta(path).dataFile.get.id)
   }
 
-  private def logFilesToDelete(checksums: List[Sha1Hash], checksumToFileMeta: Map[Sha1Hash, FileMeta]): Try[Unit] = Try {
-    if (logger.underlying.isDebugEnabled) debugFiles("Files to delete", checksums.map(checksumToFileMeta).toList)
-    else Success(())
+  protected def deleteFiles(databaseIds: List[DatabaseId]): Try[Unit] = {
+    databaseIds.map(id => {
+      debug(s"Deleting file, databaseId = $id")
+      instance.sword().deleteFile(id)
+      dataset.awaitUnlock()
+    }).collectResults.map(_ => ())
   }
 
-  private def debugFiles(prefix: String, files: List[FileMeta]): Unit = {
-    debug(s"$prefix: ${ files.map(f => f.directoryLabel.getOrElse("/") + f.label.getOrElse("")).mkString(", ") }")
+  protected def replaceFiles(databaseIdToNewFile: Map[Int, File]): Try[Map[Int, FileMeta]] = {
+    trace(databaseIdToNewFile)
+    databaseIdToNewFile.map {
+      case (id, file) =>
+        val fileApi = instance.file(id)
+
+        for {
+          r <- fileApi.replace(Option(file))
+          d <- r.data
+          _ <- dataset.awaitUnlock()
+        } yield (d.files.head.dataFile.get.id, d.files.head)
+    }.collectResults.map(_.toMap)
   }
 }

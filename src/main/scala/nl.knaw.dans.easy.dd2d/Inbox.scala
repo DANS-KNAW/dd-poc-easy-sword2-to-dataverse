@@ -21,7 +21,6 @@ import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.AbstractInbox
 
-import java.nio.file.Path
 import scala.xml.Elem
 
 /**

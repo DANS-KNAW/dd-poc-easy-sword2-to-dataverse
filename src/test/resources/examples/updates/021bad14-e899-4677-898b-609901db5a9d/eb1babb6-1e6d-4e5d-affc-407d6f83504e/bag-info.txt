@@ -1,0 +1,4 @@
+Created: 2021-02-03T11:55:50.378+01:00
+Payload-Oxum: 44.4
+Bagging-Date: 2021-04-09
+Bag-Size: 13.1 KB

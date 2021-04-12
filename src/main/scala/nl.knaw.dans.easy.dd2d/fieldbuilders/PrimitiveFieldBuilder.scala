@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package nl.knaw.dans.easy.dd2d.fieldbuilders
-import nl.knaw.dans.lib.dataverse.model.dataset.{ ControlledMultipleValueField, ControlledSingleValueField, MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
+
+import nl.knaw.dans.lib.dataverse.model.dataset.{ MetadataField, PrimitiveMultipleValueField, PrimitiveSingleValueField }
 
 import scala.collection.mutable
 
@@ -30,6 +31,7 @@ class PrimitiveFieldBuilder(name: String, multipleValues: Boolean = true) extend
     if (values.nonEmpty) {
       if (multipleValues) Option(PrimitiveMultipleValueField(name, values.toList))
       else Option(PrimitiveSingleValueField(name, values.head))
-    } else Option.empty
+    }
+    else Option.empty
   }
 }

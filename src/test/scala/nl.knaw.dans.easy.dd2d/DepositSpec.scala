@@ -54,6 +54,7 @@ class DepositSpec extends TestSupportFixture {
 
     pathToFileInfo(Paths.get("data/README.md")) shouldBe FileInfo(
       file = testDirValid / "valid-easy-submitted" / "example-bag-medium" / "data" / "README.md",
+      "f50380cd3a4ae5b8ea3d524a4b1e8582eca50893",
       metadata = FileMeta(
         label = Option("README.md"),
         directoryLabel = None,

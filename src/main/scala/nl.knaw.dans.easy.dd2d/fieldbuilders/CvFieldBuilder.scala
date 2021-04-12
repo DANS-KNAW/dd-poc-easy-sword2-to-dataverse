@@ -31,6 +31,7 @@ class CvFieldBuilder(name: String, multipleValues: Boolean = true) extends Abstr
     if (values.nonEmpty) {
       if (multipleValues) Option(ControlledMultipleValueField(name, values.toList))
       else Option(ControlledSingleValueField(name, values.head))
-    } else Option.empty
+    }
+    else Option.empty
   }
 }

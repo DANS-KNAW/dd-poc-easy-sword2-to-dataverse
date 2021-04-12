@@ -15,9 +15,9 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import java.nio.file.Path
-
 import org.rogach.scallop.{ ScallopConf, ScallopOption, Subcommand }
+
+import java.nio.file.Path
 
 class CommandLineOptions(args: Array[String], configuration: Configuration) extends ScallopConf(args) {
   appendDefaultToDescription = true

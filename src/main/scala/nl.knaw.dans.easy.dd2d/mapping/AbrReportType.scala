@@ -43,9 +43,8 @@ object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugE
     Paths.get(uri.getPath).getFileName.toString
   }
 
-
   /**
-   *  Predicate to select only the elements that can be processed by [[AbrReportType.toAbrRapportType]].
+   * Predicate to select only the elements that can be processed by [[AbrReportType.toAbrRapportType]].
    *
    * @param node the node to examine
    * @return

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ddm:DDM 
+xsi:schemaLocation="http://easy.dans.knaw.nl/schemas/md/ddm/ https://easy.dans.knaw.nl/schemas/md/ddm/ddm.xsd" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dct="http://purl.org/dc/terms/" xmlns:dcx-dai="http://easy.dans.knaw.nl/schemas/dcx/dai/" xmlns:dcx-gml="http://easy.dans.knaw.nl/schemas/dcx/gml/" xmlns:gml="http://www.opengis.net/gml" xmlns:abr="http://www.den.nl/standaard/166/Archeologisch-Basisregister/" xmlns:ddm="http://easy.dans.knaw.nl/schemas/md/ddm/" xmlns:id-type="http://easy.dans.knaw.nl/schemas/vocab/identifier-type/">
+  <ddm:profile>
+    <dc:title>Test update scenarios (First)</dc:title>
+    <dct:description>onderzoeksrapport</dct:description>
+    <dc:creator>Bergman, W.A.</dc:creator>
+    <ddm:created>2004</ddm:created>
+    <ddm:available>2009-11-27</ddm:available>
+    <ddm:audience>D37000</ddm:audience>
+    <ddm:accessRights>OPEN_ACCESS</ddm:accessRights>
+  </ddm:profile>
+  <ddm:dcmiMetadata>
+    <dct:identifier xsi:type="id-type:eDNA-project">a04156</dct:identifier>
+    <dct:identifier xsi:type="id-type:EASY1">twips.dans.knaw.nl--2765448518107890107-1259329289218</dct:identifier>
+    <dct:identifier xsi:type="id-type:URN">urn:nbn:nl:ui:13-tt3-b4u</dct:identifier>
+    <dct:identifier xsi:type="id-type:EASY2">easy-dataset:18335</dct:identifier>
+    <dct:identifier xsi:type="id-type:DOI">10.17026/dans-28n-734d</dct:identifier>
+    <dct:alternative>inventariserend veldonderzoek (IVO)</dct:alternative>
+    <dct:alternative>SYNTHEGRA 2004 186</dct:alternative>
+    <dct:rightsHolder>Synthegra archeologie</dct:rightsHolder>
+    <dct:publisher>Synthegra</dct:publisher>
+    <dct:type>rapport</dct:type>
+    <dct:type xsi:type="dct:DCMIType">Text</dct:type>
+    <dct:format>22 p.</dct:format>
+    <dct:subject>PROSPECTIE</dct:subject>
+    <dct:spatial>Tielsestraat</dct:spatial>
+    <dct:spatial>Kesteren</dct:spatial>
+    <dct:spatial>Nederland</dct:spatial>
+    <dct:spatial>Neder-Betuwe</dct:spatial>
+    <dct:spatial>Gelderland</dct:spatial>
+    <dct:spatial>e-ne (MARC21)</dct:spatial>
+    <dct:dateSubmitted xsi:type="dct:W3CDTF">2009-11-27</dct:dateSubmitted>
+    <dct:license xsi:type="dct:URI">http://creativecommons.org/publicdomain/zero/1.0</dct:license>
+    <ddm:language encodingScheme="ISO639-2" code="dut">In het Nederlands.</ddm:language>
+    <ddm:language encodingScheme="ISO639-2" code="dut">nld</ddm:language>
+  </ddm:dcmiMetadata>
+</ddm:DDM>

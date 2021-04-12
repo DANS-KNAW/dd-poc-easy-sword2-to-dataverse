@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
-import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
@@ -25,9 +25,8 @@ import scala.util.Try
 /**
  * Object that edits a dataset, a new draft.
  */
-abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) extends DebugEnhancedLogging {
+abstract class DatasetEditor(instance: DataverseInstance) extends DebugEnhancedLogging {
   type PersistendId = String
-  protected val dataset: DatasetApi = instance.dataset(deposit.dataversePid)
 
   /**
    * Performs the task.
@@ -36,46 +35,29 @@ abstract class DatasetEditor(deposit: Deposit, instance: DataverseInstance) exte
    */
   def performEdit(): Try[PersistendId]
 
-  protected def addFiles(persistentId: String, files: List[FileInfo]): Try[Unit] = {
+  protected def addFiles(persistentId: String, files: List[FileInfo]): Try[Map[Int, FileInfo]] = {
     trace(persistentId, files)
-    import scala.language.postfixOps
-    trace(persistentId)
-    for {
-      _ <- files
-        .map(f => {
-          debug(s"Adding file, directoryLabel = ${f.metadata.directoryLabel}, label = ${f.metadata.label}")
-          instance.dataset(persistentId)
-            .addFile(Option(f.file), Option(f.metadata))
-            .map(_ => instance.dataset(persistentId).awaitUnlock())
-        })
-        .collectResults
-    } yield ()
+    files
+      .map(f => {
+        debug(s"Adding file, directoryLabel = ${ f.metadata.directoryLabel }, label = ${ f.metadata.label }")
+        for {
+          id <- addFile(persistentId, f)
+          _ <- instance.dataset(persistentId).awaitUnlock()
+        } yield (id -> f)
+      }).collectResults.map(_.toMap)
   }
 
-  protected def deleteFiles(databaseIds: List[DatabaseId]): Try[Unit] = {
-    databaseIds.map(id => {
-      debug(s"Deleting file, databaseId = $id")
-      instance.sword().deleteFile(id).map(_ => dataset.awaitUnlock())
-    }).collectResults.map(_ => ())
+  private def addFile(doi: String, fileInfo: FileInfo): Try[Int] = {
+    val result = for {
+      r <- instance.dataset(doi).addFile(Option(fileInfo.file))
+      files <- r.data
+      id = files.files.headOption.flatMap(_.dataFile.map(_.id))
+      _ <- instance.dataset(doi).awaitUnlock()
+    } yield id
+    result.map(_.getOrElse(throw new IllegalStateException("Could not get DataFile ID from response")))
   }
 
-  /**
-   * Replace files indicated by the checksum pairs. The first member of each pair is the old SHA-1 hash and the second the new SHA-1. The old hash is used
-   * to look up the databaseId of the file to be replaced, the new one is used to look up the file + metadata to place over that old file.
-   *
-   * @param checksumPairsToReplace            the (old, new) SHA-1 pairs
-   * @param checksumToFileMetaInLatestVersion map from SHA-1 hash to FileMeta for each file in the latest dataset version
-   * @param checksumToFileInfoInDeposit       map from SHA-1 hash to FileInfo for each payload file in the deposited bag
-   * @return
-   */
-  protected def replaceFiles(checksumPairsToReplace: List[(Sha1Hash, Sha1Hash)], checksumToFileMetaInLatestVersion: Map[Sha1Hash, FileMeta], checksumToFileInfoInDeposit: Map[Sha1Hash, FileInfo]): Try[Unit] = {
-    checksumPairsToReplace.map {
-      case (oldChecksum, newChecksum) =>
-        val fileApi = instance.file(checksumToFileMetaInLatestVersion(oldChecksum).dataFile.get.id)
-        val newFileInfo = checksumToFileInfoInDeposit(newChecksum)
-        debug(s"Replacing file, directoryLabel = ${newFileInfo.metadata.directoryLabel}, label = ${newFileInfo.metadata.label}")
-        fileApi.replace(newFileInfo.file, newFileInfo.metadata)
-        dataset.awaitUnlock()
-    }.collectResults.map(_ => ())
+  protected def updateFileMetadata(databaseIdToFileInfo: Map[Int, FileMeta]): Try[Unit] = {
+    databaseIdToFileInfo.map { case (id, fileMeta) => instance.file(id).updateMetadata(fileMeta) }.collectResults.map(_ => ())
   }
 }

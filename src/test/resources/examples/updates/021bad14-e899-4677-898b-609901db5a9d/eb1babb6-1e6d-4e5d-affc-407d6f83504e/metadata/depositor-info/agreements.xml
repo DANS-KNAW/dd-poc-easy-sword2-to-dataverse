@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agreements 
+xsi:schemaLocation="http://easy.dans.knaw.nl/schemas/bag/metadata/agreements/ https://easy.dans.knaw.nl/schemas/bag/metadata/agreements/2019/09/agreements.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xmlns="http://easy.dans.knaw.nl/schemas/bag/metadata/agreements/">
+  <depositAgreement>
+    <signerId easy-account="archeologie" email="valentijn.gilissen@dans.knaw.nl">b.u.l.k. import archeologie</signerId>
+    <dcterms:dateAccepted>2009-11-27T01:41:29.000+01:00</dcterms:dateAccepted>
+    <depositAgreementAccepted>true</depositAgreementAccepted>
+  </depositAgreement>
+  <personalDataStatement>
+    <notAvailable/>
+  </personalDataStatement>
+</agreements>

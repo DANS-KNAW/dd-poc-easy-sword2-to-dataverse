@@ -106,10 +106,11 @@ class DansDeposit2ToDataverseApp(configuration: Configuration) extends DebugEnha
       outboxDir / OutboxSubdir.REJECTED.toString)
 
     for {
-     _ <- mustBeDirectory(outboxDir)
-     _ <- if (requireAbsenceOfResults) mustBeEmptyDirectories(subDirs) else Success(())
-     _ = outboxDir.createDirectoryIfNotExists(createParents = true)
-     _ = subDirs.foreach(_.createDirectories())
+      _ <- mustBeDirectory(outboxDir)
+      _ <- if (requireAbsenceOfResults) mustBeEmptyDirectories(subDirs)
+           else Success(())
+      _ = outboxDir.createDirectoryIfNotExists(createParents = true)
+      _ = subDirs.foreach(_.createDirectories())
     } yield ()
   }
 

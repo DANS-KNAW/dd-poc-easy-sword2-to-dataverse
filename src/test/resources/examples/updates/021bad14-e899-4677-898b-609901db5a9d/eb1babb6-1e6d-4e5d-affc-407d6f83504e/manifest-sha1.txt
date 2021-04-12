@@ -1,0 +1,4 @@
+ad70a4f235f3e9e167d030616245ba721d550706  data/subdir/File-to-be-moved.txt
+b3730ad186e76f9b14f7815d09410be2ae4c677b  data/File-to-be-replaced.txt
+5667f39f31be0a316c7252baef65bf64eae19e8d  data/File-to-be-deleted.txt
+0f75bdfd6decdb9dc1a193a7ddc73d5c9c2f71aa  data/File-to-stay-unchanged.txt

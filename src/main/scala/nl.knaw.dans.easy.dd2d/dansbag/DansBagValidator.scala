@@ -15,12 +15,11 @@
  */
 package nl.knaw.dans.easy.dd2d.dansbag
 
-import java.net.URI
-
 import better.files.File
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scalaj.http.Http
 
+import java.net.URI
 import scala.util.Try
 
 class DansBagValidator(serviceUri: URI, connTimeoutMs: Int, readTimeoutMs: Int) extends DebugEnhancedLogging {

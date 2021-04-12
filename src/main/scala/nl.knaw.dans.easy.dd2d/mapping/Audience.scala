@@ -17,13 +17,13 @@ package nl.knaw.dans.easy.dd2d.mapping
 
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import scala.xml.{ Elem, Node }
+import scala.xml.Node
 
 /**
  * ddm:audience element with a NARCIS classification code in it.
  * Used for Subject field in the Citation metadata block
  */
-object Audience  extends DebugEnhancedLogging {
+object Audience extends DebugEnhancedLogging {
   val narcisToSubject = Map(
     "D11" -> "Mathematical Sciences",
     "D12" -> "Physics",

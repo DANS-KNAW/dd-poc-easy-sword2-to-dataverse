@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<files 
+xsi:schemaLocation="http://easy.dans.knaw.nl/schemas/bag/metadata/files/ http://easy.dans.knaw.nl/schemas/bag/metadata/files/files.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://easy.dans.knaw.nl/schemas/bag/metadata/files/" xmlns:afm="http://easy.dans.knaw.nl/schemas/bag/metadata/afm/" xmlns:dct="http://purl.org/dc/terms/">
+  <file filepath="data/File-to-stay-unchanged.txt">
+    <dct:format>text/plain</dct:format>
+  </file>
+  <file filepath="data/File-to-be-replaced.txt">
+    <dct:format>text/plain</dct:format>
+  </file>
+  <file filepath="data/File-to-be-moved.txt">
+    <dct:format>text/plain</dct:format>
+  </file>
+  <file filepath="data/File-to-be-added.txt">
+    <dct:format>text/plain</dct:format>
+  </file>
+  <file filepath="data/File-to-be-added-too.txt">
+    <dct:format>text/plain</dct:format>
+  </file>
+</files>
+  

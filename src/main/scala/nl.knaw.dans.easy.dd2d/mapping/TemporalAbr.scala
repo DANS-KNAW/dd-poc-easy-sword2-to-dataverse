@@ -28,12 +28,12 @@ object TemporalAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnh
     val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:temporal node"))
     val term = node.text
 
-      val m = FieldMap()
-      m.addPrimitiveField(ABR_PERIOD_VOCABULARY, optSubjectScheme.get)
-      m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URI, optSchemeUri.get)
-      m.addPrimitiveField(ABR_PERIOD_TERM, term)
-      m.addPrimitiveField(ABR_PERIOD_TERM_URI, optValueUri.get)
-      m.toJsonObject
+    val m = FieldMap()
+    m.addPrimitiveField(ABR_PERIOD_VOCABULARY, optSubjectScheme.get)
+    m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URI, optSchemeUri.get)
+    m.addPrimitiveField(ABR_PERIOD_TERM, term)
+    m.addPrimitiveField(ABR_PERIOD_TERM_URI, optValueUri.get)
+    m.toJsonObject
   }
 
   /**

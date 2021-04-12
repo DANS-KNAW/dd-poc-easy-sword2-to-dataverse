@@ -1,0 +1,7 @@
+8010d7758f1793d0221c529fef818ff988dda141  bagit.txt
+f5fcdc74cdc6b77b2c36acf45f29f9ea2b2a863b  metadata/amd.xml
+5b95c3a07c766370e0eab9c652974e233871b97a  metadata/dataset.xml
+2123a58e5fc7b7a3c877795f32c2394bd0541f80  metadata/files.xml
+f19a334dc24167cf04bb782f08a586cbd638ca5d  metadata/emd.xml
+4a06daec915b91127183490d061af2249a1fa690  bag-info.txt
+420439bf6fb361321099606ac2613c5dfffb279d  manifest-sha1.txt

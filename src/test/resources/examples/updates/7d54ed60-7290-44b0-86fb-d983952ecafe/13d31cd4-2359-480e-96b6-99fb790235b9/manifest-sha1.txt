@@ -1,0 +1,5 @@
+ad70a4f235f3e9e167d030616245ba721d550706  data/File-to-be-moved.txt
+e678fc53f7789dd524bdb9a6191fab8984f21ab4  data/File-to-be-replaced.txt
+71aa2b36670cd79e48c15f5bc41a53a253f1677e  data/File-to-be-added.txt
+71aa2b36670cd79e48c15f5bc41a53a253f1677e  data/File-to-be-added-too.txt
+0f75bdfd6decdb9dc1a193a7ddc73d5c9c2f71aa  data/File-to-stay-unchanged.txt

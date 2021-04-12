@@ -21,17 +21,5 @@
         <dcterms:format>text/plain</dcterms:format>
         <dcterms:created>2016-11-09</dcterms:created>
     </file>
-    <file filepath="data/path/to/a/random/video/hubble.mpg">
-        <dcterms:title>Hubble</dcterms:title>
-        <dcterms:type>http://schema.org/VideoObject</dcterms:type>
-        <accessibleToRights>ANONYMOUS</accessibleToRights>
-    </file>
-    <file filepath="data/reisverslag/centaur.mpg">
-        <dcterms:type>http://schema.org/VideoObject</dcterms:type>
-        <dcterms:title>cemtair</dcterms:title>
-        <dcterms:relation xml:lang="en">data/reisverslag/centaur.srt</dcterms:relation>
-        <dcterms:relation xml:lang="nl">data/reisverslag/centaur-nederlands.srt</dcterms:relation>
-        <accessibleToRights>ANONYMOUS</accessibleToRights>
-    </file>
 </files>
 

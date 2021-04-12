@@ -21,7 +21,7 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
 import scala.util.Try
 
-class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor(deposit, instance) with DebugEnhancedLogging {
+class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor(instance) with DebugEnhancedLogging {
   trace(deposit)
 
   override def performEdit(): Try[PersistendId] = {
@@ -34,7 +34,8 @@ class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: Data
                   else instance.dataverse("root").createDataset(dataverseDataset)
       persistentId <- getPersistentId(response)
       fileInfos <- deposit.getPathToFileInfo
-      _ <- addFiles(persistentId, fileInfos.values.toList)
+      databaseIdsToFileInfo <- addFiles(persistentId, fileInfos.values.toList)
+      _ <- updateFileMetadata(databaseIdsToFileInfo.mapValues(_.metadata))
     } yield persistentId
   }
 

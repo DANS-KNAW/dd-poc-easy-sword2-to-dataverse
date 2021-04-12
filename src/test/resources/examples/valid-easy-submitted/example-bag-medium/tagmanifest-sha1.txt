@@ -2,5 +2,5 @@
 55fb72e63018156e2d5460e2d7e7a3df3f75dff9  metadata/dataset.xml
 e2924b081506bac23f5fffe650ad1848a1c8ac1d  bagit.txt
 5b063a488773654a7829d3b63bdfc7cc31fb6f0f  manifest-sha1.txt
-ea8f9087263a30db0a22c2cfe9324d882c20d471  metadata/files.xml
+f476f2e61e7906ca9377ce6a02a6c10bc05f74d5  metadata/files.xml
 3d2b8d876064f716c28474de33e7a975b3dae9b3  metadata/depositor-info/agreements.xml

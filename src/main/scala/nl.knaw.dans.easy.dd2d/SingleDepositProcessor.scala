@@ -20,7 +20,6 @@ import nl.knaw.dans.easy.dd2d.dansbag.DansBagValidator
 import nl.knaw.dans.lib.dataverse.DataverseInstance
 import nl.knaw.dans.lib.taskqueue.PassiveTaskQueue
 
-import java.nio.file.Path
 import scala.util.Try
 import scala.xml.Elem
 

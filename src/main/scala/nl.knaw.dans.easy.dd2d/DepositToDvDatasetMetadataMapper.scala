@@ -28,10 +28,10 @@ import scala.xml.{ Elem, Node, NodeSeq }
 /**
  * Creates dataset level metadata for Dataverse from information in the deposit.
  *
- * @param activeMetadataBlocks the metadata blocks that are active in the target dataverse
- * @param narcisClassification NARCIS classification SKOS, currently not used
+ * @param activeMetadataBlocks   the metadata blocks that are active in the target dataverse
+ * @param narcisClassification   NARCIS classification SKOS, currently not used
  * @param isoToDataverseLanguage map from ISO639-2 to the Dataverse language terms
- * @param reportIdToTerm map from Cultureel Erfgoed Report Type ID to the human readable term
+ * @param reportIdToTerm         map from Cultureel Erfgoed Report Type ID to the human readable term
  */
 class DepositToDvDatasetMetadataMapper(activeMetadataBlocks: List[String],
                                        narcisClassification: Elem,
@@ -104,7 +104,7 @@ class DepositToDvDatasetMetadataMapper(activeMetadataBlocks: List[String],
 
     if (activeMetadataBlocks.contains("dansArchaeologyMetadata")) {
       addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, ddm \ "dcmiMetadata" \ "identifier", IsFormatOf toArchisZaakId)
-      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType(reportIdToTerm))
+      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType (reportIdToTerm))
       addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
       addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
       addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)

@@ -15,13 +15,13 @@
  */
 package nl.knaw.dans.easy.dd2d
 
+import nl.knaw.dans.lib.logging.DebugEnhancedLogging
+import nl.knaw.dans.lib.taskqueue.{ Task, TaskSorter }
+
 import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-
-import nl.knaw.dans.lib.logging.DebugEnhancedLogging
-import nl.knaw.dans.lib.taskqueue.{ Task, TaskSorter }
 
 class DepositSorter extends TaskSorter[Deposit] with DebugEnhancedLogging {
 

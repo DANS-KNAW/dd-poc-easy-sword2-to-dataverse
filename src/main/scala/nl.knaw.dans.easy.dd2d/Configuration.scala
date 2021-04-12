@@ -63,6 +63,7 @@ object Configuration {
         .find(_.exists)
         .getOrElse { throw new IllegalStateException(s"File $name not find in APPHOME/install directory") }
     }
+
     val narcisClassificationFile = findFileInInstall("narcis_classification.xml")
     val narcisClassification = XML.loadFile(narcisClassificationFile.toJava)
     val isoToDataverseLanguageMappingFile = findFileInInstall("iso639-2-to-dv.csv")
@@ -90,7 +91,7 @@ object Configuration {
       publishAwaitUnlockMillisecondsBetweenRetries = properties.getInt("dataverse.publish.await-unlock-wait-time-ms"),
       narcisClassification,
       isoToDataverseLanguage = loadCsvToMap(isoToDataverseLanguageMappingFile, keyColumn = "ISO639-2", valueColumn = "Dataverse-language").get,
-      reportIdToTerm = loadCsvToMap(rapportIdToTermMappingFile,keyColumn = "URI-suffix", valueColumn = "Term").get
+      reportIdToTerm = loadCsvToMap(rapportIdToTermMappingFile, keyColumn = "URI-suffix", valueColumn = "Term").get
     )
   }
 

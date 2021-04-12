@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<emd:easymetadata 
+emd:version="0.1" xmlns:emd="http://easy.dans.knaw.nl/easy/easymetadata/" xmlns:eas="http://easy.dans.knaw.nl/easy/easymetadata/eas/" xmlns:dct="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:foxml="info:fedora/fedora-system:def/foxml#">
+  <emd:title>
+    <dc:title>Tielsestraat 95 te Kesteren</dc:title>
+    <dct:alternative>inventariserend veldonderzoek (IVO)</dct:alternative>
+    <dct:alternative>SYNTHEGRA 2004 186</dct:alternative>
+  </emd:title>
+  <emd:creator>
+    <dc:creator>Bergman, W.A.</dc:creator>
+  </emd:creator>
+  <emd:subject>
+    <dc:subject>PROSPECTIE</dc:subject>
+  </emd:subject>
+  <emd:description>
+    <dc:description>onderzoeksrapport</dc:description>
+  </emd:description>
+  <emd:publisher>
+    <dc:publisher>Synthegra</dc:publisher>
+  </emd:publisher>
+  <emd:contributor/>
+  <emd:date>
+    <eas:created eas:scheme="W3CDTF" eas:format="YEAR">2004-01-01T00:00:00.000+01:00</eas:created>
+    <eas:available eas:scheme="W3CDTF" eas:format="DAY">2009-11-27T00:00:00.000+01:00</eas:available>
+    <eas:dateSubmitted eas:scheme="W3CDTF" eas:format="DAY">2009-11-27T01:41:29.000+01:00</eas:dateSubmitted>
+  </emd:date>
+  <emd:type>
+    <dc:type>rapport</dc:type>
+    <dc:type eas:schemeId="common.dc.type" eas:scheme="DCMI">Text</dc:type>
+  </emd:type>
+  <emd:format>
+    <dc:format>22 p.</dc:format>
+  </emd:format>
+  <emd:identifier>
+    <dc:identifier eas:scheme="eDNA-project">a04156</dc:identifier>
+    <dc:identifier eas:scheme="AIP_ID">twips.dans.knaw.nl--2765448518107890107-1259329289218</dc:identifier>
+    <dc:identifier eas:scheme="PID" eas:identification-system="http://www.persistent-identifier.nl">urn:nbn:nl:ui:13-tt3-b4u</dc:identifier>
+    <dc:identifier eas:scheme="DMO_ID">easy-dataset:18335</dc:identifier>
+    <dc:identifier eas:scheme="DOI" eas:identification-system="http://dx.doi.org">10.17026/dans-28n-734d</dc:identifier>
+  </emd:identifier>
+  <emd:source/>
+  <emd:language>
+    <dc:language>In het Nederlands.</dc:language>
+    <dc:language eas:schemeId="common.dc.language" eas:scheme="ISO 639">dut/nld</dc:language>
+  </emd:language>
+  <emd:relation/>
+  <emd:coverage>
+    <dct:spatial>Tielsestraat</dct:spatial>
+    <dct:spatial>Kesteren</dct:spatial>
+    <dct:spatial>Nederland</dct:spatial>
+    <dct:spatial>Neder-Betuwe</dct:spatial>
+    <dct:spatial>Gelderland</dct:spatial>
+    <dct:spatial>e-ne (MARC21)</dct:spatial>
+  </emd:coverage>
+  <emd:rights>
+    <dct:accessRights eas:schemeId="common.dcterms.accessrights">OPEN_ACCESS</dct:accessRights>
+    <dct:license eas:scheme="Easy version 1">accept</dct:license>
+    <dct:rightsHolder>Synthegra archeologie</dct:rightsHolder>
+  </emd:rights>
+  <emd:audience>
+    <dct:audience eas:schemeId="custom.disciplines">easy-discipline:2</dct:audience>
+  </emd:audience>
+  <emd:other>
+    <eas:application-specific>
+      <eas:metadataformat>ARCHAEOLOGY</eas:metadataformat>
+    </eas:application-specific>
+    <eas:etc>
+      <property-list>
+        <comment>New migration of Archeology metadata (archis OMN, audience)</comment>
+        <entry key="conversion.date">2011-07-08T19:25:58.579Z</entry>
+        <entry key="previous.collection-id">twips.dans.knaw.nl--2765448518107890107-1259329289218</entry>
+        <entry key="nl.knaw.dans.easy.tools.task.am.dataset.AudienceCorrectorTask">2011-07-20T17:11:44.482+02:00</entry>
+        <entry key="nl.knaw.dans.easy.tools.task.am.dataset.GroupCorrectorTask">2011-07-20T17:11:44.552+02:00</entry>
+        <entry key="nl.knaw.dans.easy.tools.task.am.dataset.FileRightsGroupAccessCorrectorTask">2011-08-03T10:42:53.955+02:00</entry>
+        <entry key="nl.knaw.dans.easy.tools.task.am.dataset.EmdCorrectorTask">2011-08-05T05:12:20.978+02:00</entry>
+      </property-list>
+    </eas:etc>
+  </emd:other>
+</emd:easymetadata>

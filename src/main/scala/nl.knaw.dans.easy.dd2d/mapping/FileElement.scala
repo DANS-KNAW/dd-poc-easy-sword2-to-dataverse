@@ -37,7 +37,8 @@ object FileElement {
     val dirPath = Option(Paths.get(pathAttr.substring("data/".length)).getParent).map(_.toString)
     val restr = (node \ "accessibleToRights").headOption.map(_.text).flatMap(accessibilityToRestrict.get).orElse(Some(defaultRestrict))
     val keyValuePairs = getKeyValuePairs(node, fileName.get)
-    val descr = if (keyValuePairs.nonEmpty) Option(formatKeyValuePairs(keyValuePairs)) else None
+    val descr = if (keyValuePairs.nonEmpty) Option(formatKeyValuePairs(keyValuePairs))
+                else None
 
     FileMeta(
       label = fileName,
@@ -46,8 +47,9 @@ object FileElement {
       restrict = restr,
     )
   }
+
   def formatKeyValuePairs(pairs: Map[String, List[String]]): String = {
-    pairs.map { case (k, vs) => s"""$k: ${vs.mkString("\"", ",", "\"")}""" }.mkString("; ")
+    pairs.map { case (k, vs) => s"""$k: ${ vs.mkString("\"", ",", "\"") }""" }.mkString("; ")
   }
 
   def getKeyValuePairs(node: Node, fileName: String): Map[String, List[String]] = {
@@ -83,6 +85,4 @@ object FileElement {
 
     m.map { case (k, v) => (k, v.toList) }.toMap
   }
-
-
 }

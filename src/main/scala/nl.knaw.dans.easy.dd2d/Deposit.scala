@@ -17,12 +17,15 @@ package nl.knaw.dans.easy.dd2d
 
 import better.files.File
 import gov.loc.repository.bagit.domain.Bag
+import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms
 import gov.loc.repository.bagit.reader.BagReader
 import nl.knaw.dans.easy.dd2d.mapping.{ AccessRights, FileElement }
+import nl.knaw.dans.lib.error.TraversableTryExtensions
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import org.apache.commons.configuration.PropertiesConfiguration
 
 import java.nio.file.{ Path, Paths }
+import scala.collection.JavaConverters.{ asScalaSetConverter, mapAsScalaMapConverter }
 import scala.util.{ Failure, Try }
 import scala.xml.{ Node, Utility, XML }
 
@@ -82,6 +85,15 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
     case t: Throwable => Failure(new IllegalArgumentException(s"Unparseable XML: ${ t.getMessage }"))
   }
 
+  lazy val tryFilePathToSha1: Try[Map[Path, String]] = {
+    for {
+      bag <- tryBag
+      optSha1Manifest = bag.getPayLoadManifests.asScala.find(_.getAlgorithm == StandardSupportedAlgorithms.SHA1)
+      _ = if (optSha1Manifest.isEmpty) throw new IllegalArgumentException("Deposit bag does not have SHA-1 payload manifest")
+      result = optSha1Manifest.get.getFileToChecksumMap.asScala.map { case (p, c) => (bagDir.path relativize p, c) }.toMap
+    } yield result
+  }
+
   def doi: String = {
     depositProperties.getString("identifier.doi", "")
   }
@@ -103,8 +115,13 @@ case class Deposit(dir: File) extends DebugEnhancedLogging {
     } yield files
   }
 
-  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[Path, FileInfo]] = Try {
-    (node \ "file").map(n => (getFilePath(n), FileInfo(getFile(n), FileElement.toFileMeta(n, defaultRestrict)))).toMap
+  def toFileInfos(node: Node, defaultRestrict: Boolean): Try[Map[Path, FileInfo]] = {
+    (node \ "file").map(n => {
+      for {
+        pathToSha1 <- tryFilePathToSha1
+        path = getFilePath(n)
+      } yield (path, FileInfo(getFile(n), pathToSha1(path), FileElement.toFileMeta(n, defaultRestrict)))
+    }).collectResults.map(_.toMap)
   }
 
   private def getFilePath(node: Node): Path = {

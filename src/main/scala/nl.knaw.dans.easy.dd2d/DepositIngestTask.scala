@@ -25,7 +25,6 @@ import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.Task
 
-import java.nio.file.Path
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
 import scala.xml.Elem
@@ -89,7 +88,7 @@ case class DepositIngestTask(deposit: Deposit,
     try {
       deposit.dir.moveToDirectory(outboxDir / subDir.toString)
     } catch {
-      case e: Exception => logger.info(s"Failed to move deposit: $deposit to ${outboxDir / subDir.toString}", e)
+      case e: Exception => logger.info(s"Failed to move deposit: $deposit to ${ outboxDir / subDir.toString }", e)
     }
   }
 
