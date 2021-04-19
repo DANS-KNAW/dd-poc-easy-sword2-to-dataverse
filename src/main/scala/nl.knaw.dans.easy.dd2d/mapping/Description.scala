@@ -44,9 +44,14 @@ object Description extends BlockCitation {
   }
 
   def newlineToHtml(description: String): String = {
-    description.split("\n{2}")
+    //OS agnostic newline and paragraph regex
+    val newline = "\r\n|\n|\r"
+    val paragraph = "(\r\n){2,}|\n{2,}|\r{2,}"
+    description
+      .trim
+      .split(paragraph)
       .map(p => s"<p>$p</p>")
-      .map(_.replace("\n", "<br>"))
+      .map(_.replaceAll(newline, "<br>"))
       .mkString
   }
 }
