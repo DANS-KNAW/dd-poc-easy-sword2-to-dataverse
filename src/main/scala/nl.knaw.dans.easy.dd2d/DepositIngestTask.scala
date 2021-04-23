@@ -20,16 +20,17 @@ import nl.knaw.dans.easy.dd2d.OutboxSubdir.{ FAILED, OutboxSubdir, PROCESSED, RE
 import nl.knaw.dans.easy.dd2d.dansbag.{ DansBagValidationResult, DansBagValidator }
 import nl.knaw.dans.easy.dd2d.mapping.JsonObject
 import nl.knaw.dans.lib.dataverse.DataverseInstance
+import nl.knaw.dans.lib.dataverse.model.dataset.{ PrimitiveSingleValueField, toFieldMap }
 import nl.knaw.dans.lib.dataverse.model.{ DefaultRole, RoleAssignment }
-import nl.knaw.dans.lib.dataverse.model.dataset.{ PrimitiveSingleValueField, UpdateType, toFieldMap }
 import nl.knaw.dans.lib.error._
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import nl.knaw.dans.lib.taskqueue.Task
 
+import java.time.LocalDate
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 import scala.util.{ Success, Try }
-import scala.xml.Elem
+import scala.xml.{ Elem, Node }
 
 /**
  * Checks one deposit and then ingests it into Dataverse.
@@ -63,7 +64,6 @@ case class DepositIngestTask(deposit: Deposit,
   private def doRun(): Try[Unit] = {
     trace(())
     logger.info(s"Ingesting $deposit into Dataverse")
-
     for {
       validationResult <- dansBagValidator.validateBag(bagDirPath)
       _ <- rejectIfInvalid(validationResult)
@@ -82,11 +82,31 @@ case class DepositIngestTask(deposit: Deposit,
       _ = debug(s"Assigning curator role to ${deposit.depositorUserId}")
       _ <- instance.dataset(persistentId).assignRole(RoleAssignment(s"@${deposit.depositorUserId}", DefaultRole.curator.toString))
       _ <- instance.dataset(persistentId).awaitUnlock()
-      _ <- if (publish) publishDataset(persistentId)
+      publicationDate <- getPublicationdate(optAmd)
+      _ <- if (publish) publishDataset(persistentId, publicationDate)
            else keepOnDraft()
     } yield ()
     // TODO: delete draft if something went wrong
   }
+
+  def getPublicationdate(optAmd: Option[Node]): Try[String] = Try {
+    optAmd
+      .flatMap(amd => findOldestChangeDate(amd))
+      .getOrElse(LocalDate.now().toString)
+
+    //TODO Create and return "{"http://schema.org/datePublished": "2000-01-01"}"
+  }
+
+  private def findOldestChangeDate(amd: Node): Option[String] = {
+
+    //TODO     //1. select <stateChangeDates>
+    //    //2. Filter <damd:stateChangeDate> by <toState>PUBLISHED</toState>
+    //    //3. return oldest <changeDate>2020-02-02T20:02:00.000+01:00</changeDate>
+    ???
+  }
+
+
+
 
   def moveDepositToOutbox(subDir: OutboxSubdir): Unit = {
     try {
@@ -117,10 +137,11 @@ case class DepositIngestTask(deposit: Deposit,
     List(toFieldMap(subfields:_*))
   }
 
-  private def publishDataset(persistentId: String): Try[Unit] = {
+  private def publishDataset(persistentId: String, publicationDate: String): Try[Unit] = {
     debug("Publishing dataset")
     for {
-      _ <- instance.dataset(persistentId).publish(UpdateType.major).map(_ => ())
+      //TODO releasemigrated needs the dataset id
+     // _ <- instance.dataset(persistentId).releaseMigrated(publicationDate, true)
       _ <- instance.dataset(persistentId).awaitUnlock(
         maxNumberOfRetries = publishAwaitUnlockMaxNumberOfRetries,
         waitTimeInMilliseconds = publishAwaitUnlockMillisecondsBetweenRetries)

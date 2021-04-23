@@ -15,12 +15,10 @@
  */
 package nl.knaw.dans.easy.dd2d
 
-import nl.knaw.dans.lib.dataverse.model.RoleAssignment
 import nl.knaw.dans.lib.dataverse.model.dataset.{ Dataset, DatasetCreationResult }
 import nl.knaw.dans.lib.dataverse.{ DataverseInstance, DataverseResponse }
 import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 
-import javax.management.relation.Role
 import scala.util.Try
 
 class DatasetCreator(deposit: Deposit, dataverseDataset: Dataset, instance: DataverseInstance) extends DatasetEditor(instance) with DebugEnhancedLogging {
