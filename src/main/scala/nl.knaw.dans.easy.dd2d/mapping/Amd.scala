@@ -26,7 +26,7 @@ object Amd {
       }
   }
 
-  private def getFirstChangeToState(amd: Node, state: String): Option[String] = {
+  def getFirstChangeToState(amd: Node, state: String): Option[String] = {
     (amd \ "stateChangeDates" \ "stateChangeDate")
       .filter(sc => (sc \ "toState").text == state)
       .toList

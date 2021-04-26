@@ -16,7 +16,7 @@
 package nl.knaw.dans.easy.dd2d
 
 import better.files.File
-import nl.knaw.dans.lib.dataverse.model.dataset.MetadataBlocks
+import nl.knaw.dans.lib.dataverse.model.dataset.{ DatasetVersion, MetadataBlocks }
 import nl.knaw.dans.lib.dataverse.model.file.FileMeta
 import nl.knaw.dans.lib.dataverse.{ DatasetApi, DataverseInstance }
 import nl.knaw.dans.lib.error.TraversableTryExtensions
@@ -29,7 +29,7 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
   trace(deposit)
   private val dataset: DatasetApi = instance.dataset(deposit.dataversePid)
 
-  override def performEdit(): Try[PersistendId] = {
+  override def performEdit(): Try[DatasetIdentifiers] = {
     for {
       _ <- dataset.awaitUnlock()
       _ <- dataset.updateMetadata(metadataBlocks)
@@ -56,7 +56,15 @@ class DatasetUpdater(deposit: Deposit, metadataBlocks: MetadataBlocks, instance:
       fileAdditions <- addFiles(deposit.dataversePid, pathsToAdd.map(pathToFileInfo).toList).map(_.mapValues(_.metadata))
 
       _ <- updateFileMetadata(fileReplacements ++ fileMovements ++ fileAdditions)
-    } yield deposit.dataversePid
+      datasetVersion <- dataset.view().flatMap(_.data)
+      datasetIdentifiers <- getDatasetIdentifiers(datasetVersion)
+    } yield datasetIdentifiers
+  }
+
+  private def getDatasetIdentifiers(datasetVersion: DatasetVersion): Try[DatasetIdentifiers] = Try {
+    val datasetId = datasetVersion.datasetId.get
+    val persistentId = datasetVersion.datasetPersistentId.get
+    DatasetIdentifiers(datasetId, persistentId)
   }
 
   private def getFilesInLatestVersion: Try[Map[Path, FileMeta]] = {

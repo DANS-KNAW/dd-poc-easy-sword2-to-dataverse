@@ -44,6 +44,8 @@ package object dd2d {
 
   case class FileInfo(file: File, checksum: String, metadata: FileMeta)
 
+  case class DatasetIdentifiers(datasetId: Int, persistentId: String)
+
   case class RejectedDepositException(deposit: Deposit, msg: String, cause: Throwable = null)
     extends Exception(s"Rejected ${ deposit.dir }: $msg", cause)
 

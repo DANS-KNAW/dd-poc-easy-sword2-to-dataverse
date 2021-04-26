@@ -27,13 +27,14 @@ import scala.util.Try
  */
 abstract class DatasetEditor(instance: DataverseInstance) extends DebugEnhancedLogging {
   type PersistendId = String
+  type DatasetId = Int
 
   /**
    * Performs the task.
    *
    * @return the persistentId of the dataset created or modified
    */
-  def performEdit(): Try[PersistendId]
+  def performEdit(): Try[DatasetIdentifiers]
 
   protected def addFiles(persistentId: String, files: List[FileInfo]): Try[Map[Int, FileInfo]] = {
     trace(persistentId, files)
