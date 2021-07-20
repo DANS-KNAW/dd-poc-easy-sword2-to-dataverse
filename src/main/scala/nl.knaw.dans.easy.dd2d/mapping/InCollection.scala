@@ -20,18 +20,8 @@ import nl.knaw.dans.lib.logging.DebugEnhancedLogging
 import scala.xml.Node
 
 object InCollection extends BlockRelation with DebugEnhancedLogging {
-  def toCollection(node: Node): JsonObject = {
+  def toCollection(node: Node): Option[String] = {
     // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:inCollection node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:inCollection node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:inCollectionr node"))
-    val term = node.text
-
-    val m = FieldMap()
-    m.addPrimitiveField(COLLECTION_VOCABULARY, optSubjectScheme.get)
-    m.addPrimitiveField(COLLECTION_VOCABULARY_URI, optSchemeUri.get)
-    m.addPrimitiveField(COLLECTION_TERM, term)
-    m.addPrimitiveField(COLLECTION_TERM_URI, optValueUri.get)
-    m.toJsonObject
+    node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:inCollectionr node"))
   }
 }

@@ -38,7 +38,7 @@ class DepositToDvDatasetMetadataMapper(activeMetadataBlocks: List[String],
                                        narcisClassification: Elem,
                                        iso1ToDataverseLanguage: Map[String, String],
                                        iso2ToDataverseLanguage: Map[String, String],
-                                       reportIdToTerm: Map[String, String]) extends BlockCitation
+                                       reportIdToTerm: Map[String, String]) extends BlockCitation // TODO: not necessary anymore?
   with BlockArchaeologySpecific
   with BlockTemporalAndSpatial
   with BlockRights
@@ -115,18 +115,19 @@ class DepositToDvDatasetMetadataMapper(activeMetadataBlocks: List[String],
     }
 
     if (activeMetadataBlocks.contains("dansRelationMetadata")) {
-      addCompoundFieldMultipleValues(relationFields, COLLECTION, ddm \ "dcmiMetadata" \ "inCollection", InCollection toCollection)
+      addPrimitiveFieldMultipleValues(relationFields, AUDIENCE , ddm \ "profile" \ "audience", Audience toNarcisTerm)
+      addPrimitiveFieldMultipleValues(relationFields, COLLECTION, ddm \ "dcmiMetadata" \ "inCollection", InCollection toCollection)
       addCompoundFieldMultipleValues(relationFields, RELATION, (ddm \ "dcmiMetadata" \ "_").filter(Relation isRelation), Relation toRelationValueObject)
     }
 
     if (activeMetadataBlocks.contains("dansArchaeologyMetadata")) {
       addPrimitiveFieldMultipleValues(archaeologySpecificFields, ARCHIS_ZAAK_ID, (ddm \ "dcmiMetadata" \ "identifier").filter(Identifier isArchisZaakId), Identifier toArchisZaakId)
       addCompoundFieldMultipleValues(archaeologySpecificFields, ARCHIS_NUMBER, (ddm \ "dcmiMetadata" \ "identifier").filter(Identifier isArchisNumber), Identifier toArchisNumberValue)
-      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType (reportIdToTerm))
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_TYPE, (ddm \ "dcmiMetadata" \ "reportNumber").filter(AbrReportType isAbrReportType), AbrReportType toAbrRapportType)
       addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_RAPPORT_NUMMER, ddm \ "dcmiMetadata" \ "reportNumber")
-      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
-      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
-      addCompoundFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_VERWERVINGSWIJZE, (ddm \ "dcmiMetadata" \ "acquisitionMethod").filter(AbrAcquisitionMethod isAbrVerwervingswijze), AbrAcquisitionMethod toVerwervingswijze)
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_COMPLEX, (ddm \ "dcmiMetadata" \ "subject").filter(SubjectAbr isAbrComplex), SubjectAbr toAbrComplex)
+      addPrimitiveFieldMultipleValues(archaeologySpecificFields, ABR_PERIOD, (ddm \ "dcmiMetadata" \ "temporal").filter(TemporalAbr isAbrPeriod), TemporalAbr toAbrPeriod)
     }
 
     if (activeMetadataBlocks.contains("dansTemporalSpatial")) {

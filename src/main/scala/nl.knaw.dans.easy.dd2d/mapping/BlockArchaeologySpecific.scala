@@ -23,28 +23,12 @@ trait BlockArchaeologySpecific {
   val ARCHIS_NUMBER_ID = "dansArchisNumberId"
 
   val ABR_RAPPORT_TYPE = "dansAbrRapportType"
-  val ABR_RAPPORT_TYPE_VOCABULARY = "dansAbrRapportTypeVocabulary"
-  val ABR_RAPPORT_TYPE_VOCABULARY_URI = "dansAbrRapportTypeVocabularyURI"
-  val ABR_RAPPORT_TYPE_TERM = "dansAbrRapportTypeTerm"
-  val ABR_RAPPORT_TYPE_TERM_URI = "dansAbrRapportTypeTermURI"
 
   val ABR_RAPPORT_NUMMER = "dansAbrRapportNummer"
 
   val ABR_VERWERVINGSWIJZE = "dansAbrVerwervingswijze"
-  val ABR_VERWERVINGSWIJZE_VOCABULARY = "dansAbrVerwervingswijzeVocabulary"
-  val ABR_VERWERVINGSWIJZE_VOCABULARY_URI = "dansAbrVerwervingswijzeVocabularyURI"
-  val ABR_VERWERVINGSWIJZE_TERM = "dansAbrVerwervingswijzeTerm"
-  val ABR_VERWERVINGSWIJZE_TERM_URI = "dansAbrVerwervingswijzeTermURI"
 
   val ABR_COMPLEX = "dansAbrComplex"
-  val ABR_COMPLEX_VOCABULARY = "dansAbrComplexVocabulary"
-  val ABR_COMPLEX_VOCABULARY_URI = "dansAbrComplexVocabularyURI"
-  val ABR_COMPLEX_TERM = "dansAbrComplexTerm"
-  val ABR_COMPLEX_TERM_URI = "dansAbrComplexTermURI"
 
   val ABR_PERIOD = "dansAbrPeriod"
-  val ABR_PERIOD_VOCABULARY = "dansAbrPeriodVocabulary"
-  val ABR_PERIOD_VOCABULARY_URI = "dansAbrPeriodVocabularyURI"
-  val ABR_PERIOD_TERM = "dansAbrPeriodTerm"
-  val ABR_PERIOD_TERM_URI = "dansAbrPeriodTermURI"
 }

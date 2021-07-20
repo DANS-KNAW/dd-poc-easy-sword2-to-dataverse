@@ -63,4 +63,8 @@ object Audience extends DebugEnhancedLogging {
         case _ => "Other"
       }
   }
+
+  def toNarcisTerm(node: Node): Option[String] = {
+      Option("https://www.narcis.nl/classification/" + node.text)
+  }
 }

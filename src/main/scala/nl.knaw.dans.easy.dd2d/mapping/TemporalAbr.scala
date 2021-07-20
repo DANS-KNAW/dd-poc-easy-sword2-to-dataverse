@@ -21,19 +21,8 @@ import scala.xml.Node
 
 object TemporalAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrPeriod(node: Node): JsonObject = {
-    // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:temporal node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:temporal node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:temporal node"))
-    val term = node.text
-
-    val m = FieldMap()
-    m.addPrimitiveField(ABR_PERIOD_VOCABULARY, optSubjectScheme.get)
-    m.addPrimitiveField(ABR_PERIOD_VOCABULARY_URI, optSchemeUri.get)
-    m.addPrimitiveField(ABR_PERIOD_TERM, term)
-    m.addPrimitiveField(ABR_PERIOD_TERM_URI, optValueUri.get)
-    m.toJsonObject
+  def toAbrPeriod(node: Node): Option[String] = {
+    node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:temporal node"))
   }
 
   /**

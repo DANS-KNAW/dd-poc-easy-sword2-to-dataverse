@@ -23,20 +23,9 @@ import scala.xml.Node
 
 object AbrReportType extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrRapportType(reportIdToTerm: Map[String, String])(node: Node): JsonObject = {
+  def toAbrRapportType(node: Node): Option[String] = {
     // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:reportNumber node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:reportNumber node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:reportNumber node"))
-    val valueId = getIdFormValueUri(new URI(optValueUri.get))
-    val term = reportIdToTerm.getOrElse(valueId, node.text.trim)
-
-    val m = FieldMap()
-    m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY, optSubjectScheme.get)
-    m.addPrimitiveField(ABR_RAPPORT_TYPE_VOCABULARY_URI, optSchemeUri.get)
-    m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM, term)
-    m.addPrimitiveField(ABR_RAPPORT_TYPE_TERM_URI, optValueUri.get)
-    m.toJsonObject
+    node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:reportNumber node"))
   }
 
   def getIdFormValueUri(uri: URI): String = {

@@ -21,19 +21,9 @@ import scala.xml.Node
 
 object SubjectAbr extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toAbrComplex(node: Node): JsonObject = {
+  def toAbrComplex(node: Node): Option[String] = {
     // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:subject node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:subject node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:subject node"))
-    val term = node.text
-
-    val m = FieldMap()
-    m.addPrimitiveField(ABR_COMPLEX_VOCABULARY, optSubjectScheme.get)
-    m.addPrimitiveField(ABR_COMPLEX_VOCABULARY_URI, optSchemeUri.get)
-    m.addPrimitiveField(ABR_COMPLEX_TERM, term)
-    m.addPrimitiveField(ABR_COMPLEX_TERM_URI, optValueUri.get)
-    m.toJsonObject
+    node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:subject node"))
   }
 
   /**

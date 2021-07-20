@@ -21,19 +21,9 @@ import scala.xml.Node
 
 object AbrAcquisitionMethod extends BlockArchaeologySpecific with AbrScheme with DebugEnhancedLogging {
 
-  def toVerwervingswijze(node: Node): JsonObject = {
+  def toVerwervingswijze(node: Node): Option[String] = {
     // TODO: also take attribute namespace into account (should be ddm)
-    val optSubjectScheme = node.attribute("subjectScheme").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing subjectScheme attribute on ddm:acquisitionMethod node"))
-    val optSchemeUri = node.attribute("schemeURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing schemeURI attribute on ddm:acquisitionMethod node"))
-    val optValueUri = node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:acquisitionMethod node"))
-    val term = node.text
-
-    val m = FieldMap()
-    m.addPrimitiveField(SCHEME_ABR_VERWERVINGSWIJZE, optSubjectScheme.get)
-    m.addPrimitiveField(SCHEME_URI_ABR_VERWERVINGSWIJZE, optSchemeUri.get)
-    m.addPrimitiveField(ABR_VERWERVINGSWIJZE_TERM, term)
-    m.addPrimitiveField(ABR_VERWERVINGSWIJZE_TERM_URI, optValueUri.get)
-    m.toJsonObject
+    node.attribute("valueURI").flatMap(_.headOption).map(_.text).doIfNone(() => logger.error("Missing valueURI attribute on ddm:acquisitionMethod node"))
   }
 
   /**

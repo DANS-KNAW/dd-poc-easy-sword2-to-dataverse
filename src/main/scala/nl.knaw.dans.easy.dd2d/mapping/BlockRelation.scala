@@ -16,11 +16,9 @@
 package nl.knaw.dans.easy.dd2d.mapping
 
 trait BlockRelation {
+  val AUDIENCE = "dansAudience"
+
   val COLLECTION = "dansCollection"
-  val COLLECTION_VOCABULARY = "dansCollectionVocabulary"
-  val COLLECTION_VOCABULARY_URI = "dansCollectionVocabularyURI"
-  val COLLECTION_TERM = "dansCollectionTerm"
-  val COLLECTION_TERM_URI = "dansCollectionTermURI"
 
   val RELATION = "dansRelation"
   val RELATION_TYPE = "dansRelationType"

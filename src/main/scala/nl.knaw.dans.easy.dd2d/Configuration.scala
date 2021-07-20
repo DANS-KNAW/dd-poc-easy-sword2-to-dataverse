@@ -63,7 +63,7 @@ object Configuration {
         root / "opt" / "dans.knaw.nl" / "dd-dans-deposit-to-dataverse" / "install" / name,
         home / "install" / name)
         .find(_.exists)
-        .getOrElse { throw new IllegalStateException(s"File $name not find in APPHOME/install directory") }
+        .getOrElse { throw new IllegalStateException(s"File $name not found in APPHOME/install directory") }
     }
 
     val narcisClassificationFile = findFileInInstall("narcis_classification.xml")
